@@ -1,0 +1,10 @@
+[
+  { "type": "routine", "label": "Render Image" },
+  { "type": "task", "label": "Compress Files" },
+  { "type": "task", "label": "Convert file Typ" },
+  { "type": "routine", "label": "Generate 3d model" },
+  { "type": "routine", "label": "Render Image" },
+  { "type": "task", "label": "Compress Files" },
+  { "type": "task", "label": "Convert file Typ" },
+  { "type": "routine", "label": "Generate 3d model" }
+]

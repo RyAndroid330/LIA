@@ -1,0 +1,46 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint --ext .js,.vue . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.5.4",
+    "@quasar/extras": "^1.16.12",
+    "@vue-flow/core": "^1.41.2",
+    "dagre": "^0.8.5",
+    "express": "^4.21.0",
+    "lodash": "^4.17.21",
+    "nuxt": "^3.13.0",
+    "nuxt-quasar-ui": "^2.1.4",
+    "pg": "^8.13.0",
+    "pinia": "^2.2.2",
+    "quasar": "^2.16.11",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@types/dagre": "^0.7.52",
+    "@types/pg": "^8.11.10",
+    "@vueuse/core": "^11.0.3",
+    "@vueuse/nuxt": "^11.0.3",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-nuxt": "^4.0.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-vue": "^9.28.0",
+    "prettier": "^3.3.3",
+    "vue-eslint-parser": "^9.4.3"
+  },
+  "overrides": {
+    "vue": "latest"
+  }
+}

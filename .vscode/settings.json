@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "plyconfig.json": "jsonc"
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "typescript", "vue"]
+}
