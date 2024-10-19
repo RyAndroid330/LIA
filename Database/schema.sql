@@ -1448,10 +1448,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Check availability of chart items' AND is_complete = true AND errored = false AND
@@ -1460,32 +1463,77 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Stock service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Stock service'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Stock service'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}')RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                    gen_random_uuid(),
-                                    rec.uuid,
-                                    task_uuid,
-                                    context_uuid,
-                                    rec.is_scheduled,
-                                    rec.is_running,
-                                    rec.is_complete,
-                                    rec.errored,
-                                    rec.failed,
-                                    rec.reached_timeout,
-                                    rec.progress,
-                                    prev_task_ended + '10 milliseconds'::interval * random(),
-                                    task_started,
-                                    task_started + average_task_duration * 1.2 * random(),
-                                    rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                             gen_random_uuid(),
+                                             rec.uuid,
+                                             task_record.uuid,
+                                             context_uuid,
+                                             rec.is_scheduled,
+                                             rec.is_running,
+                                             rec.is_complete,
+                                             rec.errored,
+                                             rec.failed,
+                                             rec.reached_timeout,
+                                             rec.progress,
+                                             prev_task_ended + '10 milliseconds'::interval * random(),
+                                             task_started,
+                                             task_started + average_task_duration * 1.2 * random(),
+                                             rec.deleted
+                                    ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}')RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                        gen_random_uuid(),
+                                        rec.uuid,
+                                        task_record.uuid,
+                                        context_uuid,
+                                        rec.is_scheduled,
+                                        rec.is_running,
+                                        rec.is_complete,
+                                        rec.errored,
+                                        rec.failed,
+                                        rec.reached_timeout,
+                                        rec.progress,
+                                        prev_task_ended + '10 milliseconds'::interval * random(),
+                                        task_started,
+                                        task_started + average_task_duration * 1.2 * random(),
+                                        rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Stock service'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                        (SELECT
+                                             uuid,
+                                             task_execution_record.uuid
+                                        FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
@@ -1497,10 +1545,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Create order' AND is_complete = true AND errored = false AND
@@ -1509,32 +1560,77 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Order service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Order service'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Order service'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                   gen_random_uuid(),
-                                   rec.uuid,
-                                   task_uuid,
-                                   context_uuid,
-                                   rec.is_scheduled,
-                                   rec.is_running,
-                                   rec.is_complete,
-                                   rec.errored,
-                                   rec.failed,
-                                   rec.reached_timeout,
-                                   rec.progress,
-                                   prev_task_ended + '10 milliseconds'::interval * random(),
-                                   task_started,
-                                   task_started + average_task_duration * 1.2 * random(),
-                                   rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                               gen_random_uuid(),
+                                               rec.uuid,
+                                               task_record.uuid,
+                                               context_uuid,
+                                               rec.is_scheduled,
+                                               rec.is_running,
+                                               rec.is_complete,
+                                               rec.errored,
+                                               rec.failed,
+                                               rec.reached_timeout,
+                                               rec.progress,
+                                               prev_task_ended + '10 milliseconds'::interval * random(),
+                                               task_started,
+                                               task_started + average_task_duration * 1.2 * random(),
+                                               rec.deleted
+                                           ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                       gen_random_uuid(),
+                                       rec.uuid,
+                                       task_record.uuid,
+                                       context_uuid,
+                                       rec.is_scheduled,
+                                       rec.is_running,
+                                       rec.is_complete,
+                                       rec.errored,
+                                       rec.failed,
+                                       rec.reached_timeout,
+                                       rec.progress,
+                                       prev_task_ended + '10 milliseconds'::interval * random(),
+                                       task_started,
+                                       task_started + average_task_duration * 1.2 * random(),
+                                       rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Order service'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                            (SELECT
+                                                 uuid,
+                                                 task_execution_record.uuid
+                                             FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
@@ -1546,10 +1642,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Pay order' AND is_complete = true AND errored = false AND
@@ -1558,32 +1657,77 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Payment service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Payment service'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Payment service'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                   gen_random_uuid(),
-                                   rec.uuid,
-                                   task_uuid,
-                                   context_uuid,
-                                   rec.is_scheduled,
-                                   rec.is_running,
-                                   rec.is_complete,
-                                   rec.errored,
-                                   rec.failed,
-                                   rec.reached_timeout,
-                                   rec.progress,
-                                   prev_task_ended + '10 milliseconds'::interval * random(),
-                                   task_started,
-                                   task_started + average_task_duration * 1.2 * random(),
-                                   rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                               gen_random_uuid(),
+                                               rec.uuid,
+                                               task_record.uuid,
+                                               context_uuid,
+                                               rec.is_scheduled,
+                                               rec.is_running,
+                                               rec.is_complete,
+                                               rec.errored,
+                                               rec.failed,
+                                               rec.reached_timeout,
+                                               rec.progress,
+                                               prev_task_ended + '10 milliseconds'::interval * random(),
+                                               task_started,
+                                               task_started + average_task_duration * 1.2 * random(),
+                                               rec.deleted
+                                           ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                       gen_random_uuid(),
+                                       rec.uuid,
+                                       task_record.uuid,
+                                       context_uuid,
+                                       rec.is_scheduled,
+                                       rec.is_running,
+                                       rec.is_complete,
+                                       rec.errored,
+                                       rec.failed,
+                                       rec.reached_timeout,
+                                       rec.progress,
+                                       prev_task_ended + '10 milliseconds'::interval * random(),
+                                       task_started,
+                                       task_started + average_task_duration * 1.2 * random(),
+                                       rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Payment service'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                            (SELECT
+                                                 uuid,
+                                                 task_execution_record.uuid
+                                             FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
@@ -1595,10 +1739,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Create shipment order' AND is_complete = true AND errored = false AND
@@ -1607,32 +1754,77 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Shipping service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Shipping service'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Shipping service'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                   gen_random_uuid(),
-                                   rec.uuid,
-                                   task_uuid,
-                                   context_uuid,
-                                   rec.is_scheduled,
-                                   rec.is_running,
-                                   rec.is_complete,
-                                   rec.errored,
-                                   rec.failed,
-                                   rec.reached_timeout,
-                                   rec.progress,
-                                   prev_task_ended + '10 milliseconds'::interval * random(),
-                                   task_started,
-                                   task_started + average_task_duration * 1.2 * random(),
-                                   rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                               gen_random_uuid(),
+                                               rec.uuid,
+                                               task_record.uuid,
+                                               context_uuid,
+                                               rec.is_scheduled,
+                                               rec.is_running,
+                                               rec.is_complete,
+                                               rec.errored,
+                                               rec.failed,
+                                               rec.reached_timeout,
+                                               rec.progress,
+                                               prev_task_ended + '10 milliseconds'::interval * random(),
+                                               task_started,
+                                               task_started + average_task_duration * 1.2 * random(),
+                                               rec.deleted
+                                           ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                       gen_random_uuid(),
+                                       rec.uuid,
+                                       task_record.uuid,
+                                       context_uuid,
+                                       rec.is_scheduled,
+                                       rec.is_running,
+                                       rec.is_complete,
+                                       rec.errored,
+                                       rec.failed,
+                                       rec.reached_timeout,
+                                       rec.progress,
+                                       prev_task_ended + '10 milliseconds'::interval * random(),
+                                       task_started,
+                                       task_started + average_task_duration * 1.2 * random(),
+                                       rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Shipping service'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                            (SELECT
+                                                 uuid,
+                                                 task_execution_record.uuid
+                                             FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
@@ -1644,10 +1836,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Send SMS' AND is_complete = true AND errored = false AND
@@ -1656,32 +1851,77 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Customer communication service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%SMS%'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%SMS%'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                   gen_random_uuid(),
-                                   rec.uuid,
-                                   task_uuid,
-                                   context_uuid,
-                                   rec.is_scheduled,
-                                   rec.is_running,
-                                   rec.is_complete,
-                                   rec.errored,
-                                   rec.failed,
-                                   rec.reached_timeout,
-                                   rec.progress,
-                                   prev_task_ended + '10 milliseconds'::interval * random(),
-                                   task_started,
-                                   task_started + average_task_duration * 1.2 * random(),
-                                   rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                               gen_random_uuid(),
+                                               rec.uuid,
+                                               task_record.uuid,
+                                               context_uuid,
+                                               rec.is_scheduled,
+                                               rec.is_running,
+                                               rec.is_complete,
+                                               rec.errored,
+                                               rec.failed,
+                                               rec.reached_timeout,
+                                               rec.progress,
+                                               prev_task_ended + '10 milliseconds'::interval * random(),
+                                               task_started,
+                                               task_started + average_task_duration * 1.2 * random(),
+                                               rec.deleted
+                                           ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                       gen_random_uuid(),
+                                       rec.uuid,
+                                       task_record.uuid,
+                                       context_uuid,
+                                       rec.is_scheduled,
+                                       rec.is_running,
+                                       rec.is_complete,
+                                       rec.errored,
+                                       rec.failed,
+                                       rec.reached_timeout,
+                                       rec.progress,
+                                       prev_task_ended + '10 milliseconds'::interval * random(),
+                                       task_started,
+                                       task_started + average_task_duration * 1.2 * random(),
+                                       rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%SMS%'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                            (SELECT
+                                                 uuid,
+                                                 task_execution_record.uuid
+                                             FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
@@ -1693,10 +1933,13 @@ $$
     DECLARE
         rec record;
         average_task_duration interval;
-        task_uuid uuid;
+        task_record record;
+        task_map_record record;
+        task_execution_record record;
         context_uuid uuid;
         task_started timestamp;
         prev_task_ended timestamp;
+        g record;
     BEGIN
         -- completed records
         FOR rec IN SELECT * FROM routine_execution WHERE description = 'Send Email' AND is_complete = true AND errored = false AND
@@ -1705,36 +1948,81 @@ $$
                 SELECT rec.created INTO prev_task_ended;
                 SELECT (rec.ended - rec.created) / (SELECT count(*) FROM (SELECT * FROM task WHERE task.processing_graph = 'Customer communication service') AS tasks) INTO average_task_duration;
 
-                FOR task_uuid IN SELECT uuid FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%Email%'
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%Email%'
                     LOOP
-                        INSERT INTO context (uuid, context)
-                        VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
-
                         SELECT prev_task_ended + '5 milliseconds'::interval * random() INTO task_started;
 
-                        INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
-                                                    is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
-                        VALUES (
-                                   gen_random_uuid(),
-                                   rec.uuid,
-                                   task_uuid,
-                                   context_uuid,
-                                   rec.is_scheduled,
-                                   rec.is_running,
-                                   rec.is_complete,
-                                   rec.errored,
-                                   rec.failed,
-                                   rec.reached_timeout,
-                                   rec.progress,
-                                   prev_task_ended + '10 milliseconds'::interval * random(),
-                                   task_started,
-                                   task_started + average_task_duration * 1.2 * random(),
-                                   rec.deleted
-                               ) RETURNING ended INTO prev_task_ended;
+                        IF task_record.name LIKE '%Split%' THEN
+                            FOR g IN SELECT * FROM generate_series(1, ceil(random()*10)::bigint)
+                                LOOP
+                                    INSERT INTO context (uuid, context)
+                                    VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                                    INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                                is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                                    VALUES (
+                                               gen_random_uuid(),
+                                               rec.uuid,
+                                               task_record.uuid,
+                                               context_uuid,
+                                               rec.is_scheduled,
+                                               rec.is_running,
+                                               rec.is_complete,
+                                               rec.errored,
+                                               rec.failed,
+                                               rec.reached_timeout,
+                                               rec.progress,
+                                               prev_task_ended + '10 milliseconds'::interval * random(),
+                                               task_started,
+                                               task_started + average_task_duration * 1.2 * random(),
+                                               rec.deleted
+                                           ) RETURNING ended INTO prev_task_ended;
+                                END LOOP;
+
+                        ELSE
+                            INSERT INTO context (uuid, context)
+                            VALUES (gen_random_uuid(), '{"testData": true}') RETURNING uuid INTO context_uuid;
+
+                            INSERT INTO task_execution (uuid, routine_execution_id, task_id, context_id, is_scheduled, is_running,
+                                                        is_complete, errored, failed, reached_timeout, progress, created, started, ended, deleted)
+                            VALUES (
+                                       gen_random_uuid(),
+                                       rec.uuid,
+                                       task_record.uuid,
+                                       context_uuid,
+                                       rec.is_scheduled,
+                                       rec.is_running,
+                                       rec.is_complete,
+                                       rec.errored,
+                                       rec.failed,
+                                       rec.reached_timeout,
+                                       rec.progress,
+                                       prev_task_ended + '10 milliseconds'::interval * random(),
+                                       task_started,
+                                       task_started + average_task_duration * 1.2 * random(),
+                                       rec.deleted
+                                   ) RETURNING ended INTO prev_task_ended;
+                        END IF;
+                    END LOOP;
+
+                FOR task_record IN SELECT * FROM task WHERE task.processing_graph = 'Customer communication service' AND task.name LIKE '%Email%'
+                    LOOP
+                        FOR task_map_record IN SELECT * FROM directional_task_graph_map WHERE predecessor_task_id = task_record.uuid
+                            LOOP
+                                FOR task_execution_record IN SELECT * FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_record.uuid
+                                    LOOP
+                                        INSERT INTO task_execution_map (task_execution_id, previous_task_execution_id)
+                                            (SELECT
+                                                 uuid,
+                                                 task_execution_record.uuid
+                                             FROM task_execution WHERE routine_execution_id = rec.uuid AND task_id = task_map_record.task_id);
+                                    END LOOP;
+                            END LOOP;
+
                     END LOOP;
             END LOOP;
     END
 $$;
 
 -- SELECT * FROM server;
-SELECT * FROM routine_execution;
+-- SELECT * FROM task_execution_map;
