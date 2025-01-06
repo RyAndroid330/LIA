@@ -1,21 +1,22 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      Routines
+      Graphs
     </template>
     <div class="row justify-around q-ma-lg">
       <List
-        v-if="routines"
-        :listLabel="'Routines'"
-        :items="routines"
+        v-if="graphs"
+        :listLabel="'Graphs'"
+        :items="graphs"
         @item-selected="onSelect"
       />
-      <InfoCard v-if="selectedroutine" :item="selectedroutine">
+      <graphMap v-if="selectedGraph" :item="selectedGraph"/>
+      <InfoCard v-if="selectedGraph">
         <template #title>
-          {{ selectedroutine?.label }}
+          {{ selectedGraph?.label }}
         </template>
         <template #info>
-          {{ selectedroutine?.description }}
+          {{ selectedGraph?.description }}
         </template>
       </InfoCard>
     </div>
@@ -26,8 +27,7 @@
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 
-// Define the Routine interface
-interface Routine {
+interface Graph {
   type: string;
   label: string;
   description: string;
@@ -38,23 +38,22 @@ interface Routine {
 }
 
 const layout = 'dashboard-layout';
-const selectedroutine = ref<Routine | null>(null);
+const selectedGraph = ref<Graph | null>(null);
 
-// Fetch the routines data
-const { data: routines, error } = await useFetch('/api/routines');
+// Fetch the graphs data
+const { data: graphs, error } = await useFetch('/api/graphs');
 
 // Error handling
 if (error.value) {
-  console.error('Error fetching routines:', error.value);
+  console.error('Error fetching graphs:', error.value);
 }
 
 // Function to handle item selection
-function onSelect(item: Routine) {
+function onSelect(item: Graph) {
   console.log(item.label);
-  selectedroutine.value = item;
+  selectedGraph.value = item;
 }
 
-// Set the current section on mount
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');

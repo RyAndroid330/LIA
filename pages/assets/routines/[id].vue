@@ -1,8 +1,7 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      {{ $route.params.type }}
-      {{ $route.params.id }}
+      {{ selectedItem?.label }}
     </template>
     <div class="row justify-around q-ma-lg">
       <Details>

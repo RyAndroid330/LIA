@@ -10,7 +10,7 @@
         :items="tasks"
         @item-selected="onSelect"
       />
-      <InfoCard v-if="selectedtask" :item="selectedtask">
+      <InfoCard v-if="selectedtask">
         <template #title>
           {{ selectedtask?.label }}
         </template>

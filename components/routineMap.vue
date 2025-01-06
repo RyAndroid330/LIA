@@ -1,190 +1,125 @@
 <template>
-  <q-card class="custom-card col flex-center q-ma-md"
-    elevated
-    style='max-width: 60dvw; max-height: 80dvh; overflow-y: auto'>
-    <div class="map-container">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" />
-    </div>
-  </q-card>
+  <div class="routine-map-container q-mb-md">
+    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { Node, Edge } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
+import { useFetch } from '#app';
+import dagre from 'dagre';
 
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
 const props = defineProps({
-  item: {
-    type: Object,
-    required: true
+  routineMap: {
+    type: Array,
+    default: () => ([]),
   }
 });
 
-// Function to create nodes and edges
-const createRoutine = async () => {
-  const { data: tasks } = await useFetch('/api/tasks');
-  const { data: tasksInRoutines } = await useFetch('/api/tasksInRoutines');
+function layoutGraph(nodes: Node[], edges: Edge[]) {
+  const g = new dagre.graphlib.Graph();
+  g.setGraph({
+    rankdir: 'LR',  // TB = top to bottom, LR = left to right
+    ranksep: 100,   // Increase vertical space between layers
+    nodesep: 20,   // Increase horizontal space between nodes
+  });
+  g.setDefaultEdgeLabel(() => ({}));
 
-  if (tasks.value && tasks.value.length > 0) {
-    // Clear existing nodes and edges
-    nodes.value = [];
-    edges.value = [];
+  // Add nodes to the dagre graph
+  nodes.forEach((node) => {
+    g.setNode(node.id, { width: node.width || 50, height: node.height || 50 });
+  });
 
-    const filteredTasks = tasks.value.filter(task => tasksInRoutines.routine_id === props.item.uuid);
-    const startX = 50;
-    const startY = 50;
+  // Add edges to the dagre graph
+  edges.forEach((edge) => {
+    g.setEdge(edge.source, edge.target);
+  });
 
-    // Create nodes for filtered tasks
-    filteredTasks.forEach((task, index) => {
-      const x = startX + 100 * index;
-      const y = startY + 100 * index;
+  dagre.layout(g);
 
+  // Update node positions
+  return nodes.map((node) => {
+    const nodeWithPos = g.node(node.id);
+    return {
+      ...node,
+      position: { x: nodeWithPos.x, y: nodeWithPos.y },
+    };
+  });
+}
+
+watch( props, ( newValue ) => {
+  if ( !newValue.routineMap?.length ) {
+    return;
+  }
+  console.log( newValue.routineMap );
+  const routineMap = newValue.routineMap;
+  nodes.value = [];
+  edges.value = [];
+
+  if ( routineMap && routineMap.length ) {
+    routineMap.forEach((task) => {
       nodes.value.push({
         id: task.uuid.toString(),
-        position: { x, y },
-        data: { label: `Task: ${task.uuid.slice(-6)}` },
-        class: 'custom-node'
+        position: { x: 0, y: 0 },
+        sourcePosition: 'right', // 'bottom'
+        targetPosition: 'left', // 'top'
+        data: {
+          ...task,
+        },
+        type: undefined,
+        class: task.errored ? 'custom-node error-node' : 'custom-node',
       });
     });
 
-    // Generate edges from tasksInRoutines
-    if (tasksInRoutines.value && tasksInRoutines.value.length > 0) {
-      tasksInRoutines.value.forEach((RoutineEdge) => {
-        // Find the corresponding task node ids for task_id and predecessor_task_id
-        const source = RoutineEdge.predecessor_task_id;
-        const target = RoutineEdge.task_id;
-
+    routineMap.forEach((task) => {
+      if (task.previousTaskExecutionId) {
         edges.value.push({
-          id: `e${source}-${target}`,
-          source: source.toString(),
-          target: target.toString(),
-          animated: false
-        });
-      });
-    }
-  }
-};
-
-// Watch for changes in props.item and recreate the Routine
-watch(() => props.item, async (newItem) => {
-  if (newItem) {
-    await createRoutine();
-  }
-}, { immediate: true });
-
-// Add click event handler
-const emit = defineEmits(['nodeSelected']);
-function onNodeClick({ event, node }: { event: any, node: Node }) {
-  console.log(node.data);
-  emit('nodeSelected', node.id);
-  console.log(node.id);
-}
-</script>
-
-<style scoped>
-.map-container {
-  width: 100%;
-  height: 400px;
-}
-
-.custom-node {
-  background: rgb(122, 175, 245);
-  color: white;
-  border: 1px solid rgb(241, 211, 78);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgb(0, 0, 0);
-  padding: 8px;
-  width: 50px;
-}
-</style>
-
-
-
-<!-- <template>
-  <q-card class="custom-card col flex-center q-ma-md"
-    elevated
-    style='max-width: 60dvw; max-height: 80dvh; overflow-y: auto'>
-    <div class="map-container">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" />
-    </div>
-  </q-card>
-</template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import type { Node, Edge } from '@vue-flow/core';
-import { VueFlow } from '@vue-flow/core';
-
-const nodes = ref<Node[]>([]);
-const edges = ref<Edge[]>([]);
-
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  }
-});
-
-onMounted(async () => {
-  const { data: tasksInRoutines } = await useFetch('/api/tasksInRoutines');
-
-  if (tasksInRoutines.value && tasksInRoutines.value.length > 0) {
-    const startX = 50;
-    const startY = 50;
-
-    // Create nodes
-    tasksInRoutines.value.forEach((task, index) => {
-      const x = startX + 100 * index;
-      const y = startY + 100 * index;
-
-      // Add the node to nodes array
-      nodes.value.push({
-        id: task.task_id.toString(),
-        position: { x, y },
-        data: { label: `Task: ${task.task_id.slice(-6)}` },
-        class: 'custom-node'
-      });
-    });
-
-    // Create edges based on routine_id
-    tasksInRoutines.value.forEach((task) => {
-      if (task.routine_id) {
-        edges.value.push({
-          id: `e${task.task_id}-${task.routine_id}`,
-          source: task.task_id.toString(),
-          target: task.routine_id.toString(),
+          id: `e${task.uuid}-${task.previousTaskExecutionId}`,
+          source: task.previousTaskExecutionId.toString(),
+          target: task.uuid.toString(),
           animated: false
         });
       }
     });
+
+    nodes.value = layoutGraph(nodes.value, edges.value);
   }
-});
+} );
+
 
 // Add click event handler
 const emit = defineEmits(['nodeSelected']);
 function onNodeClick({ event, node }: { event: any, node: Node }) {
-  console.log(node.data);
-  emit('nodeSelected', node.id);
+  const task = node.data;
+  console.log(node, task);
+  emit('nodeSelected', task);
   console.log(node.id);
 }
 </script>
 
-<style scoped>
-.map-container {
-  width: 100%;
-  height: 400px;
+<style>
+.routine-map-container {
+  width: 39dvw;
+  height: 50dvh;
+  //max-width: 39dvw;
+  //max-height: 40dvh;
+  //border: 1.5px solid lightgray;
+  //border-radius: 10px;
 }
 
 .custom-node {
-  background: rgb(122, 175, 245);
+  background: #7abfd2;
   color: white;
-  border: 1px solid rgb(241, 211, 78);
   border-radius: 4px;
-  box-shadow: 0 0 0 1px rgb(0, 0, 0);
-  padding: 8px;
-  width: 50px;
+  padding: 5px;
+  width: 100px;
 }
-</style> -->
+.error-node {
+  background: #d37b7b !important;
+}
+</style>

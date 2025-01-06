@@ -1,26 +1,8 @@
 import pg from 'pg';
+import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-async function initializeClient() {
-  if (!client) {
-    client = new pg.Client({
-      user: 'postgres',
-      host: 'localhost',
-      database: 'postgres',
-      password: 'password',
-      port: 5432
-    });
-
-    try {
-      await client.connect();
-      console.log('Connected to the database successfully: graphs');
-    } catch (error) {
-      console.error('Error connecting to the database:', error);
-      throw error;
-    }
-  }
-}
 
 // Get all graphs
 async function getgraphs() {
@@ -40,7 +22,9 @@ async function getgraphs() {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  await initializeClient();
+  if ( !client ) {
+    client = await initializeClient();
+  }
   const { method } = event.node.req;
 
   if (method === 'GET') {

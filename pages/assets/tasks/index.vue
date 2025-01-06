@@ -1,22 +1,21 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      Graphs
+      tasks
     </template>
     <div class="row justify-around q-ma-lg">
       <List
-        v-if="graphs"
-        :listLabel="'Graphs'"
-        :items="graphs"
+        v-if="tasks"
+        :listLabel="'tasks'"
+        :items="tasks"
         @item-selected="onSelect"
       />
-      <graphMap v-if="selectedGraph" :item="selectedGraph"/>
-      <InfoCard v-if="selectedGraph" :item="selectedGraph">
+      <InfoCard v-if="selectedtask">
         <template #title>
-          {{ selectedGraph?.label }}
+          {{ selectedtask?.label }}
         </template>
         <template #info>
-          {{ selectedGraph?.description }}
+          {{ selectedtask?.description }}
         </template>
       </InfoCard>
     </div>
@@ -27,7 +26,8 @@
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 
-interface Graph {
+// Define the tasks interface
+interface tasks {
   type: string;
   label: string;
   description: string;
@@ -38,24 +38,27 @@ interface Graph {
 }
 
 const layout = 'dashboard-layout';
-const selectedGraph = ref<Graph | null>(null);
+const selectedtask = ref<tasks | null>(null);
 
-// Fetch the graphs data
-const { data: graphs, error } = await useFetch('/api/graphs');
+// Fetch the tasks data
+const { data: tasks, error } = await useFetch('/api/tasks');
 
 // Error handling
 if (error.value) {
-  console.error('Error fetching graphs:', error.value);
+  console.error('Error fetching tasks:', error.value);
 }
 
 // Function to handle item selection
-function onSelect(item: Graph) {
-  console.log(item.label);
-  selectedGraph.value = item;
+function onSelect(item: tasks) {
+  console.log('Selected task:', item.label); // Log the selected task
+  selectedtask.value = item;
 }
 
+// Set the current section on mount
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 });
+
+console.log('tasks:', tasks.value);
 </script>

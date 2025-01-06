@@ -1,45 +1,40 @@
 import pg from 'pg';
+import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-async function initializeClient() {
-  if (!client) {
-    client = new pg.Client({
-      user: 'postgres',
-      host: 'localhost',
-      database: 'postgres',
-      password: 'password',
-      port: 5432
-    });
-
-    try {
-      await client.connect();
-      console.log('Connected to the database successfully');
-    } catch (error) {
-      console.error('Error connecting to the database:', error);
-      throw error;
-    }
-  }
-}
 
 async function getAllServersWithStats() {
   const query = `
-    SELECT s.uuid, s.address, s.port, ss.cpu, ss.gpu, ss.ram, ss.timestamp, s.is_active, s.is_non_responsive, s.is_blocked
-    FROM server s
-    LEFT JOIN server_snapshot ss ON ss.server_id = s.uuid
-    WHERE ss.timestamp = (
-      SELECT MAX(ss2.timestamp)
-      FROM server_snapshot ss2
-      WHERE ss2.server_id = s.uuid
-    )
+    SELECT 
+        s.uuid, 
+        s.address, 
+        s.port, 
+        s.process_pid,
+        s.is_primary,
+        s.is_active, 
+        s.is_non_responsive, 
+        s.is_blocked, 
+        s.processing_graph
+    FROM server s;
   `;
   const result = await client!.query(query);
-  return result.rows;
+  return result.rows.map( row => ( {
+    uuid: row.uuid,
+    graph: row.processing_graph,
+    address: row.address,
+    port: row.port,
+    isPrimary: row.is_primary,
+    processPid: row.process_pid,
+    status: row.is_active && !row.is_non_responsive ? 'Active' : 'Offline',
+  } ) );
 }
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  await initializeClient();
+  if ( !client ) {
+    client = await initializeClient();
+  }
   const { method } = event.node.req;
 
   if (method === 'GET') {

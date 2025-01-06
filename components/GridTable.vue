@@ -1,0 +1,51 @@
+<template>
+  <InfoCard>
+    <template #info>
+      <q-table
+          style="width: 100%;"
+          :title="title"
+          :columns="columns"
+          :rows="rows"
+          :row-key="rowKey"
+          grid
+          grid-header
+          hide-header
+          flat bordered
+          no-data-label="I didn't find anything for you"
+          :filter="filter"
+      >
+        <template v-slot:top-right>
+          <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+      </q-table>
+    </template>
+  </InfoCard>
+</template>
+
+<script setup lang="ts">
+const props = defineProps( {
+  title: {
+    type: String,
+    default: 'Info',
+  },
+  rows: {
+    type: Array,
+    required: true,
+  },
+  columns: {
+    type: Array,
+    default: undefined,
+  },
+  rowKey: {
+    type: String,
+    default: 'label',
+  },
+} );
+
+const filter = ref( '' );
+
+</script>

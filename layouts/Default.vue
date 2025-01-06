@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh LpR lFf">
+  <q-layout view="hHh LpR lFf" class="overflow-auto">
     <q-header elevated>
       <q-toolbar
         :class="[
@@ -15,8 +15,8 @@
         />
 
         <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
-        <q-btn flat @click="() => setSection('assets')" to='/assets'> Assets </q-btn>
-        <q-btn flat @click="() => setSection('serverActivity')" to='/active'> Server Activity </q-btn>
+        <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
+        <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -42,7 +42,7 @@
           <q-btn
             flat
             color='primary'
-            to='/assets-sub/routines'
+            to='/assets/routines'
             @click="() => setSection('assets')"
           >
             Routines
@@ -52,7 +52,7 @@
           <q-btn
             flat
             color='primary'
-            to='/assets-sub/tasks'
+            to='/assets/tasks'
             @click="() => setSection('assets')"
           >
             Tasks
@@ -66,14 +66,14 @@
         header-class='text-warning'
         v-model='showServerActivity'
         @click="() => setSection('serverActivity')"
-        to='/active'
+        to='/activity'
         hide-expand-icon
       >
         <q-item>
           <q-btn
             flat
             color='warning'
-            to='/active-sub/routines'
+            to='/activity/routines'
             @click="() => setSection('serverActivity')"
           >
             Routines
@@ -83,7 +83,7 @@
           <q-btn
             flat
             color='warning'
-            to='/active-sub/tasks'
+            to='/activity/tasks'
             @click="() => setSection('serverActivity')"
           >
             Tasks
@@ -92,7 +92,7 @@
       </q-expansion-item>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="window-width window-height polka">
       <slot />
     </q-page-container>
   </q-layout>
@@ -147,3 +147,17 @@ watch(currentSection, (newSection) => {
 }, { immediate: true }); // immediate: true ensures the watcher is triggered on initial load
 
 </script>
+
+<style>
+.polka {
+  background-image: radial-gradient(rgb(168, 167, 167) 5%, transparent 5%);
+  background-position: 4px 4px;
+  background-size: 19px 19px;
+  background-color: rgb(255, 255, 255);
+  height: 110vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+</style>

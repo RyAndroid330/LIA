@@ -34,8 +34,12 @@ const props = defineProps({
   selectedServer: {
     type: Object,
     required: true
-  }
+  },
 });
+
+watch( props.selectedServer, ( newValue ) => {
+  console.log( newValue );
+} )
 </script>
 
 <style>

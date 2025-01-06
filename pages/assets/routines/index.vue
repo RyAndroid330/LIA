@@ -1,21 +1,21 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      tasks
+      Routines
     </template>
     <div class="row justify-around q-ma-lg">
       <List
-        v-if="tasks"
-        :listLabel="'tasks'"
-        :items="tasks"
+        v-if="routines"
+        :listLabel="'Routines'"
+        :items="routines"
         @item-selected="onSelect"
       />
-      <InfoCard v-if="selectedtask" :item="selectedtask">
+      <InfoCard v-if="selectedroutine">
         <template #title>
-          {{ selectedtask?.label }}
+          {{ selectedroutine?.label }}
         </template>
         <template #info>
-          {{ selectedtask?.description }}
+          {{ selectedroutine?.description }}
         </template>
       </InfoCard>
     </div>
@@ -26,8 +26,8 @@
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 
-// Define the tasks interface
-interface tasks {
+// Define the Routine interface
+interface Routine {
   type: string;
   label: string;
   description: string;
@@ -38,20 +38,20 @@ interface tasks {
 }
 
 const layout = 'dashboard-layout';
-const selectedtask = ref<tasks | null>(null);
+const selectedroutine = ref<Routine | null>(null);
 
-// Fetch the tasks data
-const { data: tasks, error } = await useFetch('/api/tasks');
+// Fetch the routines data
+const { data: routines, error } = await useFetch('/api/routines');
 
 // Error handling
 if (error.value) {
-  console.error('Error fetching tasks:', error.value);
+  console.error('Error fetching routines:', error.value);
 }
 
 // Function to handle item selection
-function onSelect(item: tasks) {
-  console.log('Selected task:', item.label); // Log the selected task
-  selectedtask.value = item;
+function onSelect(item: Routine) {
+  console.log(item.label);
+  selectedroutine.value = item;
 }
 
 // Set the current section on mount
@@ -59,6 +59,4 @@ onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 });
-
-console.log('tasks:', tasks.value);
 </script>

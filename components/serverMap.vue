@@ -1,11 +1,7 @@
 <template>
-  <q-card class="custom-card col flex-center q-ma-md"
-    elevated
-    style='max-width: 60dvw; max-height: 80dvh; overflow-y: auto'>
     <div class="map-container">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" />
+      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init contenteditable="false" />
     </div>
-  </q-card>
 </template>
 
 <script setup lang="ts">
@@ -21,9 +17,9 @@ const edges = ref<Edge[]>([]);
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
-    rankdir: 'TB',  // TB = top to bottom
+    rankdir: 'LR',  // TB = top to bottom
     ranksep: 100,   // Increase vertical space between layers
-    nodesep: 150,   // Increase horizontal space between nodes
+    nodesep: 20,   // Increase horizontal space between nodes
   });
   g.setDefaultEdgeLabel(() => ({}));
 
@@ -58,8 +54,10 @@ onMounted(async () => {
       nodes.value.push({
         id: server.server_id.toString(),
         position: { x: 0, y: 0 },
-        data: { label: server.server_id.slice(-6) },
-        type: index === 0 ? 'input' : (index === serverMap.length - 1 ? 'output' : undefined),
+        sourcePosition: 'right',
+        targetPosition: 'left',
+        data: { label: server.processing_graph },
+        type: undefined,
         class: 'custom-node'
       });
     });
@@ -69,8 +67,8 @@ onMounted(async () => {
       if (server.client_id) {
         edges.value.push({
           id: `e${server.server_id}-${server.client_id}`,
-          source: server.server_id.toString(),
-          target: server.client_id.toString(),
+          source: server.client_id.toString(),
+          target: server.server_id.toString(),
           animated: false
         });
       }
@@ -90,19 +88,19 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 }
 </script>
 
-<style scoped>
+<style>
 .map-container {
-  width: 100%;
-  height: 400px;
+  width: 50%;
+  height: 48dvh;
+  //border: 1.5px solid lightgray;
+  //border-radius: 10px;
 }
 
 .custom-node {
-  background: rgb(122, 175, 245);
+  background: #7abfd2;
   color: white;
-  border: 1px solid rgb(241, 211, 78);
   border-radius: 4px;
-  box-shadow: 0 0 0 1px rgb(0, 0, 0);
-  padding: 8px;
-  width: 50px;
+  padding: 5px;
+  width: 100px;
 }
 </style>
