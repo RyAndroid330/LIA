@@ -1,11 +1,10 @@
 import pg from 'pg';
 
-
 export async function initializeClient() {
   const client = new pg.Client({
     user: 'postgres',
     host: 'localhost',
-    database: 'processing_graph_test',
+    database: 'postgres',
     password: 'password',
     port: 5432
   });
