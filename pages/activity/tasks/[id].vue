@@ -126,7 +126,7 @@ function getDuration( start, end ) {
   } else {
     endTime = new Date( end );
   }
-  const duration = endTime - startTime;
+  const duration = +endTime - +startTime;
   return duration / 1000;
 }
 

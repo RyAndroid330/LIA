@@ -58,7 +58,7 @@
             <div class="q-mx-md q-my-sm">
               Description: {{ selectedTask?.description }}
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/executions/task/${ selectedTask?.uuid }` )">
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ selectedTask?.uuid }` )">
               Execution id: <span class="text-warning cursor-pointer">{{ selectedTask?.uuid }}</span>
             </div>
             <div class="q-separator" style="height: 2px"></div>
@@ -79,7 +79,7 @@
               Success: {{ !selectedTask?.failed && !selectedTask?.errored }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div v-if="selectedTask?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/executions/task/${ selectedTask?.previousTaskExecutionId }` )">
+            <div v-if="selectedTask?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ selectedTask?.previousTaskExecutionId }` )">
               Previous task: <span class="text-warning cursor-pointer">{{ selectedTask?.previousTaskExecutionId }}</span>
             </div>
             <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/static/task/${ selectedTask?.taskId }` )">
@@ -101,16 +101,44 @@ import { ref, onMounted } from 'vue';
 import { VueFlow } from '@vue-flow/core';
 import { useRouter } from '#vue-router';
 
+interface SelectedItem {
+  label: string;
+  uuid: string;
+  routineDescription: string;
+  progress: number;
+  started: string;
+  ended: string;
+  status: string;
+  routineId?: string;
+  serverId: string;
+  previousRoutineExecution?: string;
+}
+
+interface SelectedTask {
+  name: string;
+  description: string;
+  uuid: string;
+  progress: number;
+  started: string;
+  ended: string;
+  failed: boolean;
+  errored: boolean;
+  previousTaskExecutionId?: string;
+  taskId?: string;
+  serverId: string;
+}
+
 const layout = 'dashboard-layout';
-const selectedItem = ref<Object | null | undefined>(null);
+const selectedItem = ref<SelectedItem | null>(null);
 const route = useRoute();
-const selectedTask = ref<string | null>(null);
+const selectedTask = ref<SelectedTask | null>(null);
 const dialogVisible = ref(false);
 
-const routineMap = computedAsync( async () => {
-  if ( selectedItem.value ) {
-    const tasks = await $fetch( `/api/tasksInRoutines?routineId=${ selectedItem.value.uuid }` );
-    return tasks.map( task => {
+
+const routineMap = computedAsync(async () => {
+  if (selectedItem.value) {
+    const tasks = await $fetch(`/api/tasksInRoutines?routineId=${selectedItem.value.uuid}`);
+    return tasks?.map((task: any) => {
       return {
         label: task.name,
         uuid: task.uuid,
@@ -131,15 +159,16 @@ const routineMap = computedAsync( async () => {
         isUnique: task.is_unique,
         serverId: task.server_id,
       };
-    } );
+    });
   }
-}, [] );
+  return [];
+}, []);
 
-const { data: Items, error } = await useFetch('/api/activeRoutines');
+const { data: Items, error } = await useFetch<SelectedItem[]>('/api/activeRoutines');
 const router = useRouter();
 
-function onTaskSelected( task ) {
-  console.log( 'selected', task );
+function onTaskSelected(task: SelectedTask) {
+  console.log('selected', task);
   selectedTask.value = task;
   dialogVisible.value = true;
 }
@@ -152,15 +181,15 @@ function formatDate( date: string ) {
   return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
 }
 
-function getDuration( start, end ) {
-  const startTime = new Date( start );
-  let endTime;
-  if ( !end ) {
-    endTime = new Date( Date.now() );
+function getDuration(start: string, end: string | undefined) {
+  const startTime = new Date(start);
+  let endTime: Date;
+  if (!end) {
+    endTime = new Date(Date.now());
   } else {
-    endTime = new Date( end );
+    endTime = new Date(end);
   }
-  const duration = endTime - startTime;
+  const duration = +endTime - +startTime;
   return duration / 1000;
 }
 
@@ -168,13 +197,12 @@ const navigateToItem = ( route: string ) => {
   console.log('Navigating to route:', route);
   router.push(route);
 };
-
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('serverActivity');
 
-  const itemId = route.params.id;
-  selectedItem.value = Items.value?.find((item: Object) => item.uuid === itemId);
+  const itemId = route.params.id as string;
+  selectedItem.value = Items.value?.find((item: SelectedItem) => item.uuid === itemId) || null;
 });
 
 </script>
