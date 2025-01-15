@@ -3,11 +3,10 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 // Get all TaskExecutions
-async function getTaskExecution( taskExecutionId: string ) {
+async function getTaskExecution(taskExecutionId: string) {
   const query = `
-    SELECT  
+    SELECT
         te.uuid,
         te.routine_execution_id,
         te.task_id,
@@ -29,7 +28,8 @@ async function getTaskExecution( taskExecutionId: string ) {
         ctx2.context AS output_context,
         t.name,
         t.description,
-        t.is_unique
+        t.is_unique,
+        t.layer_index
     FROM task_execution te
     LEFT JOIN task_execution_map tem ON te.uuid = tem.task_execution_id
     LEFT JOIN routine_execution re ON te.routine_execution_id = re.uuid
@@ -44,15 +44,15 @@ async function getTaskExecution( taskExecutionId: string ) {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
   const { method, url } = event.node.req;
-  const taskExecutionId = url?.split( '=' )[ 1 ] ?? '';
+  const taskExecutionId = url?.split('=')[1] ?? '';
 
   if (method === 'GET') {
     try {
-      return await getTaskExecution( taskExecutionId );
+      return await getTaskExecution(taskExecutionId);
     } catch (error) {
       console.error('Error fetching TaskExecutions:', error);
       throw error;

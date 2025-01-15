@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      {{ selectedItem?.name }} - {{ selectedItem?.uuid.slice(0, 8) }}
+      {{ selectedItem?.name }}
     </template>
     <div class="row q-mx-md">
       <InfoCard v-if="selectedItem">
@@ -14,23 +14,13 @@
               Description: {{ selectedItem?.description }}
             </div>
             <div class="q-mx-md q-my-sm">
-              Function: {{ selectedItem?.function_string }}
-            </div>
-            <div class="q-separator" style="height: 2px"></div>
-            <div class="q-mx-md q-my-sm">
-              UUID: {{ selectedItem?.uuid }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Type: {{ selectedItem?.type }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Processing Graph: {{ selectedItem?.processing_graph }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Created: {{ new Date(selectedItem?.created).toLocaleString() }}
+              Modified: {{ new Date(selectedItem?.modified).toLocaleString() }}
             </div>
             <div class="q-mx-md q-my-sm">
               Deleted: {{ selectedItem?.deleted ? 'Yes' : 'No' }}
+            </div>
+            <div class="q-mx-md q-my-sm">
+              Created: {{ new Date(selectedItem?.created).toLocaleString() }}
             </div>
           </div>
         </template>
@@ -46,37 +36,35 @@ import InfoCard from '~/components/InfoCard.vue';
 
 // Define the Item interface
 interface Item {
-  type: string;
   name: string;
   description: string;
-  function_string: string;
-  id: any;
-  executionId: any;
-  progress: any;
-  uuid: any;
-  processing_graph: string;
-  created: string;
+  modified: string;
   deleted: boolean;
+  created: string;
 }
 
 const layout = 'dashboard-layout';
 const selectedItem = ref<Item | null>(null);
 const route = useRoute();
 
-// Fetch the Items data
-const { data: Items, error } = await useFetch(`/api/routine/${route.params.id}`);
+// Fetch the Item data
+const { data: item, error } = await useFetch(`/api/graph/${encodeURIComponent(route.params.id)}`);
 
 // Error handling
 if (error.value) {
-  console.error('Error fetching Items:', error.value);
+  console.error('Error fetching Item:', error.value);
 }
 
-// Set the selected item based on the route parameter
+// Set the selected item based on the fetched data
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
-  const itemId = route.params.id;
-  selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
+  selectedItem.value = item.value[0];
+
+  if (!selectedItem.value) {
+    console.error('No item found with the given name:', route.params.id);
+  }
+  console.log(selectedItem.value);
 });
 </script>

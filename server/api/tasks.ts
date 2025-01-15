@@ -5,10 +5,12 @@ let client: pg.Client | null = null;
 
 // Get all Tasks
 async function getTasks() {
+  console.log('Fetching all tasks'); // Add logging
   const query = `
     SELECT * FROM task
   `;
   const res = await client!.query(query);
+  console.log('Query result:', res.rows); // Add logging
 
   // Map the results to match the ListItem interface
   return res.rows.map((row) => ({
@@ -22,11 +24,12 @@ async function getTasks() {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
 
   const { method } = event.node.req;
+  console.log('Request method:', method); // Add logging
 
   if (method === 'GET') {
     try {

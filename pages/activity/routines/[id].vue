@@ -35,7 +35,7 @@
               Status: {{ selectedItem.status }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div v-if="selectedItem?.routineId" class="q-mx-md q-my-sm" @click="navigateToItem( `/static/routine/${ selectedItem?.routineId }` )">
+            <div v-if="selectedItem?.routineId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/routines/${ selectedItem?.routineId }` )">
               Routine id: <span class="text-primary cursor-pointer">{{ selectedItem?.routineId }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedItem?.serverId }` )">
@@ -82,7 +82,7 @@
             <div v-if="selectedTask?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ selectedTask?.previousTaskExecutionId }` )">
               Previous task: <span class="text-warning cursor-pointer">{{ selectedTask?.previousTaskExecutionId }}</span>
             </div>
-            <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/static/task/${ selectedTask?.taskId }` )">
+            <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ selectedTask?.taskId }` )">
               Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.taskId }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedTask?.serverId }` )">

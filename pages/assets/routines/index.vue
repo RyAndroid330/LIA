@@ -26,6 +26,7 @@ interface routines {
   id: any;
   executionId: any;
   progress: any;
+  uuid: string;
 }
 
 const layout = 'dashboard-layout';
@@ -72,7 +73,7 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectroutines( routines ) {
+function inspectRoutines( routines: routines ) {
   navigateToItem( `/assets/routines/${ routines.uuid }` );
 }
 
@@ -88,7 +89,7 @@ onMounted(async () => {
   const response = await fetch('/api/routines');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  routines.value = data.map( r => {
+  routines.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
       label: r.label,

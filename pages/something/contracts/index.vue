@@ -1,14 +1,14 @@
 <template>
   <NuxtLayout :name="layout">
     <template #title>
-      Routine executions
+      Contracts
     </template>
     <div class="row q-mx-md">
       <Table
           :columns="columns"
-          :rows="routines"
+          :rows="contracts"
           row-key="uuid"
-          @inspect-row="inspectRoutine"
+          @inspect-row="inspectContracts"
       />
     </div>
   </NuxtLayout>
@@ -19,75 +19,40 @@ import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter } from '#vue-router';
 
-interface Routine {
+interface contracts {
   type: string;
   label: string;
   description: string;
   id: any;
   executionId: any;
   progress: any;
-  uuid: string;
+  uuid:string;
 }
 
 const layout = 'dashboard-layout';
-const selectedRoutine = ref<Routine[] | undefined>(undefined);
-watch( selectedRoutine, newValue => {
+const selectedContract = ref<contracts[] | undefined>(undefined);
+watch( selectedContract, newValue => {
   console.log( newValue );
 } );
 
 const columns = [
   {
-    name: 'label',
+    name: 'name',
     label: 'Name',
-    field: 'label',
+    field: 'name',
     required: true,
     sortable: true,
   },
   {
-    name: 'routineDescription',
-    label: 'Description',
-    field: 'routineDescription',
+    name: 'agent_id',
+    label: 'Agent',
+    field: 'agent_id',
     required: true,
     sortable: false,
-  },
-  {
-    name: 'status',
-    label: 'Status',
-    field: 'status',
-    required: true,
-    sortable: true,
-  },
-  {
-    name: 'progress',
-    label: 'Progress',
-    field: 'progress',
-    required: true,
-    sortable: false,
-  },
-  {
-    name: 'started',
-    label: 'Started',
-    field: 'started',
-    required: true,
-    sortable: true,
-  },
-  {
-    name: 'ended',
-    label: 'Ended',
-    field: 'ended',
-    required: true,
-    sortable: true,
-  },
-  {
-    name: 'duration',
-    label: 'Duration (sec)',
-    field: 'duration',
-    required: true,
-    sortable: true,
-  },
+  }
 ];
 
-const routines = ref( [] );
+const contracts = ref( [] );
 
 const router = useRouter();
 
@@ -108,8 +73,8 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectRoutine( routine: Routine ) {
-  navigateToItem( `/activity/routines/${ routine.uuid }` );
+function inspectContracts( contracts:contracts ) {
+  navigateToItem( `/something/contracts/${ contracts.uuid }` );
 }
 
 const navigateToItem = ( route: string ) => {
@@ -120,20 +85,17 @@ const navigateToItem = ( route: string ) => {
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
-  appStore.setCurrentSection('serverActivity');
-  const response = await fetch('/api/activeRoutines');
+  appStore.setCurrentSection('something');
+  const response = await fetch('/api/contracts');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  routines.value = data.map( (r: any) => {
+  contracts.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
+      name: r.product,
+      agent_id: r.agent_id,
       label: r.label,
-      routineDescription: r.routineDescription,
-      status: r.status,
-      progress: r.progress,
-      started: formatDate( r.started ),
-      ended: formatDate( r.ended ),
-      duration: getDuration( r.started, r.ended ),
+      description: r.description,
     };
   } );
 });

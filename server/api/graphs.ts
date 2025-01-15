@@ -3,7 +3,6 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 // Get all graphs
 async function getgraphs() {
   const query = `
@@ -22,7 +21,7 @@ async function getgraphs() {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
   const { method } = event.node.req;

@@ -15,6 +15,7 @@
         />
 
         <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
+        <q-btn flat to='/something' @click="() => setSection('something')"> Something </q-btn>
         <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
         <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
       </q-toolbar>
@@ -29,6 +30,37 @@
       elevated
       :style="{ background: toolbarClassLight }"
     >
+    <q-expansion-item
+        expand-separator
+        label='Something'
+        header-class='text-secondary'
+        v-model='showSomething'
+        @click="() => setSection('something')"
+        to='/something'
+        hide-expand-icon
+      >
+        <q-item>
+          <q-btn
+            flat
+            color='secondary'
+            to='/something/contracts'
+            @click="() => setSection('something')"
+          >
+            Contracts
+          </q-btn>
+        </q-item>
+        <q-item>
+          <q-btn
+            flat
+            color='secondary'
+            to='/something/agents'
+            @click="() => setSection('something')"
+          >
+            Agents
+          </q-btn>
+        </q-item>
+      </q-expansion-item>
+
       <q-expansion-item
         expand-separator
         label='Assets'
@@ -105,6 +137,7 @@ import { colors } from 'quasar';
 import { useAppStore } from '~/stores/app';
 
 // State
+const showSomething = ref(false);
 const showAssets = ref(false);
 const showServerActivity = ref(false);
 const drawerOpen = ref(true);
@@ -114,6 +147,7 @@ const { currentSection } = storeToRefs(appStore);
 // Methods
 const setSection = (section) => {
   appStore.setCurrentSection(section);
+  showSomething.value = section === 'something';
   showAssets.value = section === 'assets';
   showServerActivity.value = section === 'serverActivity';
 };
@@ -126,6 +160,8 @@ const toolbarClass = computed(() => {
       return 'bg-primary';
     case 'serverActivity':
       return 'bg-warning';
+      case 'something':
+      return 'bg-secondary';
     default:
       return 'bg-secondary';
   }

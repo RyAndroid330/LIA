@@ -26,6 +26,7 @@ interface task {
   id: any;
   executionId: any;
   progress: any;
+  uuid: string;
 }
 
 const layout = 'dashboard-layout';
@@ -36,9 +37,9 @@ watch( selectedTask, newValue => {
 
 const columns = [
   {
-    name: 'label',
+    name: 'name',
     label: 'Name',
-    field: 'label',
+    field: 'name',
     required: true,
     sortable: true,
   },
@@ -107,7 +108,7 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectTask( task ) {
+function inspectTask( task:task ) {
   navigateToItem( `/activity/tasks/${ task.uuid }` );
 }
 
@@ -123,10 +124,10 @@ onMounted(async () => {
   const response = await fetch('/api/activeTasks');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  tasks.value = data.map( r => {
+  tasks.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
-      label: r.label,
+      name: r.name,
       taskDescription: r.taskDescription,
       status: r.status,
       progress: r.progress,

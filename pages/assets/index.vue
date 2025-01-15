@@ -26,6 +26,7 @@ interface graphs {
   id: any;
   executionId: any;
   progress: any;
+  uuid: string;
 }
 
 const layout = 'dashboard-layout';
@@ -55,25 +56,25 @@ const graphs = ref( [] );
 
 const router = useRouter();
 
-function formatDate( date: string ) {
-  const datetime = new Date( date );
-  return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
-}
+// function formatDate( date: string ) {
+//   const datetime = new Date( date );
+//   return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
+// }
 
-function getDuration( start: number, end?: number ) {
-  const startTime = new Date( start );
-  let endTime;
-  if ( !end ) {
-    endTime = new Date( Date.now() );
-  } else {
-    endTime = new Date( end );
-  }
-  const duration = +endTime - +startTime;
-  return duration / 1000;
-}
+// function getDuration( start: number, end?: number ) {
+//   const startTime = new Date( start );
+//   let endTime;
+//   if ( !end ) {
+//     endTime = new Date( Date.now() );
+//   } else {
+//     endTime = new Date( end );
+//   }
+//   const duration = +endTime - +startTime;
+//   return duration / 1000;
+// }
 
-function inspectGraphs( graphs ) {
-  navigateToItem( `/assets/graphs/${ graphs.uuid }` );
+function inspectGraphs(graph: graphs) {
+  navigateToItem(`/assets/${graph.uuid}`);
 }
 
 const navigateToItem = ( route: string ) => {
@@ -88,7 +89,7 @@ onMounted(async () => {
   const response = await fetch('/api/graphs');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  graphs.value = data.map( r => {
+  graphs.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
       label: r.label,

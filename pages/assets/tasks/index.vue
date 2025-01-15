@@ -26,6 +26,7 @@ interface tasks {
   id: any;
   executionId: any;
   progress: any;
+  uuid:string;
 }
 
 const layout = 'dashboard-layout';
@@ -72,7 +73,7 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectTasks( tasks ) {
+function inspectTasks( tasks:tasks ) {
   navigateToItem( `/assets/tasks/${ tasks.uuid }` );
 }
 
@@ -88,7 +89,7 @@ onMounted(async () => {
   const response = await fetch('/api/tasks');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  tasks.value = data.map( r => {
+  tasks.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
       label: r.label,

@@ -47,13 +47,13 @@
               Success: {{ !taskExecution?.failed && !taskExecution?.errored }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div v-if="taskExecution?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/executions/task/${ taskExecution?.previousTaskExecutionId }` )">
+            <div v-if="taskExecution?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ taskExecution?.previousTaskExecutionId }` )">
               Previous task: <span class="text-warning cursor-pointer">{{ taskExecution?.previousTaskExecutionId }}</span>
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/routine/${ taskExecution?.routineExecutionId }` )">
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/routines/${ taskExecution?.routineExecutionId }` )">
               Routine execution id: <span class="text-warning cursor-pointer">{{ taskExecution?.routineExecutionId }}</span>
             </div>
-            <div v-if="taskExecution?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/static/task/${ taskExecution?.taskId }` )">
+            <div v-if="taskExecution?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ taskExecution?.taskId }` )">
               Task id: <span class="text-primary cursor-pointer">{{ taskExecution?.taskId }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ taskExecution?.serverId }` )">
@@ -108,7 +108,7 @@ const taskExecution = computedAsync( async () => {
       };
     }
   }
-}, {} );
+});
 
 function formatDate( date: string ) {
   if ( !date ) {
@@ -118,7 +118,7 @@ function formatDate( date: string ) {
   return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
 }
 
-function getDuration( start, end ) {
+function getDuration( start: string, end: string | undefined ) {
   const startTime = new Date( start );
   let endTime;
   if ( !end ) {
