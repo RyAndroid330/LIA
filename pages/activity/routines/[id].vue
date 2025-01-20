@@ -3,8 +3,43 @@
     <template #title>
       {{ selectedItem?.label }} - {{ selectedItem?.uuid.slice( 0, 8 ) }}
     </template>
-    <div class="row q-mx-md">
-      <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+    <div >
+        <div>
+          <q-btn
+          class="q-mr-xs"
+          :label="'Map'"
+          color="primary"
+          @click="selectedOption = 'routineMap'"
+          :class="{ 'q-btn--active'
+          :selectedOption === 'routineMap' }"
+          size="xs"
+          />
+
+          <q-btn
+           class="q-mr-xs"
+          :label="'Timeline'"
+          color="primary"
+          @click="selectedOption = 'timeline'"
+          :class="{ 'q-btn--active'
+          :selectedOption === 'timeline' }"
+          size="xs"
+          />
+
+          <q-btn
+           class="q-mr-xs"
+          :label="'ranged Timeline'"
+          color="primary"
+          @click="selectedOption = 'rangedTimeline'"
+          :class="{ 'q-btn--active'
+          :selectedOption === 'rangedTimeline' }"
+          size="xs"
+          />
+
+          <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected"  v-show="selectedOption === 'routineMap'"/>
+          <Timeline :routineMap="routineMap" v-show="selectedOption === 'timeline'"/>
+          <RangedTimeline :routineMap="routineMap" v-show="selectedOption === 'rangedTimeline'" />
+
+        </div>
       <InfoCard v-if="selectedItem">
         <template #title>
           {{ selectedItem?.label }}
@@ -36,13 +71,13 @@
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div v-if="selectedItem?.routineId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/routines/${ selectedItem?.routineId }` )">
-              Routine id: <span class="text-primary cursor-pointer">{{ selectedItem?.routineId }}</span>
+              Routine id: <span class="text-primary cursor-pointer">{{ selectedItem?.label }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedItem?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">{{ selectedItem?.serverId }}</span>
+              Server id: <span class="text-warning cursor-pointer">{{ selectedItem?.serverName }}</span>
             </div>
-            <div v-if="selectedItem?.previousRoutineExecution" class="q-mx-md q-my-sm" @click="navigateToItem( `/executions/routine/${ selectedItem?.previousRoutineExecution }` )">
-              Previous routine: {{ selectedItem?.previousRoutineExecution }}
+            <div v-if="selectedItem?.previousRoutineExecution" class="q-mx-md q-my-sm " @click="navigateToItem( `/activity/routines/${ selectedItem?.previousRoutineExecution }` )">
+              Previous routine:<span class="text-warning cursor-pointer"> {{ selectedItem?.previousRoutineName }}</span>
             </div>
           </div>
         </template>
@@ -59,7 +94,7 @@
               Description: {{ selectedTask?.description }}
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ selectedTask?.uuid }` )">
-              Execution id: <span class="text-warning cursor-pointer">{{ selectedTask?.uuid }}</span>
+              Execution id: <span class="text-warning cursor-pointer">{{ selectedTask?.label }}</span>
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div class="q-mx-md q-my-sm">
@@ -83,10 +118,10 @@
               Previous task: <span class="text-warning cursor-pointer">{{ selectedTask?.previousTaskExecutionId }}</span>
             </div>
             <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ selectedTask?.taskId }` )">
-              Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.taskId }}</span>
+              Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.label }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedTask?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">{{ selectedTask?.serverId }}</span>
+              Server id: <span class="text-warning cursor-pointer">'{{ selectedTask?.serverName }}'</span>
             </div>
           </div>
         </template>
@@ -112,9 +147,12 @@ interface SelectedItem {
   routineId?: string;
   serverId: string;
   previousRoutineExecution?: string;
+  serverName: string;
+  previousRoutineName: string;
 }
 
 interface SelectedTask {
+  label: string;
   name: string;
   description: string;
   uuid: string;
@@ -126,6 +164,7 @@ interface SelectedTask {
   previousTaskExecutionId?: string;
   taskId?: string;
   serverId: string;
+  serverName: string;
 }
 
 const layout = 'dashboard-layout';
@@ -133,7 +172,7 @@ const selectedItem = ref<SelectedItem | null>(null);
 const route = useRoute();
 const selectedTask = ref<SelectedTask | null>(null);
 const dialogVisible = ref(false);
-
+const selectedOption = ref('routineMap')
 
 const routineMap = computedAsync(async () => {
   if (selectedItem.value) {
@@ -150,12 +189,13 @@ const routineMap = computedAsync(async () => {
         errored: task.errored,
         failed: task.failed,
         progress: task.progress,
+        scheduled: task.scheduled,
         started: task.started,
         ended: task.ended,
         previousTaskExecutionId: task.previous_task_execution_id,
         name: task.name,
-        description: task.description,
-        processingGraph: task.processing_graph,
+        description: task?.description,
+        serverName: task?.processing_graph,
         isUnique: task.is_unique,
         serverId: task.server_id,
       };
@@ -203,6 +243,7 @@ onMounted(() => {
 
   const itemId = route.params.id as string;
   selectedItem.value = Items.value?.find((item: SelectedItem) => item.uuid === itemId) || null;
+  console.log('Selected item:', selectedItem.value);
 });
 
 </script>

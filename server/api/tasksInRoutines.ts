@@ -3,11 +3,10 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 // Get all routines
-async function getRoutineMap( routineId: string ) {
+async function getRoutineMap(routineId: string) {
   const query = `
-    SELECT 
+    SELECT
         te.uuid,
         te.routine_execution_id,
         te.task_id,
@@ -40,16 +39,16 @@ async function getRoutineMap( routineId: string ) {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
 
   const { method, url } = event.node.req;
-  const routineId = url?.split( '=' )[ 1 ];
+  const routineId = url?.split('=')[1];
 
   if (method === 'GET') {
     try {
-      return await getRoutineMap( routineId ?? '' );
+      return await getRoutineMap(routineId ?? '');
     } catch (error) {
       console.error('Error fetching routines:', error);
       throw error;

@@ -48,16 +48,16 @@
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div v-if="taskExecution?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ taskExecution?.previousTaskExecutionId }` )">
-              Previous task: <span class="text-warning cursor-pointer">{{ taskExecution?.previousTaskExecutionId }}</span>
+              Previous task: <span class="text-warning cursor-pointer">{{ taskExecution?.previous_task_name}}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/routines/${ taskExecution?.routineExecutionId }` )">
-              Routine execution id: <span class="text-warning cursor-pointer">{{ taskExecution?.routineExecutionId }}</span>
+              Routine execution id: <span class="text-warning cursor-pointer">{{ taskExecution?.routineName }}</span>
             </div>
             <div v-if="taskExecution?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ taskExecution?.taskId }` )">
-              Task id: <span class="text-primary cursor-pointer">{{ taskExecution?.taskId }}</span>
+              Task id: <span class="text-primary cursor-pointer">{{ taskExecution?.name }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ taskExecution?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">{{ taskExecution?.serverId }}</span>
+              Server id: <span class="text-warning cursor-pointer">{{ taskExecution?.serverName }}</span>
             </div>
           </div>
         </template>
@@ -105,6 +105,8 @@ const taskExecution = computedAsync( async () => {
         previousTaskExecutionId: task?.previous_task_execution_id,
         serverId: task?.server_id,
         routineName: task?.routine_name,
+        serverName: task?.processing_graph,
+        previous_task_name: task?.previous_task_name
       };
     }
   }
