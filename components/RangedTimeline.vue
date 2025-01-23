@@ -12,13 +12,13 @@
           inner-track-color="primary"
           :min="getEarliestScheduledValue"
           :max="getlatestEndedValue"
-          :inner-min="Date.parse(entry.scheduled)-200"
+          :inner-min="Date.parse(entry.scheduled)"
           :inner-max="Date.parse(entry.ended)"
-          label-always
+          label
           :left-label-value="entry.started"
           :right-label-value="entry.ended"
           dense
-
+          readonly
         />
       </div>
     </div>

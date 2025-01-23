@@ -1,6 +1,6 @@
 <template>
   <div class="routine-map-container q-mb-md">
-    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
+    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init width="80dvw"contenteditable="false" :nodes-draggable="false" />
   </div>
 </template>
 
@@ -104,7 +104,7 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 
 <style>
 .routine-map-container {
-  width: 39dvw;
+  width: 80dvw;
   height: 50dvh;
   //max-width: 39dvw;
   //max-height: 40dvh;

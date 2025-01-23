@@ -17,7 +17,7 @@
 
           <q-btn
            class="q-mr-xs"
-          :label="'Timeline'"
+           :label="'Timeline'"
           color="primary"
           @click="selectedOption = 'timeline'"
           :class="{ 'q-btn--active'
@@ -27,7 +27,7 @@
 
           <q-btn
            class="q-mr-xs"
-          :label="'ranged Timeline'"
+           :label="'ranged Timeline'"
           color="primary"
           @click="selectedOption = 'rangedTimeline'"
           :class="{ 'q-btn--active'
@@ -40,12 +40,13 @@
           <RangedTimeline :routineMap="routineMap" v-show="selectedOption === 'rangedTimeline'" />
 
         </div>
-      <InfoCard v-if="selectedItem">
-        <template #title>
-          {{ selectedItem?.label }}
-        </template>
-        <template #info>
-          <div class="flex-column full-width">
+      <div class="row q-mx-md justify-around">
+        <InfoCard v-if="selectedItem">
+          <template #title>
+            {{ selectedItem?.label }}
+          </template>
+          <template #info>
+            <div class="flex-column full-width">
             <div class="q-mx-md q-my-sm">
               Description: {{ selectedItem?.routineDescription }}
             </div>
@@ -79,11 +80,12 @@
             <div v-if="selectedItem?.previousRoutineExecution" class="q-mx-md q-my-sm " @click="navigateToItem( `/activity/routines/${ selectedItem?.previousRoutineExecution }` )">
               Previous routine:<span class="text-warning cursor-pointer"> {{ selectedItem?.previousRoutineName }}</span>
             </div>
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/something/contracts/${ selectedItem?.contract_id }` )">
+              <span class="text-secondary cursor-pointer">Contract</span>
+            </div>
           </div>
         </template>
       </InfoCard>
-    </div>
-    <div class="row q-mx-md">
       <InfoCard v-if="selectedTask">
         <template #title>
           {{ selectedTask?.name }}
@@ -126,6 +128,7 @@
           </div>
         </template>
       </InfoCard>
+          </div>
     </div>
   </NuxtLayout>
 </template>
@@ -149,6 +152,7 @@ interface SelectedItem {
   previousRoutineExecution?: string;
   serverName: string;
   previousRoutineName: string;
+  contract_id: string;
 }
 
 interface SelectedTask {

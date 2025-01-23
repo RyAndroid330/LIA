@@ -19,6 +19,7 @@ async function getRoutines() {
       re.progress,
       re.created,
       re.ended,
+      re.contract_id,
       s.processing_graph,
       pre.routine_id AS previous_routine_id,
       r.name AS routine_name,
@@ -54,7 +55,8 @@ async function getRoutines() {
     ended: row.ended,
     uuid: row.uuid,
     serverName: row.processing_graph,
-    previousRoutineName: row.routine_name
+    previousRoutineName: row.routine_name,
+    contract_id: row.contract_id
   }));
 }
 
