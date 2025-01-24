@@ -3,43 +3,40 @@
     <template #title>
       {{ selectedItem?.label }} - {{ selectedItem?.uuid.slice( 0, 8 ) }}
     </template>
-    <div >
-        <div>
-          <q-btn
-          class="q-mr-xs"
-          :label="'Map'"
-          color="primary"
-          @click="selectedOption = 'routineMap'"
-          :class="{ 'q-btn--active'
-          :selectedOption === 'routineMap' }"
-          size="xs"
-          />
+    <div>
+      <div class="q-pa-md">
+        <q-tabs
+          v-model="selectedOption"
+          dense
+          class="text-grey-9 bg-transparent"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="routineMap" label="Map" />
+          <q-tab name="timeline" label="Timeline" />
+          <q-tab name="rangedTimeline" label="Ranged Timeline" />
+        </q-tabs>
 
-          <q-btn
-           class="q-mr-xs"
-           :label="'Timeline'"
-          color="primary"
-          @click="selectedOption = 'timeline'"
-          :class="{ 'q-btn--active'
-          :selectedOption === 'timeline' }"
-          size="xs"
-          />
+        <q-separator />
 
-          <q-btn
-           class="q-mr-xs"
-           :label="'ranged Timeline'"
-          color="primary"
-          @click="selectedOption = 'rangedTimeline'"
-          :class="{ 'q-btn--active'
-          :selectedOption === 'rangedTimeline' }"
-          size="xs"
-          />
-
-          <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected"  v-show="selectedOption === 'routineMap'"/>
-          <Timeline :routineMap="routineMap" v-show="selectedOption === 'timeline'"/>
-          <RangedTimeline :routineMap="routineMap" v-show="selectedOption === 'rangedTimeline'" />
-
-        </div>
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'routineMap'">
+            <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'timeline'">
+            <Timeline :routineMap="routineMap" />
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'rangedTimeline'">
+            <RangedTimeline :routineMap="routineMap" />
+          </div>
+        </transition>
+      </div>
       <div class="row q-mx-md justify-around">
         <InfoCard v-if="selectedItem">
           <template #title>
@@ -162,8 +159,7 @@ interface SelectedTask {
   uuid: string;
   progress: number;
   started: string;
-  ended: string;
-  failed: boolean;
+  ended: boolean;
   errored: boolean;
   previousTaskExecutionId?: string;
   taskId?: string;
@@ -203,7 +199,7 @@ const routineMap = computedAsync(async () => {
         isUnique: task.is_unique,
         serverId: task.server_id,
       };
-    });
+    }) || [];
   }
   return [];
 }, []);
@@ -251,3 +247,12 @@ onMounted(() => {
 });
 
 </script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+</style>

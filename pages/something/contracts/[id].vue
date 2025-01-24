@@ -3,13 +3,48 @@
     <template #title>
       Contract Elements
     </template>
-    <div class="row q-mx-md">
-      <Table
+    <div>
+      <div class="q-pa-md">
+        <q-tabs
+          v-model="selectedOption"
+          dense
+          class="text-grey-9 bg-transparent"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="routineMap" label="Map" />
+          <q-tab name="timeline" label="Timeline" />
+          <q-tab name="rangedTimeline" label="Ranged Timeline" />
+        </q-tabs>
+
+        <q-separator />
+
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'routineMap'">
+            <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'timeline'">
+            <Timeline :routineMap="routineMap" />
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+          <div v-show="selectedOption === 'rangedTimeline'">
+            <RangedTimeline :routineMap="routineMap" />
+          </div>
+        </transition>
+      </div>
+      <div class="row q-mx-md">
+        <Table
           :columns="columns"
           :rows="routines"
           row-key="uuid"
           @inspect-row="inspectRoutine"
-      />
+        />
+      </div>
     </div>
   </NuxtLayout>
 </template>
@@ -91,6 +126,8 @@ const columns = [
 const routines = ref<Routine[]>([]);
 const router = useRouter();
 const route = useRoute();
+const selectedOption = ref('routineMap');
+const routineMap = ref([]);
 
 function formatDate( date: string ) {
   const datetime = new Date( date );
@@ -118,6 +155,11 @@ const navigateToItem = ( route: string ) => {
   router.push(route);
 };
 
+function onTaskSelected(task: any) {
+  console.log('selected', task);
+  // Handle task selection
+}
+
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
@@ -141,5 +183,15 @@ onMounted(async () => {
         contract_id: r.contract_id,
       };
   } );
+  routineMap.value = data.filter((r: any) => r.contract_id === contractId);
 });
 </script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+</style>
