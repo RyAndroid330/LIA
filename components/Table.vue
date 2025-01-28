@@ -8,7 +8,6 @@
         :rows="rows"
         :row-key="rowKey"
         flat
-        virtual-scroll
         no-data-label="I didn't find anything for you"
         :filter="filter"
         :rows-per-page-options="[ 20, 50 ]"

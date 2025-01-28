@@ -1,11 +1,11 @@
 <template>
-  <q-timeline class="q-ma-xl">
+  <q-timeline class="q-ma-xl" layout='loose' style = "max-width:75%">
     <q-timeline-entry
       v-for="(entry, index) in routineMap"
       :key="index"
       :title="entry.label"
       :subtitle="formatDate(entry.started)"
-      :body="entry.description"
+      :body="getBody(entry)"
 
     />
   </q-timeline>
@@ -20,6 +20,11 @@ defineProps({
     required: true
   }
 })
+
+function getBody(entry) {
+  console.log(entry)
+  return `${entry.description}\n  ${JSON.stringify(entry.inputContext)}}`
+}
 
 const formatDate = computed(() => (date) => {
   const formattedDate = new Date(date)

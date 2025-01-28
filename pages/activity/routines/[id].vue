@@ -71,8 +71,8 @@
             <div v-if="selectedItem?.routineId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/routines/${ selectedItem?.routineId }` )">
               Routine id: <span class="text-primary cursor-pointer">{{ selectedItem?.label }}</span>
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedItem?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">{{ selectedItem?.serverName }}</span>
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.serverName }` )">
+              Server id: <span class="text-primary cursor-pointer">{{ selectedItem?.serverName }}</span>
             </div>
             <div v-if="selectedItem?.previousRoutineExecution" class="q-mx-md q-my-sm " @click="navigateToItem( `/activity/routines/${ selectedItem?.previousRoutineExecution }` )">
               Previous routine:<span class="text-warning cursor-pointer"> {{ selectedItem?.previousRoutineName }}</span>
@@ -119,8 +119,8 @@
             <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ selectedTask?.taskId }` )">
               Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.label }}</span>
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ selectedTask?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">'{{ selectedTask?.serverName }}'</span>
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.serverName }` )">
+              Server id: <span class="text-primary cursor-pointer">'{{ selectedTask?.serverName }}'</span>
             </div>
           </div>
         </template>
@@ -159,12 +159,13 @@ interface SelectedTask {
   uuid: string;
   progress: number;
   started: string;
-  ended: boolean;
+  ended: string;
   errored: boolean;
   previousTaskExecutionId?: string;
   taskId?: string;
   serverId: string;
   serverName: string;
+  failed: boolean;
 }
 
 const layout = 'dashboard-layout';
@@ -198,6 +199,8 @@ const routineMap = computedAsync(async () => {
         serverName: task?.processing_graph,
         isUnique: task.is_unique,
         serverId: task.server_id,
+        inputContext: task.input_context,
+        outputContext: task.output_context,
       };
     }) || [];
   }

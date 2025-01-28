@@ -26,9 +26,11 @@
               v-if="index === routineMap.length - 1"
               v-for="marker in markerList"
               :key="marker.index"
-              :class="[ marker.value, marker.classes ]"
-              :style="marker.style"
-            >{{ formatTime(marker.value) }}</div>
+              :class="[marker.value, marker.classes]"
+              :style="Object.entries(marker.style).map(([key, value]) => `${key}: ${value};`)"
+            >
+              {{ formatTime(marker.value) }}
+            </div>
           </template>
         </q-range>
       </div>
@@ -44,16 +46,15 @@ import RoutineMap from './routineMap.vue';
 const props = defineProps<{
   routineMap: Array<{
     label: string;
-    scheduled: string;
     started: string;
     ended: string;
   }>
 }>()
 
-const getEarliestScheduledValue = computed(() => {
-  const earliestScheduledValue = Math.min(...props.routineMap.map((entry) => Date.parse(entry.scheduled)))-1000;
-  console.log(`Earliest scheduled value: ${earliestScheduledValue}`);
-  return earliestScheduledValue;
+const getEarliestStartedValue = computed(() => {
+  const earliestStartedValue = Math.min(...props.routineMap.map((entry) => Date.parse(entry.started)))-1000;
+  console.log(`Earliest started value: ${earliestStartedValue}`);
+  return earliestStartedValue;
 })
 
 const getlatestEndedValue = computed(() => {
@@ -62,7 +63,7 @@ const getlatestEndedValue = computed(() => {
   return latestEndedValue;
 })
 
-const fullRange = computed(() => getlatestEndedValue.value - getEarliestScheduledValue.value);
+const fullRange = computed(() => getlatestEndedValue.value - getEarliestStartedValue.value);
 
 const dynamicProduct = computed(() => {
   if (fullRange.value < 500) {
@@ -80,7 +81,7 @@ const dynamicProduct = computed(() => {
   return 10000;
 })
 
-const min = computed(() => Math.floor(getEarliestScheduledValue.value/dynamicProduct.value) * dynamicProduct.value);
+const min = computed(() => Math.floor(getEarliestStartedValue.value/dynamicProduct.value) * dynamicProduct.value);
 
 const max = computed(() => Math.ceil(getlatestEndedValue.value/dynamicProduct.value) * dynamicProduct.value);
 

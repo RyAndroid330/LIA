@@ -5,7 +5,7 @@
         <label class='text-h5' for='q-list'>{{ listLabel }}</label>
       </div>
       <div class="flex-inline q-mx-md">
-        <label v-for="colum in columns" :key="colum" class="list-column q-mr-lg">{{ colum }}</label>
+        <label v-for="(column, index) in columns" :key="index.toString()" class="list-column q-mr-lg">{{ column }}</label>
       </div>
       <div class="q-separator" style="height: 2px"></div>
       <q-virtual-scroll
@@ -73,7 +73,7 @@ function getProgressBarColor( progress: number, error: boolean = false ) {
   return progress < 1.0 ? 'blue' : 'green';
 }
 
-const getAvatarColorClass = (type) => {
+const getAvatarColorClass = (type: string) => {
   switch (type.toLowerCase()) {
     case 'routine':
       return 'bg-warning';

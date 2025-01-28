@@ -1,12 +1,12 @@
 <template>
     <div class="map-container">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init contenteditable="false" />
+      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init width="90dvw" contenteditable="false" :nodes-draggable="false" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { Node, Edge } from '@vue-flow/core';
+import type { Node, Edge, Position } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
 import dagre from 'dagre';
 
@@ -18,14 +18,16 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: 'LR',  // TB = top to bottom
-    ranksep: 100,   // Increase vertical space between layers
-    nodesep: 20,   // Increase horizontal space between nodes
+    ranksep: 500,   // Increase vertical space between layers
+    nodesep: 10,   // Increase horizontal space between nodes
+    edgesep: 1,   // Increase horizontal space between edges
+    align: 'DL', //
   });
   g.setDefaultEdgeLabel(() => ({}));
 
   // Add nodes to the dagre graph
   nodes.forEach((node) => {
-    g.setNode(node.id, { width: node.width || 50, height: node.height || 50 });
+    g.setNode(node.id, { width: node.width || 5, height: node.height || 30 });
   });
 
   // Add edges to the dagre graph
@@ -54,8 +56,8 @@ onMounted(async () => {
       nodes.value.push({
         id: server.server_id.toString(),
         position: { x: 0, y: 0 },
-        sourcePosition: 'right',
-        targetPosition: 'left',
+        sourcePosition: 'right' as Position,
+        targetPosition: 'left' as Position,
         data: { label: server.processing_graph },
         type: undefined,
         class: 'custom-node'
@@ -90,8 +92,8 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 
 <style>
 .map-container {
-  width: 50%;
-  height: 48dvh;
+  width: 80%;
+  height: 100dvh;
   //border: 1.5px solid lightgray;
   //border-radius: 10px;
 }

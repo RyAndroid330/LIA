@@ -5,7 +5,7 @@
     </template>
     <div class="row q-mx-md">
       <GridTable :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/>
-      <ServerMap @node-selected="onServerSelected" />
+      <ServerMap @node-selected="onServerSelected" class="q-mx-xl" />
     </div>
     <q-dialog v-model="dialogVisible">
       <q-card class="my-card">

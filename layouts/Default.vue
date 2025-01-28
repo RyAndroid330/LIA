@@ -10,7 +10,7 @@
         ]"
       >
         <q-img
-          src='logoipsum-260.svg'
+          src='/logoipsum-260.svg'
           style="max-height: 50px; max-width: 200px; z-index: 500; margin: 5px"
         />
 
@@ -25,26 +25,42 @@
       class='q-pa-lg'
       :width="220"
       v-model='drawerOpen'
-      persistent
+      :mini="miniState"
+      :mini-to-overlay="false"
+      behavior="default"
+      :breakpoint="0"
       side='left'
       elevated
       :style="{ background: toolbarClassLight }"
     >
+
+    <div class="q-mini-drawer-show absolute" style="top: 50%; transform: translateY(-50%); right: 0">
+          <q-btn
+            dense
+            square
+            unelevated
+            color="grey-6"
+            :icon="miniState ? 'chevron_right' : 'chevron_left'"
+            @click="toggleDrawer"
+          />
+        </div>
+
     <q-expansion-item
         expand-separator
         label='Something'
         header-class='text-secondary'
         v-model='showSomething'
-        @click="() => setSection('something')"
+        @click="() => setSection('something', true)"
         to='/something'
         hide-expand-icon
+        round dense icon="menu"
       >
         <q-item>
           <q-btn
             flat
             color='secondary'
             to='/something/contracts'
-            @click="() => setSection('something')"
+            @click="() => setSection('something', true)"
           >
             Contracts
           </q-btn>
@@ -54,7 +70,7 @@
             flat
             color='secondary'
             to='/something/agents'
-            @click="() => setSection('something')"
+            @click="() => setSection('something', true)"
           >
             Agents
           </q-btn>
@@ -66,16 +82,17 @@
         label='Assets'
         header-class='text-primary'
         v-model='showAssets'
-        @click="() => setSection('assets')"
+        @click="() => setSection('assets', true)"
         to='/assets'
         hide-expand-icon
+        round dense icon="menu"
       >
         <q-item>
           <q-btn
             flat
             color='primary'
             to='/assets/routines'
-            @click="() => setSection('assets')"
+            @click="() => setSection('assets', true)"
           >
             Routines
           </q-btn>
@@ -85,7 +102,7 @@
             flat
             color='primary'
             to='/assets/tasks'
-            @click="() => setSection('assets')"
+            @click="() => setSection('assets', true)"
           >
             Tasks
           </q-btn>
@@ -97,16 +114,17 @@
         label='Server Activity'
         header-class='text-warning'
         v-model='showServerActivity'
-        @click="() => setSection('serverActivity')"
+        @click="() => setSection('serverActivity', true)"
         to='/activity'
         hide-expand-icon
+        round dense icon="menu"
       >
         <q-item>
           <q-btn
             flat
             color='warning'
             to='/activity/routines'
-            @click="() => setSection('serverActivity')"
+            @click="() => setSection('serverActivity', true)"
           >
             Routines
           </q-btn>
@@ -116,7 +134,7 @@
             flat
             color='warning'
             to='/activity/tasks'
-            @click="() => setSection('serverActivity')"
+            @click="() => setSection('serverActivity', true)"
           >
             Tasks
           </q-btn>
@@ -131,8 +149,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from
-'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { colors } from 'quasar';
 import { useAppStore } from '~/stores/app';
 
@@ -141,17 +158,32 @@ const showSomething = ref(false);
 const showAssets = ref(false);
 const showServerActivity = ref(false);
 const drawerOpen = ref(true);
+const miniState = ref(false);
 const appStore = useAppStore();
 const { currentSection } = storeToRefs(appStore);
 
 // Methods
-const setSection = (section) => {
+const setSection = (section, disableMini = false) => {
   appStore.setCurrentSection(section);
   showSomething.value = section === 'something';
   showAssets.value = section === 'assets';
   showServerActivity.value = section === 'serverActivity';
+  if (disableMini) {
+    miniState.value = false;
+  }
 };
 
+const toggleDrawer = () => {
+  miniState.value = !miniState.value;
+};
+
+const handleResize = () => {
+  if (window.innerWidth < 1024) {
+    miniState.value = true;
+  } else {
+    miniState.value = false;
+  }
+};
 
 // dynamic toolbar color
 const toolbarClass = computed(() => {
@@ -181,6 +213,15 @@ const toolbarClassLight = computed(() => {
 watch(currentSection, (newSection) => {
   setSection(newSection || 'home'); // Set 'home' if newSection is undefined
 }, { immediate: true }); // immediate: true ensures the watcher is triggered on initial load
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  handleResize(); // Initial check
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 </script>
 

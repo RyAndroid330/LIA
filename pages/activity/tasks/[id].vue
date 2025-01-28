@@ -56,8 +56,8 @@
             <div v-if="taskExecution?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ taskExecution?.taskId }` )">
               Task id: <span class="text-primary cursor-pointer">{{ taskExecution?.name }}</span>
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/server/${ taskExecution?.serverId }` )">
-              Server id: <span class="text-warning cursor-pointer">{{ taskExecution?.serverName }}</span>
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ taskExecution?.serverName }` )">
+              Server id: <span class="text-primary cursor-pointer">{{ taskExecution?.serverName }}</span>
             </div>
           </div>
         </template>

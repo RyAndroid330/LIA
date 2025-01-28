@@ -6,27 +6,17 @@ let client: pg.Client | null = null;
 // Get all agents
 async function getAgents() {
   const query = `
-    SELECT * FROM contract
+    SELECT * FROM agent
   `;
   const res = await client!.query(query);
 
   // Map the results to include all fields
   return res.rows.map((row) => ({
     uuid: row.uuid,
-    agent_id: row.agent_id,
-    context: row.context,
-    product: row.product,
-    issued_at: row.issued_at,
+    name: row.name,
+    description: row.description,
     created: row.created,
-    fulfilled: row.fulfilled,
-    fulfilled_at: row.fulfilled_at,
-    result_context: row.result_context,
-    from_url: row.from_url,
-    headers: row.headers,
-    method: row.method,
-    credentials: row.credentials,
-    mode: row.mode,
-    referer: row.referer
+    deleted: row.deleted
   }));
 }
 

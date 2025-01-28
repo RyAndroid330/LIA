@@ -184,6 +184,8 @@ onMounted(async () => {
       };
   } );
   routineMap.value = data.filter((r: any) => r.contract_id === contractId);
+  // Ensure routineMap is correctly populated
+  console.log('Routine Map:', routineMap.value);
 });
 </script>
 
@@ -191,7 +193,7 @@ onMounted(async () => {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 </style>

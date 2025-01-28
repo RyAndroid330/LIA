@@ -1,12 +1,12 @@
 <template>
   <div class="routine-map-container q-mb-md">
-    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" max-zoom="1.5" fit-view-on-init width="80dvw"contenteditable="false" :nodes-draggable="false" />
+    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init width="80dvw" contenteditable="false" :nodes-draggable="false" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import type { Node, Edge } from '@vue-flow/core';
+import type { Node, Edge, Position } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
 import { useFetch } from '#app';
 import dagre from 'dagre';
@@ -14,12 +14,16 @@ import dagre from 'dagre';
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 
-const props = defineProps({
-  routineMap: {
-    type: Array,
-    default: () => ([]),
-  }
-});
+interface Task {
+  uuid: string;
+  previousTaskExecutionId?: string;
+  errored?: boolean;
+  // ...other properties
+}
+
+const props = defineProps<{
+  routineMap: Task[];
+}>();
 
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
@@ -52,22 +56,22 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
   });
 }
 
-watch( props, ( newValue ) => {
-  if ( !newValue.routineMap?.length ) {
+watch(props, (newValue) => {
+  if (!newValue.routineMap?.length) {
     return;
   }
-  console.log( newValue.routineMap );
+  console.log(newValue.routineMap);
   const routineMap = newValue.routineMap;
   nodes.value = [];
   edges.value = [];
 
-  if ( routineMap && routineMap.length ) {
+  if (routineMap && routineMap.length) {
     routineMap.forEach((task) => {
       nodes.value.push({
         id: task.uuid.toString(),
         position: { x: 0, y: 0 },
-        sourcePosition: 'right', // 'bottom'
-        targetPosition: 'left', // 'top'
+        sourcePosition: 'right' as Position, // 'bottom'
+        targetPosition: 'left' as Position, // 'top'
         data: {
           ...task,
         },
@@ -89,13 +93,14 @@ watch( props, ( newValue ) => {
 
     nodes.value = layoutGraph(nodes.value, edges.value);
   }
-} );
+});
 
+const emit = defineEmits<{
+  (e: 'nodeSelected', task: Task): void;
+}>();
 
-// Add click event handler
-const emit = defineEmits(['nodeSelected']);
 function onNodeClick({ event, node }: { event: any, node: Node }) {
-  const task = node.data;
+  const task = node.data as Task;
   console.log(node, task);
   emit('nodeSelected', task);
   console.log(node.id);

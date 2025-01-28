@@ -23,8 +23,8 @@
             <div class="q-mx-md q-my-sm">
               Type: {{ selectedItem?.type }}
             </div>
-            <div class="q-mx-md q-my-sm">
-              Processing Graph: {{ selectedItem?.processing_graph }}
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.processing_graph }` )">
+              Processing Graph: <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
             </div>
             <div class="q-mx-md q-my-sm">
               Created: {{ new Date(selectedItem?.created).toLocaleString() }}
@@ -41,8 +41,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useFetch, useRoute } from '#app';
+import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
+
 
 // Define the Item interface
 interface Item {
@@ -62,6 +63,7 @@ interface Item {
 const layout = 'dashboard-layout';
 const selectedItem = ref<Item | null>(null);
 const route = useRoute();
+const router = useRouter();
 
 // Fetch the Items data
 const { data: Items, error } = await useFetch(`/api/routine/${route.params.id}`);
@@ -79,4 +81,9 @@ onMounted(() => {
   const itemId = route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
 });
+
+const navigateToItem = ( route: string ) => {
+  console.log('Navigating to route:', route);
+  router.push(route);
+};
 </script>
