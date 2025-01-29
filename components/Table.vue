@@ -73,7 +73,7 @@ const props = defineProps( {
     required: true,
   },
   columns: {
-    type: Array,
+    type: Array as PropType<Array<{ name: string; label: string; field: string | ((row: any) => any); required?: boolean; align?: "right" | "left" | "center"; sortable?: boolean; sort?: ((a: any, b: any, rowA: any, rowB: any) => number); headerClasses?: string }>>,
     default: undefined,
   },
   rowKey: {
@@ -90,7 +90,7 @@ const filter = ref( '' );
 
 const emit = defineEmits( [ 'inspectRow' ] );
 
-function inspectRow( item ) {
+function inspectRow( item: any ) {
   console.log( item );
   emit( 'inspectRow', item );
 }
@@ -104,6 +104,7 @@ const formattedColumns = computed( () => {
   columns.unshift( {
     name: 'expand',
     label: '',
+    field: 'expand',
     required: true,
     sortable: false,
   } );
@@ -112,6 +113,7 @@ const formattedColumns = computed( () => {
     columns.push( {
       name: 'inspect',
       label: 'Inspect',
+      field: 'inspect',
       required: true,
       sortable: false,
     } );

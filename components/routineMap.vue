@@ -111,10 +111,10 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 .routine-map-container {
   width: 80dvw;
   height: 50dvh;
-  //max-width: 39dvw;
-  //max-height: 40dvh;
-  //border: 1.5px solid lightgray;
-  //border-radius: 10px;
+  /* max-width: 39dvw; */
+  /* max-height: 40dvh; */
+  /* border: 1.5px solid lightgray; */
+  /* border-radius: 10px; */
 }
 
 .custom-node {

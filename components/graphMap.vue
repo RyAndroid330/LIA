@@ -24,8 +24,16 @@ const props = defineProps({
 });
 
 // Function to create nodes and edges
+interface Task {
+  type: string;
+  label: any;
+  description: any;
+  uuid: any;
+  graph: any;
+}
+
 const createGraph = async () => {
-  const { data: tasks } = await useFetch('/api/tasks');
+  const { data: tasks } = await useFetch<Task[]>('/api/tasks');
   const { data: tasksInGraphs } = await useFetch('/api/tasksInGraphs');
 
   if (tasks.value && tasks.value.length > 0) {

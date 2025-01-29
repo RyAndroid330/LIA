@@ -44,9 +44,9 @@ const columns = [
     sortable: true,
   },
   {
-    name: 'agent_id',
+    name: 'agent_name',
     label: 'Agent',
-    field: 'agent_id',
+    field: 'agent_name',
     required: true,
     sortable: false,
   }
@@ -94,6 +94,7 @@ onMounted(async () => {
       uuid: r.uuid,
       name: r.product,
       agent_id: r.agent_id,
+      agent_name: r.agent_name,
       label: r.label,
       description: r.description,
     };

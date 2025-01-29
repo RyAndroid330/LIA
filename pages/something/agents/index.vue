@@ -45,7 +45,7 @@ const columns = [
   },
   {
     name: 'uuid',
-    label: 'agent',
+    label: 'Agent Id',
     field: 'uuid',
     required: true,
     sortable: false,

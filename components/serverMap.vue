@@ -1,6 +1,6 @@
 <template>
-    <div class="map-container">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init width="90dvw" contenteditable="false" :nodes-draggable="false" />
+    <div class="map-container q-ma-md">
+      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
     </div>
 </template>
 
@@ -93,9 +93,9 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 <style>
 .map-container {
   width: 80%;
-  height: 100dvh;
-  //border: 1.5px solid lightgray;
-  //border-radius: 10px;
+  height: 60dvh;
+  /* border: 1.5px solid lightgray; */
+  /* border-radius: 10px; */
 }
 
 .custom-node {

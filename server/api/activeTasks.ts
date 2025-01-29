@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
   if (method === 'GET') {
     try {
-      return await getTaskExecution(taskExecutionId);
+      return await getTaskExecution();
     } catch (error) {
       console.error('Error fetching TaskExecutions:', error);
       throw error;

@@ -6,7 +6,9 @@ let client: pg.Client | null = null;
 // Get all contracts
 async function getContracts() {
   const query = `
-    SELECT * FROM contract
+    SELECT contract.*, agent.name AS agent_name
+    FROM contract
+    LEFT JOIN agent ON contract.agent_id = agent.uuid
   `;
   const res = await client!.query(query);
 
@@ -14,6 +16,7 @@ async function getContracts() {
   return res.rows.map((row) => ({
     uuid: row.uuid,
     agent_id: row.agent_id,
+    agent_name: row.agent_name,
     context: row.context,
     product: row.product,
     issued_at: row.issued_at,
