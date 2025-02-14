@@ -4,7 +4,7 @@
       {{ selectedItem?.name }} - {{ selectedItem?.uuid.slice(0, 8) }}
     </template>
     <div class="row q-mx-md">
-      <InfoCard v-if="selectedItem">
+      <InfoCard v-if="selectedItem" >
         <template #title>
           {{ selectedItem?.name }}
         </template>
@@ -12,9 +12,6 @@
           <div class="flex-column full-width">
             <div class="q-mx-md q-my-sm">
               Description: {{ selectedItem?.description }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Function: {{ selectedItem?.function_string }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div class="q-mx-md q-my-sm">
@@ -35,6 +32,15 @@
           </div>
         </template>
       </InfoCard>
+      <InfoCard >
+        <template #title>
+          Tasks Function
+        </template>
+        <template #info>
+          <pre>{{ selectedItem?.function_string }}</pre>
+        </template>
+      </InfoCard>
+      <TaskHeatMap :taskId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
 </template>
@@ -43,6 +49,7 @@
 import { ref, onMounted } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
+import TaskHeatMap from '~/components/TaskHeatMap.vue';
 
 // Define the Item interface
 interface Item {

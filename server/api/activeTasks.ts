@@ -28,7 +28,8 @@ async function getTaskExecution() {
         ctx2.context AS output_context,
         t.name,
         t.description,
-        t.is_unique
+        t.is_unique,
+        t.function_string
     FROM task_execution te
     LEFT JOIN task_execution_map tem ON te.uuid = tem.task_execution_id
     LEFT JOIN routine_execution re ON te.routine_execution_id = re.uuid

@@ -76,7 +76,7 @@ function getDuration( start: number, end?: number ) {
 }
 
 function inspectContracts( contracts:contracts ) {
-  navigateToItem( `/something/contracts/${ contracts.uuid }` );
+  navigateToItem( `/contracts/${ contracts.uuid }` );
 }
 
 const navigateToItem = ( route: string ) => {

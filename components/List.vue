@@ -92,7 +92,7 @@ const getAvatarColorClass = (type: string) => {
   border-radius: 20px !important;
   min-width: 39dvw;
   max-width: 70dvw;
-  max-height: 50dvh;
+  max-height: 60dvh;
   overflow-y: auto;
 }
 </style>

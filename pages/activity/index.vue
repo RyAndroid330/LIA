@@ -4,7 +4,9 @@
       Server Activity
     </template>
     <div class="row q-mx-md">
+      <!-- <Flipper :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/> -->
       <GridTable :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/>
+      <!-- <tree class="q-mx-xl"></tree> -->
       <ServerMap @node-selected="onServerSelected" class="q-mx-xl" />
     </div>
     <q-dialog v-model="dialogVisible">
@@ -41,6 +43,7 @@
 import { ref, onMounted } from 'vue';
 import { useAppStore } from '~/stores/app';
 import ServerMap from '~/components/serverMap.vue';
+import Flipper from '~/components/Flipper.vue';
 
 const hoverBack = ref(false);
 const hoverNext = ref(false);

@@ -31,6 +31,7 @@ async function getTaskExecution(taskExecutionId: string) {
         t.description,
         t.is_unique,
         t.layer_index,
+        t.function_string,
         pt.name AS previous_task_name
     FROM task_execution te
     LEFT JOIN task_execution_map tem ON te.uuid = tem.task_execution_id

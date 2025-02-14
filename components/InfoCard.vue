@@ -1,5 +1,5 @@
 <template>
-  <q-card class="custom-card q-mb-md overflow-auto">
+  <q-card class="custom-card q-mb-md overflow-auto q-ma-sm">
     <div class="col flex-grow q-pa-md">
       <div class="row text-h5">
         <slot name="title" />
@@ -20,6 +20,6 @@
   border-radius: 20px !important;
   min-width: 39dvw;
   max-width: 100dvw;
-  max-height: 48dvh;
+  max-height: 60dvh;
 }
 </style>

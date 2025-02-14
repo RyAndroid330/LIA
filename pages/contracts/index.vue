@@ -74,7 +74,7 @@ function getDuration( start: number, end?: number ) {
 }
 
 function inspectContracts( contracts:contracts ) {
-  navigateToItem( `/something/contracts/${ contracts.uuid }` );
+  navigateToItem( `contracts/${ contracts.uuid }` );
 }
 
 const navigateToItem = ( route: string ) => {
@@ -85,7 +85,7 @@ const navigateToItem = ( route: string ) => {
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
-  appStore.setCurrentSection('something');
+  appStore.setCurrentSection('contracts');
   const response = await fetch('/api/contracts');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();

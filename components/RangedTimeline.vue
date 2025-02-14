@@ -39,9 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { QTimelineEntry } from 'quasar';
 import { ref, computed, defineProps } from 'vue';
-import RoutineMap from './routineMap.vue';
 
 const props = defineProps<{
   routineMap: Array<{

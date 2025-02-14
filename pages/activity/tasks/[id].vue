@@ -23,12 +23,6 @@
             <div class="q-mx-md q-my-sm">
               Is unique: {{ taskExecution?.isUnique }}
             </div>
-<!--            <div class="q-mx-md q-my-sm">-->
-<!--              Input: {{ taskExecution?.inputContext }}-->
-<!--            </div>-->
-<!--            <div class="q-mx-md q-my-sm">-->
-<!--              Output: {{ taskExecution?.outputContext }}-->
-<!--            </div>-->
             <div class="q-separator" style="height: 2px"></div>
             <div class="q-mx-md q-my-sm">
               Progress: {{ Math.round( taskExecution?.progress * 100 ) }}%
@@ -62,6 +56,40 @@
           </div>
         </template>
       </InfoCard>
+      <div>
+
+        <InfoCard>
+          <template #title>
+            Input Context
+          </template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ taskExecution?.inputContext }}</pre>
+            </div>
+          </template>
+        </InfoCard>
+        <InfoCard>
+        <template #title>
+          Tasks Function
+        </template>
+        <template #info>
+          <div class="q-mx-md q-my-sm">
+            <pre>{{ taskExecution?.function_string }}</pre>
+          </div>
+        </template>
+      </InfoCard>
+        <InfoCard>
+          <template #title>
+            Output Context
+          </template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ taskExecution?.outputContext }}</pre>
+            </div>
+          </template>
+      </InfoCard>
+
+    </div>
     </div>
   </NuxtLayout>
 </template>
@@ -106,7 +134,8 @@ const taskExecution = computedAsync( async () => {
         serverId: task?.server_id,
         routineName: task?.routine_name,
         serverName: task?.processing_graph,
-        previous_task_name: task?.previous_task_name
+        previous_task_name: task?.previous_task_name,
+        function_string: task?.function_string
       };
     }
   }

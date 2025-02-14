@@ -13,16 +13,17 @@
           </h5>
         </template>
       </Details>
-        <q-card class="custom-card">
-          <q-card-section>
-          </q-card-section>
-          <q-card-section class="q-pt-none">
-            <div class="row no-wrap items-center">
-              <div class="col text-h6 ellipsis">Load on all Servers</div>
-            </div>
-            <ServerStats :selectedServer="aggregatedServer" />
-          </q-card-section>
-        </q-card>
+      <q-card class="custom-card">
+        <q-card-section>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <div class="row no-wrap items-center">
+            <div class="col text-h6 ellipsis">Load on all Servers</div>
+          </div>
+          <ServerStats :selectedServer="aggregatedServer" />
+        </q-card-section>
+      </q-card>
+      <HeatMap/>
     </div>
   </NuxtLayout>
 </template>
@@ -30,9 +31,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useAppStore } from '~/stores/app';
+import HeatMap from '~/components/HeatMap.vue';
 
 const layout = 'dashboard-layout';
-const activeProcesses = ref([]);
+const activeProcesses = ref<Server[]>([]);
 
 const totalCpuUsage = ref(0);
 const totalMemoryUsage = ref(0);
@@ -53,7 +55,15 @@ interface Server {
 const fetchServerStats = async () => {
   try {
     const response = await $fetch('/api/serverStats');
-    activeProcesses.value = response;
+    activeProcesses.value = (response || []).map((server: any) => ({
+      uuid: server.uuid,
+      cpu: server.cpu,
+      gpu: server.gpu,
+      ram: server.ram,
+      is_active: server.is_active,
+      is_non_responsive: server.is_non_responsive,
+      is_blocked: server.is_blocked,
+    }));
 
     // Reset totals before calculating
     totalCpuUsage.value = 0;

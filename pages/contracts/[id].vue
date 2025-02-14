@@ -45,6 +45,7 @@
           @inspect-row="inspectRoutine"
         />
       </div>
+      <ContractHeatMap :contractId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
 </template>
@@ -53,6 +54,7 @@
 import { ref, onMounted } from 'vue';
 import { useFetch, useRoute } from '#app';
 import { useRouter } from '#vue-router';
+import ContractHeatMap from '~/components/ContractHeatMap.vue';
 
 interface Routine {
   type: string;
@@ -163,7 +165,7 @@ function onTaskSelected(task: any) {
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
-  appStore.setCurrentSection('something');
+  appStore.setCurrentSection('contracts');
   const response = await fetch('/api/activeRoutines');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();

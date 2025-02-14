@@ -5,9 +5,14 @@
       :key="index"
       :title="entry.label"
       :subtitle="formatDate(entry.started)"
-      :body="getBody(entry)"
-
-    />
+      >
+      <q-badge v-if="entry.description" color="primary">
+        {{ getDescription(entry)}}
+      </q-badge>
+       <blockquote>
+        <pre > {{ getContext(entry)}}</pre>
+       </blockquote>
+      </q-timeline-entry>
   </q-timeline>
 </template>
 
@@ -21,9 +26,13 @@ defineProps({
   }
 })
 
-function getBody(entry) {
+function getDescription(entry) {
   console.log(entry)
-  return `${entry.description}\n  ${JSON.stringify(entry.inputContext)}}`
+  return entry.description
+}
+function getContext(entry) {
+  console.log(entry)
+  return JSON.stringify(entry.inputContext,null,2)
 }
 
 const formatDate = computed(() => (date) => {

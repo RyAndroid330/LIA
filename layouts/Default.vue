@@ -15,7 +15,7 @@
         />
 
         <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
-        <q-btn flat to='/something' @click="() => setSection('something')"> Something </q-btn>
+        <q-btn flat to='/contracts' @click="() => setSection('contracts')"> Contracts </q-btn>
         <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
         <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
       </q-toolbar>
@@ -47,11 +47,10 @@
 
     <q-expansion-item
         expand-separator
-        label='Something'
+        label='Contracts'
         header-class='text-secondary'
-        v-model='showSomething'
-        @click="() => setSection('something', true)"
-        to='/something'
+        v-model='showContracts'
+        to='/contracts'
         hide-expand-icon
         round dense icon="menu"
       >
@@ -59,30 +58,18 @@
           <q-btn
             flat
             color='secondary'
-            to='/something/contracts'
-            @click="() => setSection('something', true)"
-          >
-            Contracts
-          </q-btn>
-        </q-item>
-        <q-item>
-          <q-btn
-            flat
-            color='secondary'
-            to='/something/agents'
-            @click="() => setSection('something', true)"
+            to='/contracts/agents'
+            @click="() => setSection('contracts', true)"
           >
             Agents
           </q-btn>
         </q-item>
       </q-expansion-item>
-
       <q-expansion-item
         expand-separator
         label='Assets'
         header-class='text-primary'
         v-model='showAssets'
-        @click="() => setSection('assets', true)"
         to='/assets'
         hide-expand-icon
         round dense icon="menu"
@@ -108,13 +95,11 @@
           </q-btn>
         </q-item>
       </q-expansion-item>
-
       <q-expansion-item
         expand-separator
         label='Server Activity'
         header-class='text-warning'
         v-model='showServerActivity'
-        @click="() => setSection('serverActivity', true)"
         to='/activity'
         hide-expand-icon
         round dense icon="menu"
@@ -141,7 +126,6 @@
         </q-item>
       </q-expansion-item>
     </q-drawer>
-
     <q-page-container class="window-width window-height polka">
       <slot />
     </q-page-container>
@@ -154,7 +138,7 @@ import { colors } from 'quasar';
 import { useAppStore } from '~/stores/app';
 
 // State
-const showSomething = ref(false);
+const showContracts = ref(false);
 const showAssets = ref(false);
 const showServerActivity = ref(false);
 const drawerOpen = ref(true);
@@ -165,7 +149,7 @@ const { currentSection } = storeToRefs(appStore);
 // Methods
 const setSection = (section, disableMini = false) => {
   appStore.setCurrentSection(section);
-  showSomething.value = section === 'something';
+  showContracts.value = section === 'contracts';
   showAssets.value = section === 'assets';
   showServerActivity.value = section === 'serverActivity';
   if (disableMini) {
@@ -192,7 +176,7 @@ const toolbarClass = computed(() => {
       return 'bg-primary';
     case 'serverActivity':
       return 'bg-warning';
-      case 'something':
+      case 'contracts':
       return 'bg-secondary';
     default:
       return 'bg-secondary';
@@ -205,6 +189,8 @@ const toolbarClassLight = computed(() => {
       return colors.changeAlpha(colors.getPaletteColor('primary'), 0.1);
     case 'serverActivity':
       return colors.changeAlpha(colors.getPaletteColor('warning'), 0.1);
+      case 'contracts':
+      return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
     default:
       return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
   }

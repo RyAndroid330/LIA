@@ -35,6 +35,7 @@
           </div>
         </template>
       </InfoCard>
+      <RoutineHeatMap :routineId="String(route.params.id)" />
     </div>
   </NuxtLayout>
 </template>
@@ -43,6 +44,7 @@
 import { ref, onMounted } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
+import RoutineHeatMap from '~/components/RoutineHeatMap.vue';
 
 
 // Define the Item interface
