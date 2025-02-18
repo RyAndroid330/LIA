@@ -40,6 +40,7 @@
           <pre>{{ selectedItem?.function_string }}</pre>
         </template>
       </InfoCard>
+      <TaskRoutinePieChart :type="'task'" :taskId="String(route.params.id)"></TaskRoutinePieChart>
       <TaskHeatMap :taskId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
@@ -50,9 +51,11 @@ import { ref, onMounted } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
 import TaskHeatMap from '~/components/TaskHeatMap.vue';
+import TaskRoutinePieChart from '~/components/TaskRoutinePieChart.vue';
 
 // Define the Item interface
 interface Item {
+  taskId: string;
   type: string;
   name: string;
   description: string;

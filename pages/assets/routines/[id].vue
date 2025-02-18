@@ -35,6 +35,7 @@
           </div>
         </template>
       </InfoCard>
+      <TaskRoutinePieChart type="routine" :routineId="String(route.params.id)" />
       <RoutineHeatMap :routineId="String(route.params.id)" />
     </div>
   </NuxtLayout>
@@ -45,6 +46,7 @@ import { ref, onMounted } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
 import RoutineHeatMap from '~/components/RoutineHeatMap.vue';
+import TaskRoutinePieChart from '~/components/TaskRoutinePieChart.vue';
 
 
 // Define the Item interface
