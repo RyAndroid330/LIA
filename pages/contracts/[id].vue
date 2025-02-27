@@ -33,7 +33,8 @@
         </transition>
         <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
           <div v-show="selectedOption === 'rangedTimeline'">
-            <RangedTimeline :routineMap="routineMap" />
+            <!-- <RangedTimeline :routineMap="routineMap" /> -->
+            <ApexTimeline :routineMap="routineMap"/>
           </div>
         </transition>
       </div>
@@ -55,6 +56,8 @@ import { ref, onMounted } from 'vue';
 import { useFetch, useRoute } from '#app';
 import { useRouter } from '#vue-router';
 import ContractHeatMap from '~/components/ContractHeatMap.vue';
+import ApexTimeline from '~/components/ApexTimeline.vue';
+
 
 interface Routine {
   type: string;
@@ -181,11 +184,18 @@ onMounted(async () => {
         progress: r.progress,
         started: formatDate( r.started ),
         ended: formatDate( r.ended ),
+        scheduled: r.created,
+        layer_index: r.layer_index || 0,
         duration: getDuration( r.started, r.ended ),
         contract_id: r.contract_id,
       };
   } );
-  routineMap.value = data.filter((r: any) => r.contract_id === contractId);
+ routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
+    return {
+      ...r,
+      layer_index: r.layer_index || 0, // Add this line to include layer_index
+    };
+  });
   // Ensure routineMap is correctly populated
   console.log('Routine Map:', routineMap.value);
 });

@@ -36,6 +36,19 @@
         </template>
       </InfoCard>
       <TaskRoutinePieChart type="routine" :routineId="String(route.params.id)" />
+      <ExecutionTimeChart v-if="selectedItem" :type="'routine'" :routineId="String(route.params.id)"></ExecutionTimeChart>
+    <Table
+    class="custom-table"
+        :columns="columns"
+        :rows="routines"
+        row-key="uuid"
+        @inspect-row="inspectRoutine"
+        :externalFilter = selectedItem?.name
+    >
+      <template #title>
+        Active Executions
+      </template>
+    </Table>
       <RoutineHeatMap :routineId="String(route.params.id)" />
     </div>
   </NuxtLayout>
@@ -47,7 +60,7 @@ import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
 import RoutineHeatMap from '~/components/RoutineHeatMap.vue';
 import TaskRoutinePieChart from '~/components/TaskRoutinePieChart.vue';
-
+import ExecutionTimeChart from '~/components/executionTimeChart.vue';
 
 // Define the Item interface
 interface Item {
@@ -59,15 +72,27 @@ interface Item {
   executionId: any;
   progress: any;
   uuid: any;
+  routine_id: any;
   processing_graph: string;
   created: string;
   deleted: boolean;
 }
 
+// Define the ExecutionTime interface
+interface ExecutionTime {
+  date: string;
+  hour: number;
+  executions: number;
+  total_execution_time: number;
+  slowest_time: number;
+  fastest_time: number;
+  average_time: number;
+}
+
 const layout = 'dashboard-layout';
 const selectedItem = ref<Item | null>(null);
+const executionTimes = ref<ExecutionTime[]>([]);
 const route = useRoute();
-const router = useRouter();
 
 // Fetch the Items data
 const { data: Items, error } = await useFetch(`/api/routine/${route.params.id}`);
@@ -77,17 +102,144 @@ if (error.value) {
   console.error('Error fetching Items:', error.value);
 }
 
+// Fetch the execution times data
+const { data: executionData, error: executionError } = await useFetch(`/api/routineExecutionTimes?routineId=${route.params.id}`);
+
+// Error handling for execution times
+if (executionError.value) {
+  console.error('Error fetching execution times:', executionError.value);
+} else if (executionData.value && !('error' in executionData.value)) {
+  executionTimes.value = executionData.value;
+}
+
+interface Routine {
+  type: string;
+  label: string;
+  description: string;
+  id: any;
+  executionId: any;
+  progress: any;
+  uuid: string;
+}
+
+const selectedRoutine = ref<Routine[] | undefined>(undefined);
+watch( selectedRoutine, newValue => {
+  console.log( newValue );
+} );
+
+const columns = [
+  {
+    name: 'label',
+    label: 'Name',
+    field: 'label',
+    required: true,
+    sortable: true,
+  },
+  {
+    name: 'routineDescription',
+    label: 'Description',
+    field: 'routineDescription',
+    required: true,
+    sortable: false,
+  },
+  // {
+  //   name: 'status',
+  //   label: 'Status',
+  //   field: 'status',
+  //   required: true,
+  //   sortable: true,
+  // },
+  {
+    name: 'progress',
+    label: 'Progress',
+    field: 'progress',
+    required: true,
+    sortable: false,
+  },
+  {
+    name: 'started',
+    label: 'Started',
+    field: 'started',
+    required: true,
+    sortable: true,
+  },
+  // {
+  //   name: 'ended',
+  //   label: 'Ended',
+  //   field: 'ended',
+  //   required: true,
+  //   sortable: true,
+  // },
+  // {
+  //   name: 'duration',
+  //   label: 'Duration (sec)',
+  //   field: 'duration',
+  //   required: true,
+  //   sortable: true,
+  // },
+];
+
+const routines = ref( [] );
+
+const router = useRouter();
+
+function formatDate( date: string ) {
+  const datetime = new Date( date );
+  return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
+}
+
+function getDuration( start: number, end?: number ) {
+  const startTime = new Date( start );
+  let endTime;
+  if ( !end ) {
+    endTime = new Date( Date.now() );
+  } else {
+    endTime = new Date( end );
+  }
+  const duration = +endTime - +startTime;
+  return duration / 1000;
+}
+
+function inspectRoutine( routine: Routine ) {
+  navigateToItem( `/activity/routines/${ routine.uuid }` );
+}
+
+const navigateToItem = ( route: string ) => {
+  console.log('Navigating to route:', route);
+  router.push(route);
+}
+
+
 // Set the selected item based on the route parameter
-onMounted(() => {
+onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
   const itemId = route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
+
+  const response = await fetch('/api/activeRoutines');
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  routines.value = data.map( (r: any) => {
+    return {
+      uuid: r.uuid,
+      label: r.label,
+      routineDescription: r.routineDescription,
+      status: r.status,
+      progress: r.progress,
+      started: formatDate( r.started ),
+      ended: formatDate( r.ended ),
+      duration: getDuration( r.started, r.ended ),
+    };
+  } );
 });
 
-const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
-  router.push(route);
-};
+// Removed duplicate navigateToItem function
 </script>
+
+<style scoped>
+.custom-table {
+  background-color: #e6b30dc4;
+}
+</style>

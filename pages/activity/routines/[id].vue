@@ -33,7 +33,8 @@
         </transition>
         <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
           <div v-show="selectedOption === 'rangedTimeline'">
-            <RangedTimeline :routineMap="routineMap" />
+            <!-- <RangedTimeline :routineMap="routineMap" /> -->
+             <ApexTimeline :routineMap="routineMap"/>
           </div>
         </transition>
       </div>
@@ -125,7 +126,7 @@
           </div>
         </template>
       </InfoCard>
-          </div>
+    </div>
     </div>
   </NuxtLayout>
 </template>
@@ -133,7 +134,6 @@
 <script setup lang="ts">
 import { useFetch, useRoute } from '#app';
 import { ref, onMounted } from 'vue';
-import { VueFlow } from '@vue-flow/core';
 import { useRouter } from '#vue-router';
 
 interface SelectedItem {
@@ -150,6 +150,7 @@ interface SelectedItem {
   serverName: string;
   previousRoutineName: string;
   contract_id: string;
+  layer_index: number;
 }
 
 interface SelectedTask {
@@ -166,6 +167,7 @@ interface SelectedTask {
   serverId: string;
   serverName: string;
   failed: boolean;
+  layer_index: number;
 }
 
 const layout = 'dashboard-layout';
@@ -201,6 +203,7 @@ const routineMap = computedAsync(async () => {
         serverId: task.server_id,
         inputContext: task.input_context,
         outputContext: task.output_context,
+        layer_index: task.layer_index,
       };
     }) || [];
   }
@@ -247,6 +250,7 @@ onMounted(() => {
   const itemId = route.params.id as string;
   selectedItem.value = Items.value?.find((item: SelectedItem) => item.uuid === itemId) || null;
   console.log('Selected item:', selectedItem.value);
+  console.log('routineMap: ', routineMap.value);
 });
 
 </script>
