@@ -53,24 +53,26 @@ onMounted(async () => {
   if (serverMap && serverMap.length > 0) {
     // Create nodes
     serverMap.forEach((server, index) => {
-      nodes.value.push({
-        id: server.server_id.toString(),//
-        position: { x: 0, y: 0 },
-        sourcePosition: 'right' as Position,
-        targetPosition: 'left' as Position,
-        data: { label: server.processing_graph },//
-        type: undefined,
-        class: 'custom-node'
-      });
+      if (server.is_active) {
+        nodes.value.push({
+          id: server.server_id.toString(),
+          position: { x: 0, y: 0 },
+          sourcePosition: 'right' as Position,
+          targetPosition: 'left' as Position,
+          data: { label: server.processing_graph },
+          type: undefined,
+          class: 'custom-node'
+        });
+      }
     });
 
     // Create edges based on client_id
     serverMap.forEach((server) => {
-      if (server.client_id) {
+      if (server.is_active && server.client_id) {
         edges.value.push({
           id: `e${server.server_id}-${server.client_id}`,
-          source: server.client_id.toString(),//
-          target: server.server_id.toString(),//
+          source: server.client_id.toString(),
+          target: server.server_id.toString(),
           animated: false
         });
       }

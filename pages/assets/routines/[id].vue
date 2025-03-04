@@ -37,30 +37,26 @@
       </InfoCard>
       <TaskRoutinePieChart type="routine" :routineId="String(route.params.id)" />
       <ExecutionTimeChart v-if="selectedItem" :type="'routine'" :routineId="String(route.params.id)"></ExecutionTimeChart>
-    <Table
-    class="custom-table"
+      <Table
+        class="custom-table"
         :columns="columns"
         :rows="routines"
         row-key="uuid"
         @inspect-row="inspectRoutine"
-        :externalFilter = selectedItem?.name
-    >
-      <template #title>
-        Active Executions
-      </template>
-    </Table>
+      >
+        <template #title>
+          Active Executions
+        </template>
+      </Table>
       <RoutineHeatMap :routineId="String(route.params.id)" />
     </div>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
-import RoutineHeatMap from '~/components/RoutineHeatMap.vue';
-import TaskRoutinePieChart from '~/components/TaskRoutinePieChart.vue';
-import ExecutionTimeChart from '~/components/executionTimeChart.vue';
 
 // Define the Item interface
 interface Item {
@@ -123,9 +119,9 @@ interface Routine {
 }
 
 const selectedRoutine = ref<Routine[] | undefined>(undefined);
-watch( selectedRoutine, newValue => {
-  console.log( newValue );
-} );
+watch(selectedRoutine, newValue => {
+  console.log(newValue);
+});
 
 const columns = [
   {
@@ -142,13 +138,6 @@ const columns = [
     required: true,
     sortable: false,
   },
-  // {
-  //   name: 'status',
-  //   label: 'Status',
-  //   field: 'status',
-  //   required: true,
-  //   sortable: true,
-  // },
   {
     name: 'progress',
     label: 'Progress',
@@ -163,79 +152,83 @@ const columns = [
     required: true,
     sortable: true,
   },
-  // {
-  //   name: 'ended',
-  //   label: 'Ended',
-  //   field: 'ended',
-  //   required: true,
-  //   sortable: true,
-  // },
-  // {
-  //   name: 'duration',
-  //   label: 'Duration (sec)',
-  //   field: 'duration',
-  //   required: true,
-  //   sortable: true,
-  // },
 ];
 
-const routines = ref( [] );
+const routines = ref([]);
 
 const router = useRouter();
 
-function formatDate( date: string ) {
-  const datetime = new Date( date );
-  return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
+function formatDate(date: string) {
+  const datetime = new Date(date);
+  return `${datetime.toDateString()} ${datetime.toLocaleTimeString()}`;
 }
 
-function getDuration( start: number, end?: number ) {
-  const startTime = new Date( start );
+function getDuration(start: number, end?: number) {
+  const startTime = new Date(start);
   let endTime;
-  if ( !end ) {
-    endTime = new Date( Date.now() );
+  if (!end) {
+    endTime = new Date(Date.now());
   } else {
-    endTime = new Date( end );
+    endTime = new Date(end);
   }
   const duration = +endTime - +startTime;
   return duration / 1000;
 }
 
-function inspectRoutine( routine: Routine ) {
-  navigateToItem( `/activity/routines/${ routine.uuid }` );
+function inspectRoutine(routine: Routine) {
+  navigateToItem(`/activity/routines/${routine.uuid}`);
 }
 
-const navigateToItem = ( route: string ) => {
+const navigateToItem = (route: string) => {
   console.log('Navigating to route:', route);
   router.push(route);
 }
 
-
 // Set the selected item based on the route parameter
-onMounted(async () => {
+onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
-  const itemId = route.params.id;
+  const itemId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
 
-  const response = await fetch('/api/activeRoutines');
-  if (!response.ok) throw new Error('Network response was not ok');
-  const data = await response.json();
-  routines.value = data.map( (r: any) => {
+  console.log('Selected Item:', selectedItem.value);
+
+  fetchActiveRoutines(itemId);
+});
+
+async function fetchActiveRoutines(itemId: string) {
+  console.log('Fetching active routines for itemId:', itemId);
+  const response = await fetch(`/api/activeRoutines${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  const responseText = await response.text();
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    throw new Error('Failed to parse JSON response');
+  }
+
+  console.log('Fetched active routines data:', data);
+  routines.value = data.map((r: any) => {
     return {
-      uuid: r.uuid,
+      uuid: r.id,
       label: r.label,
       routineDescription: r.routineDescription,
       status: r.status,
       progress: r.progress,
-      started: formatDate( r.started ),
-      ended: formatDate( r.ended ),
-      duration: getDuration( r.started, r.ended ),
+      started: formatDate(r.started),
+      ended: formatDate(r.ended),
+      duration: getDuration(r.started, r.ended),
     };
-  } );
-});
+  });
+  console.log('Mapped routines:', routines.value);
+}
 
-// Removed duplicate navigateToItem function
 </script>
 
 <style scoped>

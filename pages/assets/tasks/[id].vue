@@ -43,24 +43,23 @@
       <TaskRoutinePieChart :type="'task'" :taskId="String(route.params.id)"></TaskRoutinePieChart>
       <ExecutionTimeChart :type="'task'" :taskId="String(route.params.id)"></ExecutionTimeChart>
       <Table
-      class="custom-table"
-          :columns="columns"
-          :rows="tasks"
-          row-key="uuid"
-          @inspect-row="inspectTask"
-          :externalFilter="selectedItem?.name"
+        class="custom-table"
+        :columns="columns"
+        :rows="tasks"
+        row-key="uuid"
+        @inspect-row="inspectTask"
       >
-      <template #title>
-        Active Executions
-      </template>
-    </Table>
+        <template #title>
+          Active Executions
+        </template>
+      </Table>
       <TaskHeatMap :taskId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useFetch, useRoute, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
 import TaskHeatMap from '~/components/TaskHeatMap.vue';
@@ -93,24 +92,30 @@ interface ExecutionTime {
   average_time: number;
 }
 
-
 const layout = 'dashboard-layout';
 const selectedItem = ref<Item | null>(null);
-  const executionTimes = ref<ExecutionTime[]>([]);
+const executionTimes = ref<ExecutionTime[]>([]);
 const route = useRoute();
 
 // Fetch the Items data
 const { data: Items, error } = await useFetch(`/api/task/${route.params.id}`);
-
-// Fetch the execution times data
-const { data: executionData, error: executionError } = await useFetch(`/api/taskExecutionTimes?taskId=${route.params.id}`);
 
 // Error handling
 if (error.value) {
   console.error('Error fetching Items:', error.value);
 }
 
-interface task {
+// Fetch the execution times data
+const { data: executionData, error: executionError } = await useFetch(`/api/taskExecutionTimes?taskId=${route.params.id}`);
+
+// Error handling for execution times
+if (executionError.value) {
+  console.error('Error fetching execution times:', executionError.value);
+} else if (executionData.value && !('error' in executionData.value)) {
+  executionTimes.value = executionData.value;
+}
+
+interface Task {
   type: string;
   label: string;
   description: string;
@@ -120,10 +125,10 @@ interface task {
   uuid: string;
 }
 
-const selectedTask = ref<task[] | undefined>(undefined);
-watch( selectedTask, newValue => {
-  console.log( newValue );
-} );
+const selectedTask = ref<Task[] | undefined>(undefined);
+watch(selectedTask, newValue => {
+  console.log(newValue);
+});
 
 const columns = [
   {
@@ -140,13 +145,6 @@ const columns = [
     required: true,
     sortable: false,
   },
-  // {
-  //   name: 'status',
-  //   label: 'Status',
-  //   field: 'status',
-  //   required: true,
-  //   sortable: true,
-  // },
   {
     name: 'progress',
     label: 'Progress',
@@ -161,75 +159,83 @@ const columns = [
     required: true,
     sortable: true,
   },
-  // {
-  //   name: 'ended',
-  //   label: 'Ended',
-  //   field: 'ended',
-  //   required: true,
-  //   sortable: true,
-  // },
-  // {
-  //   name: 'duration',
-  //   label: 'Duration (sec)',
-  //   field: 'duration',
-  //   required: true,
-  //   sortable: true,
-  // },
 ];
 
-const tasks = ref( [] );
+const tasks = ref([]);
 
 const router = useRouter();
-function formatDate( date: string ) {
-  const datetime = new Date( date );
-  return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
+
+function formatDate(date: string) {
+  const datetime = new Date(date);
+  return `${datetime.toDateString()} ${datetime.toLocaleTimeString()}`;
 }
 
-function getDuration( start: number, end?: number ) {
-  const startTime = new Date( start );
+function getDuration(start: number, end?: number) {
+  const startTime = new Date(start);
   let endTime;
-  if ( !end ) {
-    endTime = new Date( Date.now() );
+  if (!end) {
+    endTime = new Date(Date.now());
   } else {
-    endTime = new Date( end );
+    endTime = new Date(end);
   }
   const duration = +endTime - +startTime;
   return duration / 1000;
 }
 
-function inspectTask( task:task ) {
-  navigateToItem( `/activity/tasks/${ task.uuid }` );
+function inspectTask(task: Task) {
+  navigateToItem(`/activity/tasks/${task.uuid}`);
 }
 
-const navigateToItem = ( route: string ) => {
+const navigateToItem = (route: string) => {
   console.log('Navigating to route:', route);
   router.push(route);
-};
+}
 
-// Fetch server stats and set the current section on component mount
-onMounted(async () => {
+// Set the selected item based on the route parameter
+onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
-  const itemId = route.params.id;
+  const itemId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
 
-  const response = await fetch('/api/activeTasks');
-  if (!response.ok) throw new Error('Network response was not ok');
-  const data = await response.json();
-  tasks.value = data.map( (r: any) => {
+  console.log('Selected Item:', selectedItem.value);
+
+  fetchActiveTasks(itemId);
+});
+
+async function fetchActiveTasks(itemId: string) {
+  console.log('Fetching active tasks for itemId:', itemId);
+  const response = await fetch(`/api/activeTasks${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  const responseText = await response.text();
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    throw new Error('Failed to parse JSON response');
+  }
+
+  console.log('Fetched active tasks data:', data);
+  tasks.value = data.map((r: any) => {
     return {
-      uuid: r.uuid,
+      uuid: r.id,
       name: r.name,
       taskDescription: r.taskDescription,
       status: r.status,
       progress: r.progress,
-      started: formatDate( r.started ),
-      ended: formatDate( r.ended ),
-      duration: getDuration( r.started, r.ended ),
+      started: formatDate(r.started),
+      ended: formatDate(r.ended),
+      duration: getDuration(r.started, r.ended),
     };
-  } );
-});
+  });
+  console.log('Mapped tasks:', tasks.value);
+}
+
 </script>
 
 <style scoped>

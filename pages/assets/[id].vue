@@ -48,7 +48,7 @@ const selectedItem = ref<Item | null>(null);
 const route = useRoute();
 
 // Fetch the Item data
-const { data: item, error } = await useFetch(`/api/graph/${encodeURIComponent(route.params.id)}`);
+const { data: item, error } = await useFetch(`/api/graph/${encodeURIComponent(route.params.id as string)}`);
 
 // Error handling
 if (error.value) {
@@ -60,7 +60,11 @@ onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
-  selectedItem.value = item.value[0];
+  if (item.value && item.value.length > 0) {
+    selectedItem.value = item.value[0];
+  } else {
+    console.error('No item found with the given name:', route.params.id);
+  }
 
   if (!selectedItem.value) {
     console.error('No item found with the given name:', route.params.id);

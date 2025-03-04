@@ -126,10 +126,10 @@ onMounted(async () => {
   const data = await response.json();
   tasks.value = data.map( (r: any) => {
     return {
-      uuid: r.uuid,
+      uuid: r.id,
       name: r.name,
-      taskDescription: r.taskDescription,
-      status: r.status,
+      taskDescription: r.description,
+      status: r.isComplete ? 'Complete' : r.isRunning ? 'Running' : 'Pending',
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),

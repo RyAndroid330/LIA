@@ -6,6 +6,10 @@
         <select id="year" v-model="selectedYear" @change="updateYear" style="margin-left: 10px; max-height: 30px;">
           <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
         </select>
+        <!-- <select id="dataType" v-model="selectedDataType" @change="updateYear" style="margin-left: 10px; max-height: 30px;">
+          <option value="executions">Executions</option>
+          <option value="errors">Errors</option>
+        </select> -->
       </div>
     </div>
     <button v-if="title === 'Month'" @click="goBack">Back to Year</button>
@@ -14,8 +18,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, reactive, watch } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
+
+let color1 = '#00A100';
+let color2 = '#128FD9';
+let color3 = '#FFB200';
+let color4 = '#FF0000';
 
 export default defineComponent({
   components: {
@@ -25,15 +34,17 @@ export default defineComponent({
     return {
       title: 'Year' as string,
       selectedYear: new Date().getFullYear(),
+      selectedDataType: 'executions' as string,
       years: Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i),
       series: [] as any[],
-      chartOptions: {
+      chartOptions: reactive({
         chart: {
           height: 350,
           type: 'heatmap',
+          background: '#F0F0F0',
           events: {
             dataPointSelection: (event: any, chartContext: any, config: any) => {
-              if (this.title === 'Year') {
+              if (String(this.title) === 'Year') {
                 this.handleClick(config.seriesIndex);
               }
             }
@@ -56,25 +67,25 @@ export default defineComponent({
                   from: 1,
                   to: 3,
                   name: 'low',
-                  color: '#00A100'
+                  color: color1
                 },
                 {
                   from: 4,
                   to: 6,
                   name: 'medium',
-                  color: '#128FD9'
+                  color: color2
                 },
                 {
                   from: 7,
                   to: 10,
                   name: 'high',
-                  color: '#FFB200'
+                  color: color3
                 },
                 {
                   from: 11,
                   to: Infinity,
                   name: 'extreme',
-                  color: '#FF0000'
+                  color: color4
                 }
               ]
             }
@@ -94,19 +105,21 @@ export default defineComponent({
           width: 1
         },
         tooltip: {
-          custom: function({ series, seriesIndex, dataPointIndex, w }: { series: any[], seriesIndex: number, dataPointIndex: number, w: any }) {
+          custom: ({ series, seriesIndex, dataPointIndex, w }: { series: any[], seriesIndex: number, dataPointIndex: number, w: any }) => {
             const dataPoint = series[seriesIndex][dataPointIndex];
             const errors = w.globals.initialSeries[seriesIndex].data[dataPointIndex].errors;
             const customElement = document.createElement('div');
             customElement.style.padding = '10px';
-            customElement.innerHTML = `Executions: ${dataPoint}<br>`;
+            if (String(this.selectedDataType) === 'executions') {
+              customElement.innerHTML = `Executions: ${dataPoint}<br>`;
+            }
             if (errors > 0) {
               customElement.innerHTML += `<span style="color: red;">Errors: ${errors}</span>`;
             }
             return customElement;
           }
         }
-      }
+      })
     };
   },
   async mounted() {
@@ -128,7 +141,7 @@ export default defineComponent({
           const executionsForDay = data.filter((contract: any) => new Date(contract.date).toDateString() === date.toDateString());
           const totalExecutions = executionsForDay.reduce((sum: number, contract: any) => sum + Number(contract.executions), 0);
           const totalErrors = executionsForDay.reduce((sum: number, contract: any) => sum + Number(contract.errors), 0);
-          return { x: (day).toString(), y: totalExecutions, errors: totalErrors };
+          return { x: (day+1).toString(), y: this.selectedDataType === 'executions' ? totalExecutions : totalErrors, errors: totalErrors };
         })
       }));
       return yearData;
@@ -140,7 +153,7 @@ export default defineComponent({
         data: Array.from({ length: 31 }, (_, day) => {
           const date = new Date(this.selectedYear, monthIndex, day + 1, hour);
           const contract = data.find((contract: any) => new Date(contract.date).toDateString() === date.toDateString() && parseInt(contract.hour) === hour);
-          return { x: (day).toString(), y: contract ? contract.executions : 0, errors: contract ? contract.errors : 0 }; // No adjustment needed
+          return { x: (day+1).toString(), y: contract ? (this.selectedDataType === 'executions' ? contract.executions : contract.errors) : 0, errors: contract ? contract.errors : 0 };
         })
       }));
       return monthData;
@@ -151,9 +164,60 @@ export default defineComponent({
     },
     async updateYear() {
       this.series = await this.generateYearData();
+      this.updateChartOptions();
     },
     goBack() {
       this.title = 'Year';
+      this.updateYear();
+    },
+    updateChartOptions() {
+      if (this.selectedDataType === 'errors') {
+        color1 = "rgba(255, 0, 0, 0.5)";
+        color2 = "rgba(255, 0, 0, 0.5)";
+        color3 = "rgba(255, 0, 0, 0.5)";
+        color4 = "rgba(255, 0, 0, 1)";
+      } else {
+        color1 = "#00A100";
+        color2 = "#128FD9";
+        color3 = "#FFB200";
+        color4 = "#FF0000";
+      }
+      this.chartOptions.plotOptions.heatmap.colorScale.ranges = [
+        {
+          from: 0,
+          to: 0,
+          name: 'no data',
+          color: '#FFFFFF'
+        },
+        {
+          from: 1,
+          to: 3,
+          name: 'low',
+          color: color1
+        },
+        {
+          from: 4,
+          to: 6,
+          name: 'medium',
+          color: color2
+        },
+        {
+          from: 7,
+          to: 10,
+          name: 'high',
+          color: color3
+        },
+        {
+          from: 11,
+          to: Infinity,
+          name: 'extreme',
+          color: color4
+        }
+      ];
+    }
+  },
+  watch: {
+    selectedDataType() {
       this.updateYear();
     }
   }
@@ -162,8 +226,8 @@ export default defineComponent({
 
 <style scoped>
 #chart {
-  width:70dvw;
-  height: 50dvh;
+  width: 70vw;
+  height: 50vh;
   margin: 35px auto;
 }
 .year-selector {

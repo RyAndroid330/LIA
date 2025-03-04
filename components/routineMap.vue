@@ -1,5 +1,5 @@
 <template>
-  <div class="routine-map-container q-mb-md">
+  <div class="routine-map-container q-mb-md" style="width: 100%; height: 600px">
     <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init width="80dvw" contenteditable="false" :nodes-draggable="false" />
   </div>
 </template>
@@ -60,7 +60,6 @@ watch(props, (newValue) => {
   if (!newValue.routineMap?.length) {
     return;
   }
-  console.log(newValue.routineMap);
   const routineMap = newValue.routineMap;
   nodes.value = [];
   edges.value = [];

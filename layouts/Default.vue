@@ -6,7 +6,7 @@
           'navContainer',
           toolbarClass,
           'flex',
-          'justify-content-between'
+
         ]"
       >
         <q-img
@@ -14,10 +14,16 @@
           style="max-height: 50px; max-width: 200px; z-index: 500; margin: 5px"
         />
 
-        <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
-        <q-btn flat to='/contracts' @click="() => setSection('contracts')"> Contracts </q-btn>
-        <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
-        <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
+        <div class="flex items-center">
+          <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
+          <q-btn flat to='/contracts' @click="() => setSection('contracts')"> Contracts </q-btn>
+          <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
+          <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
+        </div>
+
+        <div class="flex items-center ml-auto absolute-right q-pt-xs q-pr-md"  >
+          <ThemeToggleButton  />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -126,16 +132,19 @@
         </q-item>
       </q-expansion-item>
     </q-drawer>
-    <q-page-container class="window-width window-height polka">
-      <slot />
-    </q-page-container>
+    <div :class="['polka-container', polkaClass]">
+      <q-page-container :class="['window-width', 'window-height']">
+        <slot />
+      </q-page-container>
+    </div>
   </q-layout>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { colors } from 'quasar';
+import { colors, useQuasar } from 'quasar';
 import { useAppStore } from '~/stores/app';
+import ThemeToggleButton from '~/components/ThemeToggleButton.vue';
 
 // State
 const showContracts = ref(false);
@@ -145,6 +154,7 @@ const drawerOpen = ref(true);
 const miniState = ref(false);
 const appStore = useAppStore();
 const { currentSection } = storeToRefs(appStore);
+const $q = useQuasar();
 
 // Methods
 const setSection = (section, disableMini = false) => {
@@ -176,7 +186,7 @@ const toolbarClass = computed(() => {
       return 'bg-primary';
     case 'serverActivity':
       return 'bg-warning';
-      case 'contracts':
+    case 'contracts':
       return 'bg-secondary';
     default:
       return 'bg-secondary';
@@ -189,11 +199,16 @@ const toolbarClassLight = computed(() => {
       return colors.changeAlpha(colors.getPaletteColor('primary'), 0.1);
     case 'serverActivity':
       return colors.changeAlpha(colors.getPaletteColor('warning'), 0.1);
-      case 'contracts':
+    case 'contracts':
       return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
     default:
       return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
   }
+});
+
+// dynamic polka class
+const polkaClass = computed(() => {
+  return $q.dark.isActive ? 'polka-dark' : 'polka-light';
 });
 
 watch(currentSection, (newSection) => {
@@ -212,15 +227,33 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-.polka {
+.polka-container {
+  min-height: 200vh;
+  width: 100%;
+  position: relative;
+  background-repeat: repeat;
+}
+
+.polka-light {
   background-image: radial-gradient(rgb(168, 167, 167) 5%, transparent 5%);
   background-position: 4px 4px;
   background-size: 19px 19px;
   background-color: rgb(255, 255, 255);
-  height: 110vh;
+}
+
+.polka-dark {
+  background-image: radial-gradient(rgb(87, 87, 87) 5%, transparent 5%);
+  background-position: 4px 4px;
+  background-size: 19px 19px;
+  background-color: rgb(0, 0, 0);
+}
+
+.window-width {
   width: 100vw;
-  position: absolute;
-  top: 0;
-  left: 0;
+}
+
+.window-height {
+  min-height: 100vh;
+  position: relative;
 }
 </style>

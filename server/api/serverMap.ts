@@ -3,7 +3,6 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 // Get all servers
 async function getAllServers() {
   const query = `
@@ -17,7 +16,7 @@ async function getAllServers() {
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
 

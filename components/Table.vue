@@ -1,15 +1,18 @@
 <template>
 <InfoCard>
+  <template v-slot:title>
+        <slot name="title">{{ title }}</slot>
+      </template>
   <template #info>
     <q-table
         style="max-height: 45dvh; width: 100%;"
         :title="title"
-        :columns="columns"
+        :columns="formattedColumns"
         :rows="rows"
         :row-key="rowKey"
         flat
         no-data-label="I didn't find anything for you"
-        :filter="filter"
+        :filter="computedFilter"
         :rows-per-page-options="[ 20, 50 ]"
     >
       <template v-slot:top-right>
@@ -84,9 +87,13 @@ const props = defineProps( {
     type: Boolean,
     default: true,
   },
+  externalFilter: {
+    type: String,
+    default: '',
+  },
 } );
 
-const filter = ref( '' );
+const filter = ref( props.externalFilter );
 
 const emit = defineEmits( [ 'inspectRow' ] );
 
@@ -94,6 +101,8 @@ function inspectRow( item: any ) {
   console.log( item );
   emit( 'inspectRow', item );
 }
+
+const computedFilter = computed(() => filter.value || props.externalFilter);
 
 const formattedColumns = computed( () => {
   if ( !props.columns ) {
@@ -118,7 +127,6 @@ const formattedColumns = computed( () => {
       sortable: false,
     } );
   }
-
   return columns;
 } );
 

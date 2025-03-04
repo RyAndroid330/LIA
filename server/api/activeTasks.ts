@@ -4,7 +4,11 @@ import { initializeClient } from '~/server/api/utils';
 let client: pg.Client | null = null;
 
 // Get all TaskExecutions
-async function getTaskExecution() {
+async function getTaskExecution(id?: string) {
+  if (!client) {
+    client = await initializeClient();
+  }
+
   const query = `
     SELECT
         te.uuid,
@@ -23,7 +27,6 @@ async function getTaskExecution() {
         re.description AS routine_name,
         ctx.uuid AS context_id,
         ctx2.uuid AS result_context_id,
-        te.routine_execution_id,
         ctx.context AS input_context,
         ctx2.context AS output_context,
         t.name,
@@ -37,8 +40,45 @@ async function getTaskExecution() {
     LEFT JOIN context ctx2 ON te.result_context_id = ctx2.uuid
     LEFT JOIN task t ON te.task_id = t.uuid
   `;
-  const result = await client!.query(query);
-  return result.rows;
+  const whereQuery = id ? `WHERE te.task_id = '${id}'` : '';
+
+  const orderQuery = `ORDER BY te.created DESC`;
+
+  const fullQuery = query + whereQuery + orderQuery;
+
+  try {
+    const result = await client.query(fullQuery);
+    return result.rows.map((row) => ({
+      id: row.uuid,
+      routineExecutionId: row.routine_execution_id,
+      taskId: row.task_id,
+      isRunning: row.is_running,
+      isComplete: row.is_complete,
+      errored: row.errored,
+      failed: row.failed,
+      progress:
+        row.progress !== null && row.progress !== undefined
+          ? `${Math.round(row.progress * 100)}%`
+          : 'N/A',
+      scheduled: row.scheduled,
+      started: row.started,
+      ended: row.ended,
+      previousTaskExecutionId: row.previous_task_execution_id,
+      serverId: row.server_id,
+      routineName: row.routine_name,
+      contextId: row.context_id,
+      resultContextId: row.result_context_id,
+      inputContext: row.input_context,
+      outputContext: row.output_context,
+      name: row.name,
+      description: row.description,
+      isUnique: row.is_unique,
+      functionString: row.function_string
+    }));
+  } catch (error) {
+    console.error('Error executing query:', error);
+    throw error;
+  }
 }
 
 // Event handler
@@ -46,12 +86,14 @@ export default defineEventHandler(async (event) => {
   if (!client) {
     client = await initializeClient();
   }
+  console.log('event', event);
   const { method, url } = event.node.req;
-  const taskExecutionId = url?.split('=')[1] ?? '';
 
-  if (method === 'GET') {
+  if (method === 'GET' && url) {
+    const urlParams = new URLSearchParams(url.split('?')[1] || '');
+    const id = urlParams.get('id') || undefined;
     try {
-      return await getTaskExecution();
+      return await getTaskExecution(id);
     } catch (error) {
       console.error('Error fetching TaskExecutions:', error);
       throw error;

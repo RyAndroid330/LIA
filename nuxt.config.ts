@@ -3,8 +3,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@pinia/nuxt', '@vueuse/nuxt', 'nuxt-quasar-ui'],
   ssr: false,
+  sourceMap: {
+    client: true
+  },
+  build: {
+    // other build options...
+  },
   quasar: {
-    plugins: ['Dialog', 'Notify'],
+    plugins: ['Dialog', 'Notify', 'Dark'],
     cssAddon: true,
     config: {
       brand: {

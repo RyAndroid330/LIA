@@ -27,11 +27,9 @@ defineProps({
 })
 
 function getDescription(entry) {
-  console.log(entry)
   return entry.description
 }
 function getContext(entry) {
-  console.log(entry)
   return JSON.stringify(entry.inputContext,null,2)
 }
 
