@@ -4,6 +4,7 @@
       {{ selectedItem?.name }} - {{ selectedItem?.uuid.slice(0, 8) }}
     </template>
     <div class="row q-mx-md">
+      <RoutineMap :routineMap="routineMap" />
       <InfoCard v-if="selectedItem">
         <template #title>
           {{ selectedItem?.name }}
@@ -184,8 +185,28 @@ const navigateToItem = (route: string) => {
   router.push(route);
 }
 
+const routineMap = computedAsync(async () => {
+  console.log('Fetching routine map data...');
+  if (selectedItem.value) {
+    console.log('Selected item:', selectedItem.value);
+    const tasks = await $fetch(`/api/tasksInRoutines?routineId=${selectedItem.value.uuid}`);
+    console.log('Fetched tasks:', tasks);
+    return tasks?.map((task: any) => {
+      console.log('Mapping task:', task);
+      return {
+        uuid: task.uuid,
+        name: task.name,
+        layer_index: task.layer_index,
+        previousTaskExecutionId: task.previous_task_execution_id,
+      };
+    }) || [];
+  }
+  console.log('No selected item, returning empty array');
+  return [];
+}, []);
+
 // Set the selected item based on the route parameter
-onMounted(() => {
+onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
 
@@ -195,8 +216,25 @@ onMounted(() => {
   console.log('Selected Item:', selectedItem.value);
 
   fetchActiveRoutines(itemId);
-});
 
+  // Fetch routine map data
+  if (selectedItem.value) {
+    console.log('Selected item:', selectedItem.value);
+    const tasks = await $fetch(`/api/staticTasksInRoutine?routineId=${selectedItem.value.uuid}`);
+    console.log('Fetched tasks:', tasks);
+    routineMap.value = tasks?.map((task: any) => {
+      console.log('Mapping task:', task);
+      return {
+        uuid: task.uuid,
+        taskId: task.task_id,
+        label: task.name,
+        name: task.name,
+        layerIndex: task.layer_index,
+        previousTaskExecutionId: task.previous_task_execution_id,
+      };
+    }) || [];
+  }
+});
 async function fetchActiveRoutines(itemId: string) {
   console.log('Fetching active routines for itemId:', itemId);
   const response = await fetch(`/api/activeRoutines${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
