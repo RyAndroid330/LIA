@@ -86,9 +86,7 @@ watch(() => props.item, async (newItem) => {
 // Add click event handler
 const emit = defineEmits(['nodeSelected']);
 function onNodeClick({ event, node }: { event: any, node: Node }) {
-  console.log(node.data);
   emit('nodeSelected', node.id);
-  console.log(node.id);
 }
 </script>
 

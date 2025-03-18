@@ -48,6 +48,7 @@
         :rows="tasks"
         row-key="uuid"
         @inspect-row="inspectTask"
+        @inspect-row-in-new-tab="inspectInNewTab"
       >
         <template #title>
           Active Executions
@@ -126,9 +127,6 @@ interface Task {
 }
 
 const selectedTask = ref<Task[] | undefined>(undefined);
-watch(selectedTask, newValue => {
-  console.log(newValue);
-});
 
 const columns = [
   {
@@ -137,13 +135,6 @@ const columns = [
     field: 'name',
     required: true,
     sortable: true,
-  },
-  {
-    name: 'taskDescription',
-    label: 'Description',
-    field: 'taskDescription',
-    required: true,
-    sortable: false,
   },
   {
     name: 'progress',
@@ -186,8 +177,12 @@ function inspectTask(task: Task) {
   navigateToItem(`/activity/tasks/${task.uuid}`);
 }
 
+function inspectInNewTab( task:Task ) {
+  const url = `/activity/tasks/${ task.uuid }`;
+  window.open(url, '_blank');
+}
+
 const navigateToItem = (route: string) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 }
 
@@ -198,14 +193,10 @@ onMounted(() => {
 
   const itemId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
-
-  console.log('Selected Item:', selectedItem.value);
-
   fetchActiveTasks(itemId);
 });
 
 async function fetchActiveTasks(itemId: string) {
-  console.log('Fetching active tasks for itemId:', itemId);
   const response = await fetch(`/api/activeTasks${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -220,20 +211,14 @@ async function fetchActiveTasks(itemId: string) {
     throw new Error('Failed to parse JSON response');
   }
 
-  console.log('Fetched active tasks data:', data);
   tasks.value = data.map((r: any) => {
     return {
       uuid: r.id,
       name: r.name,
-      taskDescription: r.taskDescription,
-      status: r.status,
-      progress: r.progress,
-      started: formatDate(r.started),
-      ended: formatDate(r.ended),
-      duration: getDuration(r.started, r.ended),
+      description: r.description,
+      started: formatDate(r.started)
     };
   });
-  console.log('Mapped tasks:', tasks.value);
 }
 
 </script>

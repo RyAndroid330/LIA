@@ -9,6 +9,7 @@
           :rows="contracts"
           row-key="uuid"
           @inspect-row="inspectContracts"
+          @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
   </NuxtLayout>
@@ -32,7 +33,6 @@ interface contracts {
 const layout = 'dashboard-layout';
 const selectedContract = ref<contracts[] | undefined>(undefined);
 watch( selectedContract, newValue => {
-  console.log( newValue );
 } );
 
 const columns = [
@@ -49,6 +49,19 @@ const columns = [
     field: 'agent_name',
     required: true,
     sortable: false,
+  },
+  {
+    name: 'issued',
+    label: 'Issued',
+    field: 'issued',
+    required: true,
+    sortable: true,
+  },
+  {name: 'fulfilled',
+    label: 'Fulfilled',
+    field: 'fulfilled',
+    required: true,
+    sortable: true,
   }
 ];
 
@@ -76,9 +89,12 @@ function getDuration( start: number, end?: number ) {
 function inspectContracts( contracts:contracts ) {
   navigateToItem( `contracts/${ contracts.uuid }` );
 }
+function inspectInNewTab( contracts:contracts ) {
+  const url = `/contracts/${ contracts.uuid }`;
+  window.open(url, '_blank');
+}
 
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 
@@ -97,6 +113,10 @@ onMounted(async () => {
       agent_name: r.agent_name,
       label: r.label,
       description: r.description,
+      issued: formatDate( r.issued_at ),
+      fulfilled: r.fulfilled,
+      product: r.product,
+      referer: r.referer
     };
   } );
 });

@@ -25,6 +25,8 @@ async function getRoutines(id?: string) {
       re.ended,
       re.contract_id,
       s.processing_graph,
+      s.address,
+      s.port,
       pre.routine_id AS previous_routine_id,
       r.name AS routine_name,
       r.description AS routine_description
@@ -67,7 +69,7 @@ async function getRoutines(id?: string) {
       started: row.created,
       ended: row.ended,
       uuid: row.uuid,
-      serverName: row.processing_graph,
+      serverName: row.processing_graph + '@' + row.address + ':' + row.port,
       previousRoutineName: row.routine_name,
       contract_id: row.contract_id
     }));
@@ -82,7 +84,6 @@ export default defineEventHandler(async (event) => {
   if (!client) {
     client = await initializeClient();
   }
-  console.log('event', event);
   const { method, url } = event.node.req || {};
 
   if (method === 'GET') {

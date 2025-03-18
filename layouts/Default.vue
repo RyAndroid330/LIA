@@ -133,7 +133,7 @@
       </q-expansion-item>
     </q-drawer>
     <div :class="['polka-container', polkaClass]">
-      <q-page-container :class="['window-width', 'window-height']">
+      <q-page-container :class="['window-width', 'window-height','content']">
         <slot />
       </q-page-container>
     </div>
@@ -212,8 +212,8 @@ const polkaClass = computed(() => {
 });
 
 watch(currentSection, (newSection) => {
-  setSection(newSection || 'home'); // Set 'home' if newSection is undefined
-}, { immediate: true }); // immediate: true ensures the watcher is triggered on initial load
+  setSection(newSection || 'home');
+}, { immediate: true });
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
@@ -228,12 +228,22 @@ onBeforeUnmount(() => {
 
 <style>
 .polka-container {
-  min-height: 200vh;
+  background-attachment: fixed;
+  background-position: center;
+  height: 100vh;
   width: 100%;
   position: relative;
-  background-repeat: repeat;
+  overflow: hidden;
 }
 
+.content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
 .polka-light {
   background-image: radial-gradient(rgb(168, 167, 167) 5%, transparent 5%);
   background-position: 4px 4px;

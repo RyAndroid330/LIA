@@ -39,12 +39,12 @@
         </transition>
       </div>
       <div class="row q-mx-md">
-        <Table
-          :columns="columns"
-          :rows="routines"
-          row-key="uuid"
-          @inspect-row="inspectRoutine"
-        />
+<Table
+  :columns="columns"
+  :rows="routines"
+  row-key="uuid"
+  @inspect-row="inspectRoutine"
+/>
       </div>
       <ContractHeatMap :contractId="String(route.params.id)"/>
     </div>
@@ -73,7 +73,6 @@ interface Routine {
 const layout = 'dashboard-layout';
 const selectedRoutine = ref<Routine[] | undefined>(undefined);
 watch( selectedRoutine, newValue => {
-  console.log( newValue );
 } );
 
 const columns = [
@@ -85,9 +84,9 @@ const columns = [
     sortable: true,
   },
   {
-    name: 'routineDescription',
+    name: 'description',
     label: 'Description',
-    field: 'routineDescription',
+    field: 'description',
     required: true,
     sortable: false,
   },
@@ -156,12 +155,10 @@ function inspectRoutine( routine: Routine ) {
 }
 
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 
 function onTaskSelected(task: any) {
-  console.log('selected', task);
   // Handle task selection
 }
 
@@ -179,7 +176,7 @@ onMounted(async () => {
       return {
         uuid: r.uuid,
         label: r.label,
-        routineDescription: r.routineDescription,
+        description: r.routineDescription,
         status: r.status,
         progress: r.progress,
         started: formatDate( r.started ),
@@ -188,16 +185,16 @@ onMounted(async () => {
         layer_index: r.layer_index || 0,
         duration: getDuration( r.started, r.ended ),
         contract_id: r.contract_id,
+        errored: r.errored,
       };
-  } );
- routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
-    return {
-      ...r,
-      layer_index: r.layer_index || 0, // Add this line to include layer_index
+    } );
+    routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
+      return {
+        ...r,
+        layer_index: r.layer_index || 0, // Add this line to include layer_index
+        errored: r.status === 'Errored',
     };
   });
-  // Ensure routineMap is correctly populated
-  console.log('Routine Map:', routineMap.value);
 });
 </script>
 

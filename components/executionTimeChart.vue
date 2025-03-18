@@ -5,13 +5,14 @@
     </template>
     <template #info>
       <div>
-        <apexchart type="area" height="350" width="700" :options="chartOptions" :series="series"></apexchart>
+        <apexchart type="area" height="350" width="700" :options="chartOptions" :series="series" style="color: black;"></apexchart>
       </div>
     </template>
   </InfoCard>
 </template>
 
 <script>
+import { colors } from 'quasar';
 import VueApexCharts from 'vue3-apexcharts';
 
 export default {

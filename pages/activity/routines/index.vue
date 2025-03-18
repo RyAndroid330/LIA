@@ -9,6 +9,7 @@
           :rows="routines"
           row-key="uuid"
           @inspect-row="inspectRoutine"
+          @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
   </NuxtLayout>
@@ -32,7 +33,6 @@ interface Routine {
 const layout = 'dashboard-layout';
 const selectedRoutine = ref<Routine[] | undefined>(undefined);
 watch( selectedRoutine, newValue => {
-  console.log( newValue );
 } );
 
 const columns = [
@@ -42,13 +42,6 @@ const columns = [
     field: 'label',
     required: true,
     sortable: true,
-  },
-  {
-    name: 'routineDescription',
-    label: 'Description',
-    field: 'routineDescription',
-    required: true,
-    sortable: false,
   },
   {
     name: 'status',
@@ -85,6 +78,12 @@ const columns = [
     required: true,
     sortable: true,
   },
+  {name: 'server',
+    label: 'Server',
+    field:'server',
+    required: true,
+    sortable: false,
+  }
 ];
 
 const routines = ref( [] );
@@ -108,12 +107,15 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectRoutine( routine: Routine ) {
+function inspectRoutine( routine:Routine ) {
   navigateToItem( `/activity/routines/${ routine.uuid }` );
+}
+function inspectInNewTab( routine:Routine ) {
+  const url = `/activity/routines/${ routine.uuid }`;
+  window.open(url, '_blank');
 }
 
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 
@@ -128,12 +130,14 @@ onMounted(async () => {
     return {
       uuid: r.uuid,
       label: r.label,
-      routineDescription: r.routineDescription,
+      description: r.routineDescription,
       status: r.status,
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),
       duration: getDuration( r.started, r.ended ),
+      contract: r.contract_id,
+      server: r.serverName,
     };
   } );
 });

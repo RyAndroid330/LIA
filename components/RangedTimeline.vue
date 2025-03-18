@@ -51,13 +51,11 @@ const props = defineProps<{
 
 const getEarliestStartedValue = computed(() => {
   const earliestStartedValue = Math.min(...props.routineMap.map((entry) => Date.parse(entry.started)))-1000;
-  console.log(`Earliest started value: ${earliestStartedValue}`);
   return earliestStartedValue;
 })
 
 const getlatestEndedValue = computed(() => {
   const latestEndedValue = Math.max(...props.routineMap.map((entry) => Date.parse(entry.ended)))+1000;
-  console.log(`Latest ended value: ${latestEndedValue}`);
   return latestEndedValue;
 })
 

@@ -29,7 +29,8 @@ async function getContracts() {
     method: row.method,
     credentials: row.credentials,
     mode: row.mode,
-    referer: row.referer
+    referer: row.referer,
+    description: row.description
   }));
 }
 

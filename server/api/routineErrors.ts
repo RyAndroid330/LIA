@@ -38,10 +38,6 @@ export default defineEventHandler(async (event) => {
   );
   const routineId = url.searchParams.get('routineId');
 
-  console.log('Request method:', method);
-  console.log('routine ID:', routineId);
-  console.log('Event context:', event.context);
-
   if (method === 'GET' && routineId) {
     try {
       return await getRoutineMap(routineId);

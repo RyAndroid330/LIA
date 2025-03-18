@@ -3,7 +3,6 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 // Get all routines
 async function getRoutines() {
   const query = `
@@ -16,13 +15,14 @@ async function getRoutines() {
     type: 'routine',
     label: row.name,
     uuid: row.uuid,
-    description: row.description
+    description: row.description,
+    service: row.processing_graph
   }));
 }
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
   const { method } = event.node.req;

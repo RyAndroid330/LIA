@@ -30,13 +30,16 @@ async function getRoutineMap(routineId: string) {
         ctx2.uuid AS result_context_id,
         ctx.context AS input_context,
         ctx2.context AS output_context,
-        re.server_id
+        re.server_id,
+        pt.name AS previous_task_name
     FROM task_execution te
     LEFT JOIN task_execution_map tem ON te.uuid = tem.task_execution_id
     LEFT JOIN task t ON te.task_id = t.uuid
     LEFT JOIN routine_execution re ON te.routine_execution_id = re.uuid
     LEFT JOIN context ctx ON te.context_id = ctx.uuid
     LEFT JOIN context ctx2 ON te.result_context_id = ctx2.uuid
+    LEFT JOIN task_execution pte ON tem.previous_task_execution_id = pte.uuid
+    LEFT JOIN task pt ON pte.task_id = pt.uuid
     WHERE te.routine_execution_id = $1 ORDER BY te.started;
   `;
   const result = await client!.query(query, [routineId]);

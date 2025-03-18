@@ -33,7 +33,6 @@
         </transition>
         <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
           <div v-show="selectedOption === 'rangedTimeline'">
-            <!-- <RangedTimeline :routineMap="routineMap" /> -->
              <ApexTimeline :routineMap="routineMap"/>
           </div>
         </transition>
@@ -52,18 +51,23 @@
               Executed tasks: {{ routineMap?.length ?? 0 }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div class="q-mx-md q-my-sm">
-              Progress: {{ selectedItem?.progress }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Started: {{ formatDate( selectedItem?.started ) }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Ended: {{ formatDate( selectedItem?.ended ) }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Duration: {{ getDuration( selectedItem?.started, selectedItem?.ended ) }} sec
-            </div>
+            <div class="flex">
+              <div>
+                <div class="q-mx-md q-my-sm">
+                  Progress: {{ selectedItem?.progress }}
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Started: {{ formatDate( selectedItem?.started ) }}
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Ended: {{ formatDate( selectedItem?.ended ) }}
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Duration: {{ getDuration( selectedItem?.started, selectedItem?.ended ) }} sec
+                </div>
+              </div>
+              <ProgressRadialBarChart v-if="selectedItem" :name="selectedItem?.label" :value="selectedItem.progress.toString()" />
+        </div>
             <div class="q-separator" style="height: 2px"></div>
             <div class="q-mx-md q-my-sm">
               Status: {{ selectedItem.status }}
@@ -97,17 +101,22 @@
               Execution id: <span class="text-warning cursor-pointer">{{ selectedTask?.label }}</span>
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div class="q-mx-md q-my-sm">
-              Progress: {{ Math.round( selectedTask?.progress * 100 ) }}%
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Started: {{ formatDate( selectedTask?.started ) }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Ended: {{ formatDate( selectedTask?.ended ) }}
-            </div>
-            <div class="q-mx-md q-my-sm">
-              Duration: {{ getDuration( selectedTask?.started, selectedTask?.ended ) }} sec
+            <div class="flex">
+              <div>
+                <div class="q-mx-md q-my-sm">
+                  Progress: {{ selectedTask.progress }}%
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Started: {{ formatDate( selectedTask?.started ) }}
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Ended: {{ formatDate( selectedTask?.ended ) }}
+                </div>
+                <div class="q-mx-md q-my-sm">
+                  Duration: {{ getDuration( selectedTask?.started, selectedTask?.ended ) }} sec
+                </div>
+              </div>
+              <ProgressRadialBarChart v-if="selectedTask" :key="selectedTask.uuid" :name="selectedTask?.label" :value="selectedTask.progress.toString()" />
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div class="q-mx-md q-my-sm">
@@ -115,7 +124,7 @@
             </div>
             <div class="q-separator" style="height: 2px"></div>
             <div v-if="selectedTask?.previousTaskExecutionId" class="q-mx-md q-my-sm" @click="navigateToItem( `/activity/tasks/${ selectedTask?.previousTaskExecutionId }` )">
-              Previous task: <span class="text-warning cursor-pointer">{{ selectedTask?.previousTaskExecutionId }}</span>
+              Previous task: <span class="text-warning cursor-pointer">{{ selectedTask?.previous_task_name }}</span>
             </div>
             <div v-if="selectedTask?.taskId" class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/tasks/${ selectedTask?.taskId }` )">
               Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.label }}</span>
@@ -163,6 +172,7 @@ interface SelectedTask {
   ended: string;
   errored: boolean;
   previousTaskExecutionId?: string;
+  previous_task_name: string;
   taskId?: string;
   serverId: string;
   serverName: string;
@@ -176,7 +186,6 @@ const route = useRoute();
 const selectedTask = ref<SelectedTask | null>(null);
 const dialogVisible = ref(false);
 const selectedOption = ref('routineMap')
-
 const routineMap = computedAsync(async () => {
   if (selectedItem.value) {
     const tasks = await $fetch(`/api/tasksInRoutines?routineId=${selectedItem.value.uuid}`);
@@ -191,11 +200,12 @@ const routineMap = computedAsync(async () => {
         isComplete: task.is_complete,
         errored: task.errored,
         failed: task.failed,
-        progress: task.progress,
+        progress: (task.progress * 100).toFixed(0),
         scheduled: task.scheduled,
         started: task.started,
         ended: task.ended,
         previousTaskExecutionId: task.previous_task_execution_id,
+        previous_task_name: task.previous_task_name,
         name: task.name,
         description: task?.description,
         serverName: task?.processing_graph,
@@ -214,7 +224,6 @@ const { data: Items, error } = await useFetch<SelectedItem[]>('/api/activeRoutin
 const router = useRouter();
 
 function onTaskSelected(task: SelectedTask) {
-  console.log('selected', task);
   selectedTask.value = task;
   dialogVisible.value = true;
 }
@@ -240,7 +249,6 @@ function getDuration(start: string, end: string | undefined) {
 }
 
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 onMounted(() => {
@@ -249,8 +257,6 @@ onMounted(() => {
 
   const itemId = route.params.id as string;
   selectedItem.value = Items.value?.find((item: SelectedItem) => item.uuid === itemId) || null;
-  console.log('Selected item:', selectedItem.value);
-  console.log('routineMap: ', routineMap.value);
 });
 
 </script>

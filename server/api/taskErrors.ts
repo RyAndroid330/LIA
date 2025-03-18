@@ -38,10 +38,6 @@ export default defineEventHandler(async (event) => {
   );
   const taskId = url.searchParams.get('taskId');
 
-  console.log('Request method:', method);
-  console.log('Task ID:', taskId);
-  console.log('Event context:', event.context);
-
   if (method === 'GET' && taskId) {
     try {
       return await getTaskMap(taskId);

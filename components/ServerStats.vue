@@ -37,9 +37,6 @@ const props = defineProps({
   },
 });
 
-watch( props.selectedServer, ( newValue ) => {
-  console.log( newValue );
-} )
 </script>
 
 <style>

@@ -9,6 +9,7 @@
           :rows="graphs"
           row-key="uuid"
           @inspect-row="inspectGraphs"
+          @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
   </NuxtLayout>
@@ -31,9 +32,6 @@ interface graphs {
 
 const layout = 'dashboard-layout';
 const selectedGraph = ref<graphs[] | undefined>(undefined);
-watch( selectedGraph, newValue => {
-  console.log( newValue );
-} );
 
 const columns = [
   {
@@ -55,30 +53,15 @@ const columns = [
 const graphs = ref( [] );
 
 const router = useRouter();
-
-// function formatDate( date: string ) {
-//   const datetime = new Date( date );
-//   return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
-// }
-
-// function getDuration( start: number, end?: number ) {
-//   const startTime = new Date( start );
-//   let endTime;
-//   if ( !end ) {
-//     endTime = new Date( Date.now() );
-//   } else {
-//     endTime = new Date( end );
-//   }
-//   const duration = +endTime - +startTime;
-//   return duration / 1000;
-// }
-
 function inspectGraphs(graph: graphs) {
   navigateToItem(`/assets/${graph.uuid}`);
 }
 
+function inspectInNewTab( graphs:graphs ) {
+  const url = `/assets/${ graphs.uuid }`;
+  window.open(url, '_blank');
+}
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 
@@ -98,68 +81,3 @@ onMounted(async () => {
   } );
 });
 </script>
-
-
-
-
-<!-- <template>
-  <NuxtLayout :name="layout">
-    <template #title>
-      Graphs
-    </template>
-    <div class="row justify-around q-ma-lg">
-      <List
-        v-if="graphs"
-        :listLabel="'Graphs'"
-        :items="graphs"
-        @item-selected="onSelect"
-      />
-      <graphMap v-if="selectedGraph" :item="selectedGraph"/>
-      <InfoCard v-if="selectedGraph">
-        <template #title>
-          {{ selectedGraph?.label }}
-        </template>
-        <template #info>
-          {{ selectedGraph?.description }}
-        </template>
-      </InfoCard>
-    </div>
-  </NuxtLayout>
-</template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useFetch } from '#app';
-
-interface Graph {
-  type: string;
-  label: string;
-  description: string;
-  id: any;
-  executionId: any;
-  progress: any;
-  uuid: any;
-}
-
-const layout = 'dashboard-layout';
-const selectedGraph = ref<Graph | null>(null);
-
-// Fetch the graphs data
-const { data: graphs, error } = await useFetch('/api/graphs');
-
-// Error handling
-if (error.value) {
-  console.error('Error fetching graphs:', error.value);
-}
-
-// Function to handle item selection
-function onSelect(item: Graph) {
-  console.log(item.label);
-  selectedGraph.value = item;
-}
-
-onMounted(() => {
-  const appStore = useAppStore();
-  appStore.setCurrentSection('assets');
-});
-</script> -->

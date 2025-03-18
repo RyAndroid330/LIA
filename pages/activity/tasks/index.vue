@@ -9,6 +9,7 @@
           :rows="tasks"
           row-key="uuid"
           @inspect-row="inspectTask"
+          @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
   </NuxtLayout>
@@ -32,7 +33,6 @@ interface task {
 const layout = 'dashboard-layout';
 const selectedTask = ref<task[] | undefined>(undefined);
 watch( selectedTask, newValue => {
-  console.log( newValue );
 } );
 
 const columns = [
@@ -42,13 +42,6 @@ const columns = [
     field: 'name',
     required: true,
     sortable: true,
-  },
-  {
-    name: 'taskDescription',
-    label: 'Description',
-    field: 'taskDescription',
-    required: true,
-    sortable: false,
   },
   {
     name: 'status',
@@ -85,6 +78,13 @@ const columns = [
     required: true,
     sortable: true,
   },
+  {
+    name: 'server',
+    label: 'Server',
+    field: 'server',
+    required: true,
+    sortable: true,
+  }
 ];
 
 const tasks = ref( [] );
@@ -111,9 +111,12 @@ function getDuration( start: number, end?: number ) {
 function inspectTask( task:task ) {
   navigateToItem( `/activity/tasks/${ task.uuid }` );
 }
+function inspectInNewTab( task:task ) {
+  const url = `/activity/tasks/${ task.uuid }`;
+  window.open(url, '_blank');
+}
 
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 
@@ -121,6 +124,7 @@ const navigateToItem = ( route: string ) => {
 onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('serverActivity');
+
   const response = await fetch('/api/activeTasks');
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
@@ -128,12 +132,13 @@ onMounted(async () => {
     return {
       uuid: r.id,
       name: r.name,
-      taskDescription: r.description,
+      description: r.description,
       status: r.isComplete ? 'Complete' : r.isRunning ? 'Running' : 'Pending',
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),
       duration: getDuration( r.started, r.ended ),
+      server: r.serverName,
     };
   } );
 });

@@ -6,8 +6,10 @@ let client: pg.Client | null = null;
 // Get all contracts
 async function getContracts(agentId: string) {
   const query = `
-    SELECT * FROM contract
-    WHERE agent_id = $1
+    SELECT contract.*, agent.name AS agent_name
+FROM contract
+INNER JOIN agent ON contract.agent_id = agent.uuid
+WHERE contract.agent_id = $1
   `;
   const res = await client!.query(query, [agentId]);
 
@@ -15,6 +17,7 @@ async function getContracts(agentId: string) {
   return res.rows.map((row) => ({
     uuid: row.uuid,
     agent_id: row.agent_id,
+    agent_name: row.agent_name,
     context: row.context,
     product: row.product,
     issued_at: row.issued_at,

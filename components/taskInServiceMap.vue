@@ -1,7 +1,7 @@
 <template>
-    <div class="map-container q-ma-md">
-      <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
-    </div>
+  <div class="map-container q-ma-md">
+    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -9,6 +9,9 @@ import { ref, onMounted } from 'vue';
 import type { Node, Edge, Position } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
 import dagre from 'dagre';
+import { useRoute } from '#app';
+
+const route = useRoute();
 
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
@@ -18,10 +21,10 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: 'LR',  // TB = top to bottom
-    ranksep: 200,   // Increase vertical space between layers
-    nodesep: 2,   // Increase horizontal space between nodes
-    edgesep: 1,   // Increase horizontal space between edges
-    align: 'DL', //
+    ranksep: 500,   // Increase vertical space between layers
+    nodesep: 10,    // Increase horizontal space between nodes
+    edgesep: 1,     // Increase horizontal space between edges
+    align: 'DL',    // Align nodes to the left
   });
   g.setDefaultEdgeLabel(() => ({}));
 
@@ -48,31 +51,31 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
 }
 
 onMounted(async () => {
-  const serverMap = await $fetch('/api/serverMap');
+  const serverMap = await $fetch(`/api/tasksInServices?serviceName=${route.params.id}`);
 
   if (serverMap && serverMap.length > 0) {
     // Create nodes
-    serverMap.forEach((server, index) => {
-      if (server.is_active) {
+    serverMap.forEach((server: any) => {
+      if (server.processing_graph === `${route.params.id}`) {
         nodes.value.push({
-          id: server.server_id.toString(),
+          id: server.uuid,  // Use the uuid as the node ID
           position: { x: 0, y: 0 },
           sourcePosition: 'right' as Position,
           targetPosition: 'left' as Position,
-          data: { label: server.processing_graph },
+          data: { label: server.name },  // Display task name in the label
           type: undefined,
           class: 'custom-node'
         });
       }
     });
 
-    // Create edges based on client_id
-    serverMap.forEach((server) => {
-      if (server.is_active && server.client_id) {
+    // Create edges based on previous_task_execution_id
+    serverMap.forEach((server: any) => {
+      if (server.previous_task_execution_id) {
         edges.value.push({
-          id: `e${server.server_id}-${server.client_id}`,
-          source: server.client_id.toString(),
-          target: server.server_id.toString(),
+          id: `e${server.uuid}-${server.previous_task_execution_id}`,
+          source: server.uuid,  // Use the uuid as the source
+          target: server.previous_task_execution_id,  // Use the previous task's uuid as the target
           animated: false
         });
       }

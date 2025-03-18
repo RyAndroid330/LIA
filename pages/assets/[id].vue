@@ -4,6 +4,7 @@
       {{ selectedItem?.name }}
     </template>
     <div class="row q-mx-md">
+      <TaskInServiceMap />
       <InfoCard v-if="selectedItem">
         <template #title>
           {{ selectedItem?.name }}
@@ -69,6 +70,5 @@ onMounted(() => {
   if (!selectedItem.value) {
     console.error('No item found with the given name:', route.params.id);
   }
-  console.log(selectedItem.value);
 });
 </script>

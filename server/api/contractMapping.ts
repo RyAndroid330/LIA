@@ -39,10 +39,6 @@ export default defineEventHandler(async (event) => {
   );
   const contractId = url.searchParams.get('contractId');
 
-  console.log('Request method:', method);
-  console.log('contract ID:', contractId);
-  console.log('Event context:', event.context);
-
   if (method === 'GET' && contractId) {
     try {
       return await getcontractMap(contractId);

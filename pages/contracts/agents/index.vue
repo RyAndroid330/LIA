@@ -9,6 +9,7 @@
           :rows="agents"
           row-key="uuid"
           @inspect-row="inspectAgents"
+          @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
   </NuxtLayout>
@@ -43,13 +44,6 @@ const columns = [
     required: true,
     sortable: true,
   },
-  {
-    name: 'uuid',
-    label: 'Agent Id',
-    field: 'uuid',
-    required: true,
-    sortable: false,
-  }
 ];
 
 const agents = ref( [] );
@@ -77,8 +71,11 @@ function inspectAgents( agents:agents ) {
   navigateToItem( `/contracts/agents/${ agents.uuid }` );
 }
 
+function inspectInNewTab( agents:agents ) {
+  const url = `/contracts/agents/${ agents.uuid }`;
+  window.open(url, '_blank');
+}
 const navigateToItem = ( route: string ) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 };
 

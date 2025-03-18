@@ -72,12 +72,6 @@ export default {
     reachedTimeout,
   ];
   this.chartOptions.colors = ['#34C759', '#FF69B4', '#FFC107', '#8B9467'];
-  // console.log('series:', this.series);
-  // console.log(data)
-  // console.log('isComplete:', isComplete);
-  // console.log('errored:', errored);
-  // console.log('failed:', failed);
-  // console.log(values)
 }
 };
 </script>

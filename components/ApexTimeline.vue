@@ -79,8 +79,6 @@ const series = computed(() => {
     };
   }).filter(task => task.data.length > 0);
 
-  console.log('routineMap: ', props.routineMap);
-
   return seriesData;
 });
 </script>

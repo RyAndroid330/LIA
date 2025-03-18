@@ -13,7 +13,7 @@
         flat
         no-data-label="I didn't find anything for you"
         :filter="computedFilter"
-        :rows-per-page-options="[ 20, 50 ]"
+        :rows-per-page-options="[ 20, 50, 100 ]"
     >
       <template v-slot:top-right>
         <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -24,7 +24,7 @@
       </template>
 
       <template v-slot:header="props">
-        <q-tr :props="props">
+        <q-tr :props="props" >
           <q-th auto-width />
           <q-th
               v-for="col in props.cols"
@@ -38,33 +38,52 @@
       </template>
 
       <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td auto-width>
-            <q-btn size="sm" color="primary" round dense @click="props.expand = !props.expand" :icon="props.expand ? 'remove' : 'add'" />
-          </q-td>
-          <q-td
-              v-for="col in props.cols"
-              :key="col.name"
-              :props="props"
-          >
-            {{ col.value }}
-          </q-td>
-          <q-td v-if="rowInspection" auto-width>
-            <q-btn size="sm" round @click="inspectRow(props.row)" icon="arrow_outward" />
-          </q-td>
-        </q-tr>
-        <q-tr v-show="props.expand" :props="props">
-          <q-td colspan="100%">
-            <div class="text-left">ID: {{ props.row.uuid }}.</div>
-          </q-td>
-        </q-tr>
-      </template>
+  <q-tr :props="props" :class="{'text-red': props.row.referer === 'Errored'}">
+    <q-td auto-width>
+      <q-btn size="sm"  dense @click="props.expand = !props.expand" :icon="props.expand ? 'expand_more' : 'chevron_right'" />
+    </q-td>
+    <q-td
+        v-for="col in props.cols"
+        :key="col.name"
+        :props="props"
+    >
+      {{ col.value }}
+    </q-td>
+    <q-td v-if="rowInspection" auto-width>
+      <q-btn size="sm" :color="inspectButtonColor" round @click="inspectRow(props.row)" icon="arrow_outward"
+       @contextmenu.prevent="inspectRowInNewTab(props.row)">
+  <q-tooltip anchor="top middle" self="bottom middle">
+    Right click to open in new tab
+  </q-tooltip>
+</q-btn>
+    </q-td>
+  </q-tr>
+  <q-tr v-show="props.expand" :props="props">
+    <q-td colspan="100%">
+      <div class="text-left">ID: {{ props.row.uuid }}.</div>
+      <div class="text-left">{{ props.row.description ? 'Description: ' + props.row.description : '' }}</div>
+      <div class="text-left">
+        {{ props.row.concurrency !== undefined && props.row.concurrency !== null ? 'Concurrency: ' + props.row.concurrency : '' }}
+      </div>
+      <div class="text-left">{{ props.row.referer ? 'Referer: ' + props.row.referer : '' }}</div>
+      <div class="text-left">{{ props.row.product ? 'Product: ' + props.row.product : '' }}</div>
+      <div class="text-left" @click="navigateToItem( `/contracts/${ props.row.contract }` )">
+        <span class="text-secondary cursor-pointer">{{ props.row.contract ? 'Contract' : '' }}</span>
+      </div>
+    </q-td>
+  </q-tr>
+</template>
     </q-table>
   </template>
 </InfoCard>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from '#vue-router';
+
+const router = useRouter();
+const appStore = useAppStore();
+const inspectButtonColor = computed(() => appStore.currentSection === 'assets' ? 'primary': appStore.currentSection === 'serverActivity' ? 'warning' : 'secondary');
 
 const props = defineProps( {
   title: {
@@ -95,13 +114,16 @@ const props = defineProps( {
 
 const filter = ref( props.externalFilter );
 
-const emit = defineEmits( [ 'inspectRow' ] );
-
+const emit = defineEmits( [ 'inspectRow','inspectRowInNewTab' ] );
 function inspectRow( item: any ) {
-  console.log( item );
   emit( 'inspectRow', item );
 }
-
+function inspectRowInNewTab(item: any) {
+  emit( 'inspectRowInNewTab', item );
+}
+const navigateToItem = ( route: string ) => {
+  router.push(route);
+};
 const computedFilter = computed(() => filter.value || props.externalFilter);
 
 const formattedColumns = computed( () => {

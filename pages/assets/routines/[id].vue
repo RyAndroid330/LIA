@@ -44,6 +44,7 @@
         :rows="routines"
         row-key="uuid"
         @inspect-row="inspectRoutine"
+        @inspect-row-in-new-tab="inspectInNewTab"
       >
         <template #title>
           Active Executions
@@ -120,9 +121,7 @@ interface Routine {
 }
 
 const selectedRoutine = ref<Routine[] | undefined>(undefined);
-watch(selectedRoutine, newValue => {
-  console.log(newValue);
-});
+
 
 const columns = [
   {
@@ -131,13 +130,6 @@ const columns = [
     field: 'label',
     required: true,
     sortable: true,
-  },
-  {
-    name: 'routineDescription',
-    label: 'Description',
-    field: 'routineDescription',
-    required: true,
-    sortable: false,
   },
   {
     name: 'progress',
@@ -180,28 +172,26 @@ function inspectRoutine(routine: Routine) {
   navigateToItem(`/activity/routines/${routine.uuid}`);
 }
 
+function inspectInNewTab(routine: Routine) {
+  window.open(`/activity/routines/${routine.uuid}`, '_blank');
+}
+
 const navigateToItem = (route: string) => {
-  console.log('Navigating to route:', route);
   router.push(route);
 }
 
 const routineMap = computedAsync(async () => {
-  console.log('Fetching routine map data...');
   if (selectedItem.value) {
-    console.log('Selected item:', selectedItem.value);
-    const tasks = await $fetch(`/api/tasksInRoutines?routineId=${selectedItem.value.uuid}`);
-    console.log('Fetched tasks:', tasks);
+    const tasks = await $fetch(`/api/staticTasksInRoutine?routineId=${selectedItem.value.uuid}`);
     return tasks?.map((task: any) => {
-      console.log('Mapping task:', task);
       return {
         uuid: task.uuid,
-        name: task.name,
+        label: task.name,
         layer_index: task.layer_index,
         previousTaskExecutionId: task.previous_task_execution_id,
       };
     }) || [];
   }
-  console.log('No selected item, returning empty array');
   return [];
 }, []);
 
@@ -212,31 +202,9 @@ onMounted(async () => {
 
   const itemId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
-
-  console.log('Selected Item:', selectedItem.value);
-
   fetchActiveRoutines(itemId);
-
-  // Fetch routine map data
-  if (selectedItem.value) {
-    console.log('Selected item:', selectedItem.value);
-    const tasks = await $fetch(`/api/staticTasksInRoutine?routineId=${selectedItem.value.uuid}`);
-    console.log('Fetched tasks:', tasks);
-    routineMap.value = tasks?.map((task: any) => {
-      console.log('Mapping task:', task);
-      return {
-        uuid: task.uuid,
-        taskId: task.task_id,
-        label: task.name,
-        name: task.name,
-        layerIndex: task.layer_index,
-        previousTaskExecutionId: task.previous_task_execution_id,
-      };
-    }) || [];
-  }
 });
 async function fetchActiveRoutines(itemId: string) {
-  console.log('Fetching active routines for itemId:', itemId);
   const response = await fetch(`/api/activeRoutines${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -251,7 +219,6 @@ async function fetchActiveRoutines(itemId: string) {
     throw new Error('Failed to parse JSON response');
   }
 
-  console.log('Fetched active routines data:', data);
   routines.value = data.map((r: any) => {
     return {
       uuid: r.id,
@@ -264,7 +231,6 @@ async function fetchActiveRoutines(itemId: string) {
       duration: getDuration(r.started, r.ended),
     };
   });
-  console.log('Mapped routines:', routines.value);
 }
 
 </script>
