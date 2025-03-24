@@ -18,7 +18,6 @@ interface Task {
   uuid: string;
   previousTaskExecutionId?: string;
   errored?: boolean;
-  // ...other properties
 }
 
 const props = defineProps<{
@@ -28,9 +27,9 @@ const props = defineProps<{
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
-    rankdir: 'LR',  // TB = top to bottom, LR = left to right
-    ranksep: 100,   // Increase vertical space between layers
-    nodesep: 20,   // Increase horizontal space between nodes
+    rankdir: 'LR',
+    ranksep: 100,
+    nodesep: 20,
   });
   g.setDefaultEdgeLabel(() => ({}));
 
@@ -69,8 +68,8 @@ watch(props, (newValue) => {
       nodes.value.push({
         id: task.uuid.toString(),
         position: { x: 0, y: 0 },
-        sourcePosition: 'right' as Position, // 'bottom'
-        targetPosition: 'left' as Position, // 'top'
+        sourcePosition: 'right' as Position,
+        targetPosition: 'left' as Position,
         data: {
           ...task,
         },
@@ -108,10 +107,6 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 .routine-map-container {
   width: 80dvw;
   height: 50dvh;
-  /* max-width: 39dvw; */
-  /* max-height: 40dvh; */
-  /* border: 1.5px solid lightgray; */
-  /* border-radius: 10px; */
 }
 
 .custom-node {

@@ -32,9 +32,6 @@ interface routines {
 
 const layout = 'dashboard-layout';
 const selectedRoutine = ref<routines[] | undefined>(undefined);
-watch( selectedRoutine, newValue => {
-  console.log( newValue );
-} );
 
 const columns = [
   {

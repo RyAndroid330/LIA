@@ -52,12 +52,4 @@ onMounted(async () => {
     tree.render(dynamicData);
   }
 });
-
-// onMounted(() => {
-//   const tree = new ApexTree(document.getElementById('svg-tree'), options);
-//   tree.render(data);
-//   });
-
-// const tree = new ApexTree(document.getElementById('svg-tree'), options);
-// tree.render(data);
 </script>

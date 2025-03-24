@@ -111,8 +111,8 @@ onBeforeUnmount(() => {
   height: 55dvh;
   margin: 25px auto;
   perspective: 75dvw;
-  overflow: hidden; /* Prevent default scrolling */
-  position: relative; /* Make positioning relative to this element */
+  overflow: hidden;
+  position: relative;
 
 }
 

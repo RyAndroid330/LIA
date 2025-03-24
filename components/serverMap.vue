@@ -17,11 +17,11 @@ const edges = ref<Edge[]>([]);
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
-    rankdir: 'LR',  // TB = top to bottom
-    ranksep: 200,   // Increase vertical space between layers
-    nodesep: 2,   // Increase horizontal space between nodes
-    edgesep: 1,   // Increase horizontal space between edges
-    align: 'DL', //
+    rankdir: 'LR',
+    ranksep: 200,
+    nodesep: 2,
+    edgesep: 1,
+    align: 'DL',
   });
   g.setDefaultEdgeLabel(() => ({}));
 

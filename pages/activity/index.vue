@@ -4,9 +4,7 @@
       Server Activity
     </template>
     <div class="row q-mx-md">
-      <!-- <Flipper :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/> -->
       <GridTable :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/>
-      <!-- <tree class="q-mx-xl"></tree> -->
       <ServerMap @node-selected="onServerSelected" class="q-mx-xl" />
     </div>
     <q-dialog v-model="dialogVisible">

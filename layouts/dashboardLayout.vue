@@ -2,7 +2,7 @@
     <div class="q-pa-none q-ma-xs-md" style="height: 100%; display: flex; flex-direction: column;">
       <div class="q-gutter-xs" style="display: flex;">
         <div class="q-gutter-xs flex-grow-1" style="overflow: auto;">
-          <q-breadcrumbs separator="---" class="text-orange transparent-background q-pa-xs" active-color="primary">
+          <q-breadcrumbs separator="/" class="text-orange transparent-background q-py-xs q-px-md" active-color="primary">
             <q-breadcrumbs-el :to="'/'" icon="home" />
             <q-breadcrumbs-el
               v-for="(breadcrumb, index) in breadcrumbs"
@@ -13,8 +13,8 @@
             />
           </q-breadcrumbs>
         </div>
-        <div class="q-gutter-xs q-pa-xs transparent-background" style="position: absolute; right: 17px; top: 77px;">
-          Link
+        <div>
+          <slot name="link"/>
         </div>
       </div>
       <div class="q-pa-md text-h4">

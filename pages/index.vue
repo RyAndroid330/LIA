@@ -13,17 +13,17 @@
           </h5>
         </template>
       </Details>
-      <q-card class="custom-card">
+      <q-card v-if="appStore.isLoggedIn" class="custom-card">
         <q-card-section>
         </q-card-section>
         <q-card-section class="q-pt-none">
           <div class="row no-wrap items-center">
             <div class="col text-h6 ellipsis">Load on all Servers</div>
           </div>
-          <ServerStats :selectedServer="aggregatedServer" />
+          <ServerStats  :selectedServer="aggregatedServer" />
         </q-card-section>
       </q-card>
-      <HeatMap/>
+      <HeatMap v-if="appStore.isLoggedIn"/>
     </div>
   </NuxtLayout>
 </template>
@@ -33,6 +33,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useAppStore } from '~/stores/app';
 import HeatMap from '~/components/HeatMap.vue';
 
+const appStore = useAppStore();
 const layout = 'dashboard-layout';
 const activeProcesses = ref<Server[]>([]);
 

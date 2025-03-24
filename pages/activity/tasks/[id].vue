@@ -48,21 +48,26 @@
               Success: {{ !taskExecution.failed && !taskExecution.errored }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-
-            <div v-if="taskExecution.previousTaskExecutionId" class="q-mx-md q-my-sm cursor-pointer text-warning" @click="navigateToItem(`/activity/tasks/${taskExecution.previousTaskExecutionId}`)">
-              Previous Task: {{ taskExecution.previous_task_name }}
+            <div v-if="taskExecution.previousTaskExecutionId[0]" class="q-mx-md q-my-sm cursor-pointer text-warning">
+              <div v-for="(id, index) in taskExecution.previousTaskExecutionId" :key="index" @click="navigateToItem(`/activity/tasks/${id}`)">
+                Previous Task {{ index + 1 }}: {{ id }}
+              </div>
             </div>
-
+            <div v-if="taskExecution.nextTaskExecutionId[0]" class="q-mx-md q-my-sm cursor-pointer text-warning">
+              <div v-for="(id, index) in taskExecution.nextTaskExecutionId" :key="index" @click="navigateToItem(`/activity/tasks/${id}`)">
+                Next Task {{ index + 1 }}: {{ id }}
+              </div>
+            </div>
             <div class="q-mx-md q-my-sm cursor-pointer text-warning" @click="navigateToItem(`/activity/routines/${taskExecution.routineExecutionId}`)">
               Routine Execution ID: {{ taskExecution.routineName }}
             </div>
 
             <div v-if="taskExecution.taskId" class="q-mx-md q-my-sm cursor-pointer text-primary" @click="navigateToItem(`/assets/tasks/${taskExecution.taskId}`)">
-              Task ID: {{ taskExecution.name }}
+              Task: {{ taskExecution.name }}
             </div>
 
             <div class="q-mx-md q-my-sm cursor-pointer text-primary" @click="navigateToItem(`/assets/${taskExecution.serverName}`)">
-              Server ID: {{ taskExecution.serverName }}
+              Server: {{ taskExecution.serverName }}
             </div>
           </div>
         </template>
@@ -104,7 +109,7 @@
 import { useFetch, useRoute } from '#app';
 import { ref, onMounted } from 'vue';
 import { useRouter } from '#vue-router';
-import { useAppStore } from '@/stores/app'; // Ensure this is the correct path
+import { useAppStore } from '@/stores/app';
 
 const layout = 'dashboard-layout';
 const route = useRoute();
@@ -138,7 +143,8 @@ async function fetchTaskExecution() {
         name: task.name,
         description: task.description,
         isUnique: task.is_unique,
-        previousTaskExecutionId: task.previous_task_execution_id,
+        previousTaskExecutionId: task.previous_task_execution_ids,
+        nextTaskExecutionId: task.next_task_execution_ids,
         serverId: task.server_id,
         routineName: task.routine_name,
         serverName: task.processing_graph,

@@ -6,15 +6,13 @@
           'navContainer',
           toolbarClass,
           'flex',
-
         ]"
       >
         <q-img
           src='/logoipsum-260.svg'
           style="max-height: 50px; max-width: 200px; z-index: 500; margin: 5px"
         />
-
-        <div class="flex items-center">
+        <div v-if="appStore.isLoggedIn" class="flex items-center">
           <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
           <q-btn flat to='/contracts' @click="() => setSection('contracts')"> Contracts </q-btn>
           <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
@@ -22,12 +20,13 @@
         </div>
 
         <div class="flex items-center ml-auto absolute-right q-pt-xs q-pr-md"  >
+          <User />
           <ThemeToggleButton  />
         </div>
       </q-toolbar>
     </q-header>
-
     <q-drawer
+    v-if="appStore.isLoggedIn"
       class='q-pa-lg'
       :width="220"
       v-model='drawerOpen'
@@ -217,7 +216,7 @@ watch(currentSection, (newSection) => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
-  handleResize(); // Initial check
+  handleResize();
 });
 
 onBeforeUnmount(() => {

@@ -6,10 +6,6 @@
         <select id="year" v-model="selectedYear" @change="updateYear" style="margin-left: 10px; max-height: 30px;">
           <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
         </select>
-        <!-- <select id="dataType" v-model="selectedDataType" @change="updateYear" style="margin-left: 10px; max-height: 30px;">
-          <option value="executions">Executions</option>
-          <option value="errors">Errors</option>
-        </select> -->
       </div>
     </div>
     <button v-if="title === 'Month'" @click="goBack">Back to Year</button>
@@ -155,7 +151,7 @@ export default defineComponent({
     async generateMonthData(monthIndex: number) {
       const data = await this.fetchRoutineExecutions();
       const monthData = Array.from({ length: 24 }, (_, hour) => ({
-        name: `${hour.toString().padStart(2, '0')}:00`, // Formatting hour to "HH:00"
+        name: `${hour.toString().padStart(2, '0')}:00`,
         data: Array.from({ length: 31 }, (_, day) => {
           const date = new Date(this.selectedYear, monthIndex, day + 1, hour);
           const routine = data.find((routine: any) => new Date(routine.date).toDateString() === date.toDateString() && parseInt(routine.hour) === hour);

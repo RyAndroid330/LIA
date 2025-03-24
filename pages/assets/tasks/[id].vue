@@ -54,6 +54,17 @@
           Active Executions
         </template>
       </Table>
+      <Table
+        :columns="columns"
+        :rows="routines"
+        row-key="uuid"
+        @inspect-row="inspectRoutine"
+        @inspect-row-in-new-tab="inspectRoutineInNewTab"
+      >
+        <template #title>
+          Routines Using This Task
+        </template>
+      </Table>
       <TaskHeatMap :taskId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
@@ -66,6 +77,7 @@ import InfoCard from '~/components/InfoCard.vue';
 import TaskHeatMap from '~/components/TaskHeatMap.vue';
 import TaskRoutinePieChart from '~/components/TaskRoutinePieChart.vue';
 import ExecutionTimeChart from '~/components/executionTimeChart.vue';
+
 
 // Define the Item interface
 interface Item {
@@ -126,6 +138,16 @@ interface Task {
   uuid: string;
 }
 
+interface Routine {
+  type: string;
+  label: string;
+  description: string;
+  id: any;
+  executionId: any;
+  progress: any;
+  uuid: string;
+}
+
 const selectedTask = ref<Task[] | undefined>(undefined);
 
 const columns = [
@@ -153,6 +175,7 @@ const columns = [
 ];
 
 const tasks = ref([]);
+const routines = ref([]);
 
 const router = useRouter();
 
@@ -177,8 +200,17 @@ function inspectTask(task: Task) {
   navigateToItem(`/activity/tasks/${task.uuid}`);
 }
 
-function inspectInNewTab( task:Task ) {
-  const url = `/activity/tasks/${ task.uuid }`;
+function inspectInNewTab(task: Task) {
+  const url = `/activity/tasks/${task.uuid}`;
+  window.open(url, '_blank');
+}
+
+function inspectRoutine(routine: Routine) {
+  navigateToItem(`/assets/Routines/${routine.uuid}`);
+}
+
+function inspectRoutineInNewTab(routine: Routine) {
+  const url = `/assets/routines/${routine.uuid}`;
   window.open(url, '_blank');
 }
 
@@ -194,6 +226,7 @@ onMounted(() => {
   const itemId: string = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
   selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
   fetchActiveTasks(itemId);
+  fetchRoutinesUsingTask(itemId);
 });
 
 async function fetchActiveTasks(itemId: string) {
@@ -221,6 +254,28 @@ async function fetchActiveTasks(itemId: string) {
   });
 }
 
+async function fetchRoutinesUsingTask(taskId: string) {
+  try {
+    const response = await fetch(`/api/routinesWithTask?taskId=${taskId}`);
+    const data = await response.json();
+    routines.value = data.map((routine: any) => {
+      return {
+        uuid: routine.uuid,
+        name: routine.name,
+        description: routine.description,
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching routines:', error);
+    throw error;
+  }
+}
+watch(() => route.params.id, (newId) => {
+  const itemId: string = Array.isArray(newId) ? newId[0] : newId;
+  selectedItem.value = Items.value?.find((item: Item) => item.uuid === itemId);
+  fetchActiveTasks(itemId);
+  fetchRoutinesUsingTask(itemId);
+});
 </script>
 
 <style scoped>

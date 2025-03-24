@@ -9,14 +9,12 @@
           <q-badge color="white" text-color="primary" :label="`${Math.round(selectedServer.cpu * 100)}%`" />
         </div>
       </q-linear-progress>
-
       <span class='text-caption'>GPU</span>
       <q-linear-progress size="25px" :value="selectedServer.gpu" color="secondary">
         <div class="absolute-full flex flex-center">
           <q-badge color="white" text-color="secondary" :label="`${Math.round(selectedServer.gpu * 100)}%`" />
         </div>
       </q-linear-progress>
-
       <span class='text-caption'>RAM</span>
       <q-linear-progress size="25px" :value="selectedServer.ram / (128 * 1024)" color="warning">
         <div class="absolute-full flex flex-center">

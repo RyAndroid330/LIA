@@ -20,11 +20,11 @@ const edges = ref<Edge[]>([]);
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
-    rankdir: 'LR',  // TB = top to bottom
-    ranksep: 500,   // Increase vertical space between layers
-    nodesep: 10,    // Increase horizontal space between nodes
-    edgesep: 1,     // Increase horizontal space between edges
-    align: 'DL',    // Align nodes to the left
+    rankdir: 'LR',
+    ranksep: 500,
+    nodesep: 10,
+    edgesep: 1,
+    align: 'DL',
   });
   g.setDefaultEdgeLabel(() => ({}));
 
@@ -58,11 +58,11 @@ onMounted(async () => {
     serverMap.forEach((server: any) => {
       if (server.processing_graph === `${route.params.id}`) {
         nodes.value.push({
-          id: server.uuid,  // Use the uuid as the node ID
+          id: server.uuid,
           position: { x: 0, y: 0 },
           sourcePosition: 'right' as Position,
           targetPosition: 'left' as Position,
-          data: { label: server.name },  // Display task name in the label
+          data: { label: server.name },
           type: undefined,
           class: 'custom-node'
         });
@@ -74,8 +74,8 @@ onMounted(async () => {
       if (server.previous_task_execution_id) {
         edges.value.push({
           id: `e${server.uuid}-${server.previous_task_execution_id}`,
-          source: server.uuid,  // Use the uuid as the source
-          target: server.previous_task_execution_id,  // Use the previous task's uuid as the target
+          source: server.uuid,
+          target: server.previous_task_execution_id,
           animated: false
         });
       }

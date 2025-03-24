@@ -40,12 +40,12 @@ export default {
             },
             legend: {
               position: 'bottom',
-              fontSize: '16px' // Increase the font size for the legend
+              fontSize: '16px'
             }
           }
         }],
         legend: {
-          fontSize: '22px' // Increase the font size for the legend
+          fontSize: '22px'
         }
       }
     };
