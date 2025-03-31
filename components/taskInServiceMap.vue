@@ -1,6 +1,13 @@
 <template>
   <div class="map-container q-ma-md">
-    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
+    <VueFlow
+    :nodes="nodes"
+    :edges="edges"
+    @node-click="onNodeClick"
+    :max-zoom="1.5"
+    fit-view-on-init
+    contenteditable="false"
+    :nodes-draggable="false" />
   </div>
 </template>
 
@@ -21,9 +28,9 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: 'LR',
-    ranksep: 500,
-    nodesep: 10,
-    edgesep: 1,
+    ranksep: 200,
+    nodesep: 50,
+    edgesep: 10,
     align: 'DL',
   });
   g.setDefaultEdgeLabel(() => ({}));
@@ -52,7 +59,7 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
 
 onMounted(async () => {
   const serverMap = await $fetch(`/api/tasksInServices?serviceName=${route.params.id}`);
-
+console.log(serverMap)
   if (serverMap && serverMap.length > 0) {
     // Create nodes
     serverMap.forEach((server: any) => {
@@ -74,8 +81,8 @@ onMounted(async () => {
       if (server.previous_task_execution_id) {
         edges.value.push({
           id: `e${server.uuid}-${server.previous_task_execution_id}`,
-          source: server.uuid,
-          target: server.previous_task_execution_id,
+          source: server.previous_task_execution_id,
+          target: server.uuid,
           animated: false
         });
       }

@@ -36,9 +36,9 @@ const breadcrumbs = computed(() => {
   const pathArray = route.path.split('/').filter(segment => segment);
 
   return pathArray.map((segment, index) => {
-    const cleanSegment = segment.replace('-sub', '');
+    const cleanSegment = decodeURIComponent(segment.replace('-sub', ''));
     return {
-      label: formatBreadcrumbLabel(cleanSegment),
+      label: formatBreadcrumbLabel(cleanSegment, index, pathArray),
       to: index === pathArray.length - 1 ? null : '/' + pathArray.slice(0, index + 1).join('/').replace('-sub', ''),
     };
   });
@@ -47,9 +47,10 @@ const breadcrumbs = computed(() => {
 function formatBreadcrumbLabel(segment) {
   if (segment === 'assets') return 'Assets';
   if (segment === 'active') return 'Server Activity';
+  if (segment === 'activity') return 'Activity';
   if (segment === 'tasks') return 'Tasks';
   if (segment === 'routines') return 'Routines';
-  return segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
+  return segment.charAt(0) .toLowerCase() + segment.slice(1).replace(/-/g, ' ');
 }
 </script>
 

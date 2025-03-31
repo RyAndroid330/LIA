@@ -4,7 +4,7 @@
       {{ selectedItem?.label }} - {{ selectedItem?.uuid.slice( 0, 8 ) }}
     </template>
     <div>
-      <div class="q-pa-md">
+      <div class="q-pa-md flex-centered">
         <q-tabs
           v-model="selectedOption"
           dense
@@ -20,23 +20,26 @@
         </q-tabs>
 
         <q-separator />
+<div class=centered-container>
 
-        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
-          <div v-show="selectedOption === 'routineMap'">
-            <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
-          </div>
-        </transition>
-        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
-          <div v-show="selectedOption === 'timeline'">
-            <Timeline :routineMap="routineMap" />
-          </div>
-        </transition>
-        <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
-          <div v-show="selectedOption === 'rangedTimeline'">
-             <ApexTimeline :routineMap="routineMap"/>
-          </div>
-        </transition>
-      </div>
+  <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+    <div v-show="selectedOption === 'routineMap'">
+      <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+    <div v-show="selectedOption === 'timeline'">
+      <Timeline :routineMap="routineMap" @task-selected="onTaskSelected"/>
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
+    <div v-show="selectedOption === 'rangedTimeline'">
+      <ApexTimeline :routineMap="routineMap"
+      @task-selected="onTaskSelected"/>
+    </div>
+  </transition>
+</div>
+</div>
       <div class="row q-mx-md justify-around">
         <InfoCard v-if="selectedItem">
           <template #title>
@@ -267,5 +270,9 @@ onMounted(() => {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+.centered-container {
+  width: 100dvw;
+  margin: 0 auto;
 }
 </style>

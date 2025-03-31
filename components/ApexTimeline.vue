@@ -1,11 +1,17 @@
 <template>
   <div>
-    <VueApexCharts type="rangeBar" height='300%' width='85%' :options="chartOptions" :series="series" />
+    <VueApexCharts
+    type="rangeBar"
+    height='300%'
+    width='85%'
+    :options="chartOptions"
+    :series="series"
+    @click="onTaskSelected" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineEmits } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps({
@@ -14,6 +20,8 @@ const props = defineProps({
     required: true
   }
 });
+
+const emit = defineEmits(['taskSelected']);
 
 const chartOptions = ref({
   chart: {
@@ -24,7 +32,7 @@ const chartOptions = ref({
   plotOptions: {
     bar: {
       horizontal: true,
-      barHeight: '80%',
+      barHeight: '100%',
     }
   },
   xaxis: {
@@ -36,10 +44,10 @@ const chartOptions = ref({
   },
   fill: {
     type: 'solid',
-    opacity: 0.6
+    opacity: 0.4
   },
   legend: {
-    position: 'right'
+    position: 'right',
   },
 });
 
@@ -51,7 +59,7 @@ const series = computed(() => {
   const sortedTasks = Object.values(props.routineMap)
     .sort((a, b) => a.layer_index - b.layer_index || new Date(a.scheduled) - new Date(b.scheduled));
 
-  const seriesData = sortedTasks.map(task => {
+  return sortedTasks.map(task => {
     const scheduledTime = new Date(task.scheduled).getTime();
     const startedTime = new Date(task.started).getTime();
     const endedTime = new Date(task.ended).getTime();
@@ -62,7 +70,6 @@ const series = computed(() => {
       data.push({
         x: `${task.layer_index}`,
         y: [scheduledTime, startedTime],
-        label: 'Scheduled to Started'
       });
     }
 
@@ -74,11 +81,19 @@ const series = computed(() => {
     }
 
     return {
-      name: task.label,
+      name: `${task.label} (${task.uuid})`,
+      id: task.uuid,
       data
     };
   }).filter(task => task.data.length > 0);
-
-  return seriesData;
 });
+
+function onTaskSelected(event, chartContext, config) {
+  const taskIndex = config.seriesIndex;
+  const sectionIndex = config.dataPointIndex;
+  const task = Object.values(props.routineMap)[taskIndex];
+  if (task) {
+    emit('taskSelected', task);
+  }
+}
 </script>

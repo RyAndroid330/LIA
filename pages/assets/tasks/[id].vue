@@ -17,9 +17,6 @@
             <div class="q-mx-md q-my-sm">
               UUID: {{ selectedItem?.uuid }}
             </div>
-            <div class="q-mx-md q-my-sm">
-              Type: {{ selectedItem?.type }}
-            </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.processing_graph }` )">
               Processing Graph: <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
             </div>
@@ -32,11 +29,11 @@
           </div>
         </template>
       </InfoCard>
-      <InfoCard>
+      <InfoCard >
         <template #title>
           Tasks Function
         </template>
-        <template #info>
+        <template #info class="overflow-auto">
           <pre>{{ selectedItem?.function_string }}</pre>
         </template>
       </InfoCard>

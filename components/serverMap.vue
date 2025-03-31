@@ -1,5 +1,5 @@
 <template>
-    <div class="map-container q-ma-md">
+    <div class="map-container q-ma-md" style="border-right: 2px solid rgba(0,0,0, 0.2);">
       <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick" :max-zoom="1.5" fit-view-on-init contenteditable="false" :nodes-draggable="false" />
     </div>
 </template>

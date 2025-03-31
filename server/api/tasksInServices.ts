@@ -22,13 +22,13 @@ async function getTasks(serviceName: string) {
   const query = `
 SELECT
   t.processing_graph,
-  dtm.task_id AS uuid,
+  t.uuid AS uuid,
   t.name,
   t.layer_index,
   dtm.task_id,
   dtm.predecessor_task_id AS previous_task_execution_id
 FROM task t
-JOIN directional_task_graph_map dtm ON t.uuid = dtm.task_id
+LEFT JOIN directional_task_graph_map dtm ON t.uuid = dtm.task_id
 WHERE processing_graph::TEXT = $1;
   `;
 

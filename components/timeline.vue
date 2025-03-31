@@ -1,10 +1,13 @@
 <template>
-  <q-timeline class="q-ma-xl" layout='loose' style = "max-width:75%">
+  <q-timeline layout='loose' style = "max-width:97%">
     <q-timeline-entry
       v-for="(entry, index) in routineMap"
       :key="index"
       :title="entry.label"
       :subtitle="formatDate(entry.started)"
+      :side="entry.layer_index % 2 === 0 ? 'left' : 'right'"
+      :style="{ backgroundColor: entry.layer_index % 2 === 0 ? 'rgba(128, 128, 128, 0.1)' : '' }"
+      @click="onTaskSelected(entry)"
       >
       <q-badge v-if="entry.description" color="primary">
         {{ getDescription(entry)}}
@@ -45,4 +48,10 @@ const formatDate = computed(() => (date) => {
     hour12: false,
   })}`
 })
+
+const emit = defineEmits(['taskSelected'])
+
+function onTaskSelected(task) {
+  emit('taskSelected', task)
+}
 </script>

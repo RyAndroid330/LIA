@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center q-ma-md">
     <div class="col-8 col-md-10 col-md-8">
-      <div v-for="(entry, index) in routineMap" :key="index">
+      <div v-for="(entry, index) in routineMap" :key="index"  >
         <q-badge>
           {{ entry.label }}
         </q-badge>

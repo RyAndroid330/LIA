@@ -48,14 +48,14 @@
               Success: {{ !taskExecution.failed && !taskExecution.errored }}
             </div>
             <div class="q-separator" style="height: 2px"></div>
-            <div v-if="taskExecution.previousTaskExecutionId[0]" class="q-mx-md q-my-sm cursor-pointer text-warning">
+            <div v-if="taskExecution.previousTaskExecutionId!==null" class="q-mx-md q-my-sm cursor-pointer text-warning">
               <div v-for="(id, index) in taskExecution.previousTaskExecutionId" :key="index" @click="navigateToItem(`/activity/tasks/${id}`)">
-                Previous Task {{ index + 1 }}: {{ id }}
+                Previous {{ taskExecution.previousTaskNames[index] }}
               </div>
             </div>
-            <div v-if="taskExecution.nextTaskExecutionId[0]" class="q-mx-md q-my-sm cursor-pointer text-warning">
+            <div v-if="taskExecution.nextTaskExecutionId!==null" class="q-mx-md q-my-sm cursor-pointer text-warning">
               <div v-for="(id, index) in taskExecution.nextTaskExecutionId" :key="index" @click="navigateToItem(`/activity/tasks/${id}`)">
-                Next Task {{ index + 1 }}: {{ id }}
+                Next {{ taskExecution.nextTaskNames[index] }}
               </div>
             </div>
             <div class="q-mx-md q-my-sm cursor-pointer text-warning" @click="navigateToItem(`/activity/routines/${taskExecution.routineExecutionId}`)">
@@ -144,7 +144,9 @@ async function fetchTaskExecution() {
         description: task.description,
         isUnique: task.is_unique,
         previousTaskExecutionId: task.previous_task_execution_ids,
+        previousTaskNames: task.previous_task_names,
         nextTaskExecutionId: task.next_task_execution_ids,
+        nextTaskNames: task.next_task_names,
         serverId: task.server_id,
         routineName: task.routine_name,
         serverName: task.processing_graph,
