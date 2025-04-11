@@ -16,7 +16,7 @@
       @node-click="onNodeClick"
       :max-zoom="1.5"
       fit-view-on-init
-      width="80dvw"
+
       contenteditable="false"
       :nodes-draggable="false"
     />
@@ -95,7 +95,7 @@ watch(props, async (newValue) => {
     if (task.previousTaskExecutionId) {
       edges.value.push({
         id: `e${task.uuid}-${task.previousTaskExecutionId}`,
-        source: task.previousTaskExecutionId.toString(),
+        source: task.previousTaskExecutionId.toString() ,
         target: task.uuid.toString(),
         animated: false
       });
@@ -184,8 +184,12 @@ function resetView() {
 <style>
 .routine-map-container {
   position: relative;
-  width: 80dvw;
+  min-width: 55dvw;
+  max-width: 80dvw;
   height: 50dvh;
+  box-shadow: 0 1px 6px 0 rgba(105, 105, 105, 0.5);
+  border-radius: 20px;
+  margin: 10px;
 }
 
 .custom-node {

@@ -116,7 +116,8 @@ async function getTaskExecution(id?: string) {
     functionString: row.function_string,
     serverName: row.processing_graph + '@' + row.address + ':' + row.port,
     layerIndex: row.layer_index,
-    previousTaskName: row.previous_task_name
+    previousTaskName: row.previous_task_name,
+    processingGraph: row.processing_graph
   }));
 }
 

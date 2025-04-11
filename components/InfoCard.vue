@@ -18,8 +18,8 @@
 <style>
 .custom-card {
   border-radius: 20px !important;
-  min-width: 39dvw;
-  max-width: 100dvw;
+  min-width: 25dvw;
+  max-width: 50dvw;
   max-height: 60dvh;
 }
 </style>

@@ -2,6 +2,11 @@
   <NuxtLayout :name="layout">
     <template #title>
       {{ taskExecution?.name }} - {{ taskExecution?.uuid?.slice(0, 8) }}
+      <q-btn color="warning"  @click="showGenerateDialog = true">Generate Contract
+        <q-tooltip anchor="top middle" self="bottom middle">
+          Generate a contract from this point
+        </q-tooltip>
+      </q-btn>
     </template>
 
     <div class="row q-mx-md">
@@ -69,6 +74,9 @@
             <div class="q-mx-md q-my-sm cursor-pointer text-primary" @click="navigateToItem(`/assets/${taskExecution.serverName}`)">
               Server: {{ taskExecution.serverName }}
             </div>
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/contracts/${ taskExecution?.contract_id }` )">
+              <span class="text-secondary cursor-pointer">Contract</span>
+            </div>
           </div>
         </template>
       </InfoCard>
@@ -102,6 +110,18 @@
         </InfoCard>
       </div>
     </div>
+    <q-dialog v-model="showGenerateDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirm Generate</div>
+          <div>Are you sure you want to generate a contract?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" @click="showGenerateDialog = false" />
+          <q-btn flat label="Confirm" color="secondary" @click="confirmGenerate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </NuxtLayout>
 </template>
 
@@ -152,6 +172,7 @@ async function fetchTaskExecution() {
         serverName: task.processing_graph,
         previous_task_name: task.previous_task_name,
         function_string: task.function_string,
+        contract_id: task.contract_id,
       };
     }
   } catch (error) {
@@ -184,4 +205,17 @@ onMounted(() => {
   taskExecutionId.value = route.params.id as string;
   fetchTaskExecution();
 });
+
+const showStopDialog = ref(false);
+const showGenerateDialog = ref(false);
+
+function confirmStop() {
+  showStopDialog.value = false;
+  // Add logic to handle stopping the process
+}
+
+function confirmGenerate() {
+  showGenerateDialog.value = false;
+  // Add logic to handle generating the contract
+}
 </script>

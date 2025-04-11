@@ -79,10 +79,12 @@ const navigateToItem = ( route: string ) => {
 onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('assets');
-  const response = await fetch('/api/tasks');
+
+  // Fetch tasks
+  let response = await fetch('/api/tasks');
   if (!response.ok) throw new Error('Network response was not ok');
-  const data = await response.json();
-  tasks.value = data.map( (r: any) => {
+  let data = await response.json();
+  tasks.value = data.map((r: any) => {
     return {
       uuid: r.uuid,
       label: r.label,
@@ -91,6 +93,6 @@ onMounted(async () => {
       description: r.description,
       concurrency: r.concurrency,
     };
-  } );
+  });
 });
 </script>

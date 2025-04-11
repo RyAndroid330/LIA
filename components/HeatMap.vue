@@ -65,24 +65,24 @@ export default defineComponent({
                 },
                 {
                   from: 1,
-                  to: 3,
+                  to: 10,
                   name: 'low',
                   color: color1
                 },
                 {
-                  from: 4,
-                  to: 6,
+                  from: 11,
+                  to: 20,
                   name: 'medium',
                   color: color2
                 },
                 {
-                  from: 7,
-                  to: 10,
+                  from: 21,
+                  to: 30,
                   name: 'high',
                   color: color3
                 },
                 {
-                  from: 11,
+                  from: 31,
                   to: Infinity,
                   name: 'extreme',
                   color: color4

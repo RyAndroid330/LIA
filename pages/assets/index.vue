@@ -10,6 +10,7 @@
           row-key="uuid"
           @inspect-row="inspectGraphs"
           @inspect-row-in-new-tab="inspectInNewTab"
+          :hideGenerateContractButton="true"
       />
     </div>
   </NuxtLayout>
@@ -19,6 +20,7 @@
 import { ref, onMounted } from 'vue';
 import { useFetch } from '#app';
 import { useRouter } from '#vue-router';
+import { useAppStore } from '@/stores/app';
 
 interface graphs {
   type: string;

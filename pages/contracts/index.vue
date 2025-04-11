@@ -11,6 +11,7 @@
           @inspect-row="inspectContracts"
           @inspect-row-in-new-tab="inspectInNewTab"
       />
+      <FrequencyPieChart v-if="contracts.length > 0" :values="contracts" />
     </div>
   </NuxtLayout>
 </template>
@@ -57,9 +58,10 @@ const columns = [
     required: true,
     sortable: true,
   },
-  {name: 'fulfilled',
-    label: 'Fulfilled',
-    field: 'fulfilled',
+  {
+    name: 'status',
+    label: 'Status',
+    field: 'status',
     required: true,
     sortable: true,
   }
@@ -114,7 +116,7 @@ onMounted(async () => {
       label: r.label,
       description: r.description,
       issued: formatDate( r.issued_at ),
-      fulfilled: r.fulfilled,
+      status: r.fulfilled ? 'check' : 'schedule', // Ensure correct icon names
       product: r.product,
       referer: r.referer
     };

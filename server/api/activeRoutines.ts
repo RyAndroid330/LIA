@@ -24,6 +24,12 @@ async function getRoutines(id?: string) {
       re.created,
       re.ended,
       re.contract_id,
+      re.context_id,
+      re.is_running,
+      ctx.uuid AS context_id,
+      ctx2.uuid AS result_context_id,
+      ctx.context AS input_context,
+      ctx2.context AS output_context,
       s.processing_graph,
       s.address,
       s.port,
@@ -34,6 +40,8 @@ async function getRoutines(id?: string) {
   LEFT JOIN server s on re.server_id = s.uuid
   LEFT JOIN routine r ON re.routine_id = r.uuid
   LEFT JOIN routine_execution pre on re.previous_routine_execution = pre.uuid
+    LEFT JOIN context ctx ON re.context_id = ctx.uuid
+    LEFT JOIN context ctx2 ON re.result_context_id = ctx2.uuid
   `;
   const whereQuery = id ? `WHERE re.routine_id = '${id}'` : '';
 
@@ -47,6 +55,7 @@ async function getRoutines(id?: string) {
     // Map the results to match the ListItem interface
     return res.rows.map((row) => ({
       id: row.uuid,
+      name: row.routine_name, // Corrected field mapping
       type: 'routine',
       label: row.description,
       routineDescription: row.routine_description,
@@ -71,7 +80,11 @@ async function getRoutines(id?: string) {
       uuid: row.uuid,
       serverName: row.processing_graph + '@' + row.address + ':' + row.port,
       previousRoutineName: row.routine_name,
-      contract_id: row.contract_id
+      contract_id: row.contract_id,
+      processingGraph: row.processing_graph,
+      inputContext: row.input_context,
+      outputContext: row.output_context,
+      isRunning: row.is_running
     }));
   } catch (error) {
     console.error('Error executing query:', error);

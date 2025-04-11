@@ -48,6 +48,13 @@ const columns = [
     field: 'agent_name',
     required: true,
     sortable: false,
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    field: 'status',
+    required: true,
+    sortable: true,
   }
 ];
 
@@ -107,6 +114,7 @@ onMounted(async () => {
       agent_name: r.agent_name,
       label: r.label,
       description: r.description,
+      status: r.fulfilled ? 'check' : r.isRunning ? 'play_arrow' : 'schedule', // Map to icons
     };
   });
 });

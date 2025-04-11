@@ -4,6 +4,7 @@
       {{ selectedItem?.name }} - {{ selectedItem?.uuid.slice(0, 8) }}
     </template>
     <div class="row q-mx-md">
+      <TaskInServiceMap :serviceName="selectedItem?.processing_graph" />
       <InfoCard v-if="selectedItem">
         <template #title>
           {{ selectedItem?.name }}
@@ -25,6 +26,12 @@
             </div>
             <div class="q-mx-md q-my-sm">
               Deleted: {{ selectedItem?.deleted ? 'Yes' : 'No' }}
+            </div>
+            <div class="q-mx-md q-my-sm">
+              Is Unique: {{ selectedItem?.is_unique ? 'Yes' : 'No' }}
+            </div>
+            <div class="q-mx-md q-my-sm">
+              Concurrency: {{ selectedItem?.concurrency }}
             </div>
           </div>
         </template>
@@ -90,6 +97,8 @@ interface Item {
   processing_graph: string;
   created: string;
   deleted: boolean;
+  is_unique: boolean;
+  concurrency: number;
 }
 
 interface ExecutionTime {

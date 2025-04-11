@@ -12,13 +12,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import type { Node, Edge, Position } from '@vue-flow/core';
 import { VueFlow } from '@vue-flow/core';
 import dagre from 'dagre';
-import { useRoute } from '#app';
+import { useRoute, useRouter } from '#app';
 
 const route = useRoute();
+const router = useRouter();
+
+const props = defineProps({
+  serviceName: {
+    type: String,
+    required: false,
+  },
+});
 
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
@@ -58,12 +66,26 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
 }
 
 onMounted(async () => {
-  const serverMap = await $fetch(`/api/tasksInServices?serviceName=${route.params.id}`);
-console.log(serverMap)
+  await loadGraph();
+});
+
+watchEffect(async () => {
+  await loadGraph();
+});
+
+async function loadGraph() {
+  const serviceName = props.serviceName || route.params.id;
+  if (!serviceName) return;
+
+  const serverMap = await $fetch(`/api/tasksInServices?serviceName=${serviceName}`);
+  console.log(serverMap);
   if (serverMap && serverMap.length > 0) {
+    nodes.value = [];
+    edges.value = [];
+
     // Create nodes
     serverMap.forEach((server: any) => {
-      if (server.processing_graph === `${route.params.id}`) {
+      if (server.processing_graph === serviceName) {
         nodes.value.push({
           id: server.uuid,
           position: { x: 0, y: 0 },
@@ -71,7 +93,7 @@ console.log(serverMap)
           targetPosition: 'left' as Position,
           data: { label: server.name },
           type: undefined,
-          class: 'custom-node'
+          class: route.params.id === server.uuid ? 'selected-node' : 'custom-node',
         });
       }
     });
@@ -91,21 +113,30 @@ console.log(serverMap)
     // Apply dagre layout
     nodes.value = layoutGraph(nodes.value, edges.value);
   }
-});
+}
 
 // Add click event handler
 const emit = defineEmits(['nodeSelected']);
 function onNodeClick({ event, node }: { event: any, node: Node }) {
   emit('nodeSelected', node.id);
+  router.push(`/assets/tasks/${node.id}`);
 }
 </script>
 
 <style>
 .map-container {
-  width: 80%;
-  height: 60dvh;
+  position: relative;
+  min-width: 55dvw;
+  max-width: 80dvw;
+  height: 50dvh;
+  box-shadow: 0 1px 6px 0 rgba(105, 105, 105, 0.5);
+  border-radius: 20px;
+  margin: 10px;
 }
-
+.selected-node {
+  background: #f5b041 !important;
+  box-shadow: 6px 6px #3332313b !important;
+}
 .custom-node {
   background: #7abfd2;
   color: white;

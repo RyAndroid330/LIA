@@ -13,16 +13,22 @@
           </h5>
         </template>
       </Details>
-      <q-card v-if="appStore.isLoggedIn" class="custom-card">
-        <q-card-section>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <div class="row no-wrap items-center">
-            <div class="col text-h6 ellipsis">Load on all Servers</div>
-          </div>
-          <ServerStats  :selectedServer="aggregatedServer" />
-        </q-card-section>
-      </q-card>
+      <div>
+
+        <q-card v-if="appStore.isLoggedIn" class="custom-card">
+          <q-card-section>
+          </q-card-section>
+          <q-card-section class="q-pt-none">
+            <div class="row no-wrap items-center">
+              <div class="col text-h6 ellipsis">Load on all Servers</div>
+            </div>
+            <ServerStats  :selectedServer="aggregatedServer" />
+          </q-card-section>
+        </q-card>
+        <TaskRoutinePieChart v-if="appStore.isLoggedIn"  :routineId="appStore.currentRoutineId" />
+      </div>
+      </div>
+    <div>
       <HeatMap v-if="appStore.isLoggedIn"/>
     </div>
   </NuxtLayout>

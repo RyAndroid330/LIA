@@ -33,7 +33,7 @@
           >
             {{ col.label }}
           </q-th>
-          <q-th auto-width />
+          <q-th auto-width class="text-right">Actions</q-th>
         </q-tr>
       </template>
 
@@ -47,15 +47,48 @@
         :key="col.name"
         :props="props"
     >
-      {{ col.value }}
+      <template v-if="col.name === 'status'">
+        <q-icon :name="props.row[col.name]" :color="props.row[col.name] === 'check' ? 'green' : props.row[col.name] === 'play_arrow' ? 'blue' : 'orange'" />
+      </template>
+      <template v-else>
+        {{ col.value }}
+      </template>
     </q-td>
-    <q-td v-if="rowInspection" auto-width>
-      <q-btn size="sm" :color="inspectButtonColor" round @click="inspectRow(props.row)" icon="arrow_outward"
-       @contextmenu.prevent="inspectRowInNewTab(props.row)">
-  <q-tooltip anchor="top middle" self="bottom middle">
-    Right click to open in new tab
-  </q-tooltip>
-</q-btn>
+    <q-td v-if="rowInspection" auto-width class="text-right">
+      <q-btn
+        v-if="props.row.isRunning"
+        size="sm"
+        :color="'red'"
+        round
+        icon="stop"
+        class="q-ma-xs"
+        @click="showStopDialog = true"
+      />
+      <q-btn
+        v-if="!hideGenerateContractButton"
+        size="sm"
+        :color="'secondary'"
+        round
+        icon="refresh"
+        class="q-ma-xs"
+        @click="showGenerateDialog = true"
+      >
+        <q-tooltip anchor="top middle" self="bottom middle">
+          Generate a contract from this point
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+      size="sm"
+      :color="inspectButtonColor"
+      round
+      @click="inspectRow(props.row)"
+      icon="arrow_outward"
+      class="q-ma-xs"
+      @contextmenu.prevent="inspectRowInNewTab(props.row)">
+        <q-tooltip anchor="top middle" self="bottom middle">
+          Right click to open in new tab
+        </q-tooltip>
+      </q-btn>
     </q-td>
   </q-tr>
   <q-tr v-show="props.expand" :props="props">
@@ -70,10 +103,41 @@
       <div class="text-left" @click="navigateToItem( `/contracts/${ props.row.contract }` )">
         <span class="text-secondary cursor-pointer">{{ props.row.contract ? 'Contract' : '' }}</span>
       </div>
+      <div class="text-left" @click="navigateToItem( `/activity/${ props.row.processingGraph }` )">
+        <span class="text-warning cursor-pointer">{{ props.row.processingGraph ? props.row.server : '' }}</span>
+      </div>
     </q-td>
   </q-tr>
 </template>
     </q-table>
+
+    <!-- Stop Confirmation Dialog -->
+    <q-dialog v-model="showStopDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirm Stop</div>
+          <div>Are you sure you want to stop this process?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" @click="showStopDialog = false" />
+          <q-btn flat label="Confirm" color="red" @click="confirmStop" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Generate Confirmation Dialog -->
+    <q-dialog v-model="showGenerateDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirm Generate</div>
+          <div>Are you sure you want to generate a contract?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" @click="showGenerateDialog = false" />
+          <q-btn flat label="Confirm" color="secondary" @click="confirmGenerate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </template>
 </InfoCard>
 </template>
@@ -110,6 +174,10 @@ const props = defineProps( {
     type: String,
     default: '',
   },
+  hideGenerateContractButton: {
+    type: Boolean,
+    default: false,
+  },
 } );
 
 const filter = ref( props.externalFilter );
@@ -140,16 +208,21 @@ const formattedColumns = computed( () => {
     sortable: false,
   } );
 
-  if ( props.rowInspection ) {
-    columns.push( {
-      name: 'inspect',
-      label: 'Inspect',
-      field: 'inspect',
-      required: true,
-      sortable: false,
-    } );
-  }
+
   return columns;
 } );
+
+const showStopDialog = ref(false);
+const showGenerateDialog = ref(false);
+
+function confirmStop() {
+  showStopDialog.value = false;
+  // Add logic to handle stopping the process
+}
+
+function confirmGenerate() {
+  showGenerateDialog.value = false;
+  // Add logic to handle generating the contract
+}
 
 </script>

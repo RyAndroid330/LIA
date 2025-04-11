@@ -10,6 +10,7 @@
           row-key="uuid"
           @inspect-row="inspectAgents"
           @inspect-row-in-new-tab="inspectInNewTab"
+          :hideGenerateContractButton="true"
       />
     </div>
   </NuxtLayout>

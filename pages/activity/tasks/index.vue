@@ -11,6 +11,7 @@
           @inspect-row="inspectTask"
           @inspect-row-in-new-tab="inspectInNewTab"
       />
+      <FrequencyPieChart v-if="tasks.length > 0" :values="tasks" />
     </div>
   </NuxtLayout>
 </template>
@@ -78,13 +79,13 @@ const columns = [
     required: true,
     sortable: true,
   },
-  {
-    name: 'server',
-    label: 'Server',
-    field: 'server',
-    required: true,
-    sortable: true,
-  }
+  // {
+  //   name: 'server',
+  //   label: 'Server',
+  //   field: 'server',
+  //   required: true,
+  //   sortable: true,
+  // }
 ];
 
 const tasks = ref( [] );
@@ -133,12 +134,15 @@ onMounted(async () => {
       uuid: r.id,
       name: r.name,
       description: r.description,
-      status: r.isComplete ? 'Complete' : r.isRunning ? 'Running' : 'Pending',
+      status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule', // Map to icons
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),
       duration: getDuration( r.started, r.ended ),
       server: r.serverName,
+      serverId: r.serverId,
+      processingGraph: r.processingGraph,
+      isRunning: r.isRunning,
     };
   } );
 });

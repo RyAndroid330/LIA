@@ -5,7 +5,8 @@ let client: pg.Client | null = null;
 
 // Get all TaskExecutions
 async function getTaskExecution(taskExecutionId: string) {
-  const query = `
+  try {
+    const query = `
 SELECT
     te.uuid,
     te.routine_execution_id,
@@ -24,6 +25,7 @@ SELECT
     nxt.next_task_names,
     re.server_id,
     re.description AS routine_name,
+    re.contract_id,
     ctx.uuid AS context_id,
     ctx2.uuid AS result_contextx,
     ctx.context AS input_context,
@@ -68,12 +70,16 @@ LEFT JOIN server s ON re.server_id = s.uuid
 
 WHERE te.uuid = $1
 
-GROUP BY te.uuid, re.server_id, ctx.uuid, ctx2.uuid, t.name, re.description, t.description, t.is_unique, t.function_string, s.processing_graph, s.address, s.port,
+GROUP BY te.uuid, re.server_id, re.contract_id, ctx.uuid, ctx2.uuid, t.name, re.description, t.description, t.is_unique, t.function_string, s.processing_graph, s.address, s.port,
          prev.previous_task_execution_ids, prev.previous_task_names,
          nxt.next_task_execution_ids, nxt.next_task_names
 `;
-  const result = await client!.query(query, [taskExecutionId]);
-  return result.rows;
+    const result = await client!.query(query, [taskExecutionId]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error executing query:', error);
+    throw new Error('Failed to fetch TaskExecution from the database.');
+  }
 }
 
 // Event handler
@@ -83,6 +89,10 @@ export default defineEventHandler(async (event) => {
   }
   const { method, url } = event.node.req;
   const taskExecutionId = url?.split('=')[1] ?? '';
+
+  if (!taskExecutionId) {
+    throw new Error('TaskExecution ID is required.');
+  }
 
   if (method === 'GET') {
     try {

@@ -81,7 +81,7 @@ const series = computed(() => {
     }
 
     return {
-      name: `${task.label} (${task.uuid})`,
+      name: `${task.label} (${task.uuid.slice( 0, 8 ) })`,
       id: task.uuid,
       data
     };

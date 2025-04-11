@@ -2,6 +2,11 @@
   <NuxtLayout :name="layout">
     <template #title>
       {{ selectedItem?.label }} - {{ selectedItem?.uuid.slice( 0, 8 ) }}
+      <q-btn color="warning"  @click="showGenerateDialog = true">Generate Contract
+        <q-tooltip anchor="top middle" self="bottom middle">
+          Generate a contract from this point
+        </q-tooltip>
+      </q-btn>
     </template>
     <div>
       <div class="q-pa-md flex-centered">
@@ -23,8 +28,10 @@
 <div class=centered-container>
 
   <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
-    <div v-show="selectedOption === 'routineMap'">
-      <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+    <div class = "flex" v-show="selectedOption === 'routineMap'">
+      <RoutineMap :routineMap="routineMap" @node-selected="task => onTaskSelected(mapTaskToSelectedTask(task))" />
+        <div>
+  </div>
     </div>
   </transition>
   <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
@@ -38,6 +45,7 @@
       @task-selected="onTaskSelected"/>
     </div>
   </transition>
+
 </div>
 </div>
       <div class="row q-mx-md justify-around">
@@ -133,13 +141,46 @@
               Task id: <span class="text-primary cursor-pointer">{{ selectedTask?.label }}</span>
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.serverName }` )">
-              Server id: <span class="text-primary cursor-pointer">'{{ selectedTask?.serverName }}'</span>
+              Server id: <span class="text-primary cursor-pointer">{{ selectedTask?.serverName }}</span>
             </div>
           </div>
         </template>
       </InfoCard>
+      <div>
+        <InfoCard>
+          <template #title>Input Context</template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ selectedItem?.inputContext }}</pre>
+            </div>
+          </template>
+        </InfoCard>
+        <InfoCard>
+          <template #title>Output Context</template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ selectedItem?.outputContext }}</pre>
+            </div>
+          </template>
+        </InfoCard>
+      </div>
     </div>
     </div>
+    <div>
+
+    </div>
+    <q-dialog v-model="showGenerateDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirm Generate</div>
+          <div>Are you sure you want to generate a contract?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" @click="showGenerateDialog = false" />
+          <q-btn flat label="Confirm" color="secondary" @click="confirmGenerate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </NuxtLayout>
 </template>
 
@@ -163,6 +204,8 @@ interface SelectedItem {
   previousRoutineName: string;
   contract_id: string;
   layer_index: number;
+  inputContext: string;
+  outputContext: string;
 }
 
 interface SelectedTask {
@@ -231,6 +274,26 @@ function onTaskSelected(task: SelectedTask) {
   dialogVisible.value = true;
 }
 
+function mapTaskToSelectedTask(task: any): SelectedTask {
+  return {
+    label: task.label,
+    name: task.name,
+    description: task.description,
+    uuid: task.uuid,
+    progress: task.progress,
+    started: task.started,
+    ended: task.ended,
+    errored: task.errored,
+    previousTaskExecutionId: task.previousTaskExecutionId,
+    previous_task_name: task.previous_task_name,
+    taskId: task.taskId,
+    serverId: task.serverId,
+    serverName: task.serverName,
+    failed: task.failed,
+    layer_index: task.layer_index,
+  };
+}
+
 function formatDate( date: string ) {
   if ( !date ) {
     return 'Not finished';
@@ -262,6 +325,18 @@ onMounted(() => {
   selectedItem.value = Items.value?.find((item: SelectedItem) => item.uuid === itemId) || null;
 });
 
+const showStopDialog = ref(false);
+const showGenerateDialog = ref(false);
+
+function confirmStop() {
+  showStopDialog.value = false;
+  // Add logic to handle stopping the process
+}
+
+function confirmGenerate() {
+  showGenerateDialog.value = false;
+  // Add logic to handle generating the contract
+}
 </script>
 
 <style>

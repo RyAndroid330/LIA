@@ -92,8 +92,13 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 
 <style scoped>
 .map-container {
-  width: 100%;
-  height: 400px;
+  position: relative;
+  min-width: 55dvw;
+  max-width: 80dvw;
+  height: 50dvh;
+  box-shadow: 0 1px 6px 0 rgba(105, 105, 105, 0.5);
+  border-radius: 20px;
+  margin: 10px;
 }
 
 .custom-node {

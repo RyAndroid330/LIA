@@ -3,36 +3,36 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-
 async function getAllServersWithStats() {
   const query = `
-    SELECT 
-        s.uuid, 
-        s.address, 
-        s.port, 
+    SELECT
+        s.uuid,
+        s.address,
+        s.port,
         s.process_pid,
         s.is_primary,
-        s.is_active, 
-        s.is_non_responsive, 
-        s.is_blocked, 
+        s.is_active,
+        s.is_non_responsive,
+        s.is_blocked,
         s.processing_graph
-    FROM server s;
+    FROM server s
+    WHERE s.is_active = true
   `;
   const result = await client!.query(query);
-  return result.rows.map( row => ( {
+  return result.rows.map((row) => ({
     uuid: row.uuid,
     graph: row.processing_graph,
     address: row.address,
     port: row.port,
     isPrimary: row.is_primary,
     processPid: row.process_pid,
-    status: row.is_active && !row.is_non_responsive ? 'Active' : 'Offline',
-  } ) );
+    status: row.is_active && !row.is_non_responsive ? 'Active' : 'Offline'
+  }));
 }
 
 // Event handler
 export default defineEventHandler(async (event) => {
-  if ( !client ) {
+  if (!client) {
     client = await initializeClient();
   }
   const { method } = event.node.req;

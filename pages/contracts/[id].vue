@@ -2,6 +2,7 @@
   <NuxtLayout :name="layout">
     <template #title>
       Contract Elements
+        <q-btn color="primary"  @click="showGenerateDialog = true">Regenerate Contract</q-btn>
     </template>
     <div>
       <div class="q-pa-md">
@@ -46,8 +47,20 @@
   @inspect-row="inspectRoutine"
 />
       </div>
-      <ContractHeatMap :contractId="String(route.params.id)"/>
+      <!-- <ContractHeatMap :contractId="String(route.params.id)"/> -->
     </div>
+    <q-dialog v-model="showGenerateDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirm Generate</div>
+          <div>Are you sure you want to generate a contract?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" @click="showGenerateDialog = false" />
+          <q-btn flat label="Confirm" color="secondary" @click="confirmGenerate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </NuxtLayout>
 </template>
 
@@ -162,6 +175,17 @@ function onTaskSelected(task: any) {
   // Handle task selection
 }
 
+const showStopDialog = ref(false);
+const showGenerateDialog = ref(false);
+function confirmStop() {
+  showStopDialog.value = false;
+  // Add logic to handle stopping the process
+}
+
+function confirmGenerate() {
+  showGenerateDialog.value = false;
+  // Add logic to handle generating the contract
+}
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
@@ -177,7 +201,7 @@ onMounted(async () => {
         uuid: r.uuid,
         label: r.label,
         description: r.routineDescription,
-        status: r.status,
+        status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule',
         progress: r.progress,
         started: formatDate( r.started ),
         ended: formatDate( r.ended ),
@@ -186,15 +210,19 @@ onMounted(async () => {
         duration: getDuration( r.started, r.ended ),
         contract_id: r.contract_id,
         errored: r.errored,
+        contextId: r.context_id,
+        inputContext: r.input_context,
       };
     } );
     routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
       return {
         ...r,
-        layer_index: r.layer_index || 0, // Add this line to include layer_index
+        layer_index: r.layer_index || 0,
         errored: r.status === 'Errored',
+        previousTaskExecutionId: r.previousRoutineExecution, // beacues the component is built for the active routine page it is looking fo the TaskExecutionId
     };
   });
+  console.log(routineMap.value);
 });
 </script>
 

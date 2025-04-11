@@ -54,8 +54,10 @@ export default {
   let url;
   if (this.type === 'routine') {
     url = `/api/routineErrors?routineId=${this.routineId}`;
-  } else {
+  } else if (this.type === 'task') {
     url = `/api/taskErrors?taskId=${this.taskId}`;
+  } else {
+    url = `/api/allErrors`
   }
 
   const { data } = await useFetch(url);

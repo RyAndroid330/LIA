@@ -11,6 +11,7 @@
           @inspect-row="inspectRoutine"
           @inspect-row-in-new-tab="inspectInNewTab"
       />
+      <FrequencyPieChart v-if="routines.length > 0" :values="routines" />
     </div>
   </NuxtLayout>
 </template>
@@ -78,12 +79,12 @@ const columns = [
     required: true,
     sortable: true,
   },
-  {name: 'server',
-    label: 'Server',
-    field:'server',
-    required: true,
-    sortable: false,
-  }
+  // {name: 'server',
+  //   label: 'Server',
+  //   field:'server',
+  //   required: true,
+  //   sortable: false,
+  // }
 ];
 
 const routines = ref( [] );
@@ -129,15 +130,19 @@ onMounted(async () => {
   routines.value = data.map( (r: any) => {
     return {
       uuid: r.uuid,
+      name: r.label,
       label: r.label,
       description: r.routineDescription,
-      status: r.status,
+      status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule',
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),
       duration: getDuration( r.started, r.ended ),
       contract: r.contract_id,
       server: r.serverName,
+      serverId: r.serverId,
+      processingGraph: r.processingGraph,
+      isRunning: r.isRunning,
     };
   } );
 });

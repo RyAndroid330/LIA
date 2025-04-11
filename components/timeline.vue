@@ -12,10 +12,10 @@
       <q-badge v-if="entry.description" color="primary">
         {{ getDescription(entry)}}
       </q-badge>
-       <blockquote>
-        <pre > {{ getContext(entry)}}</pre>
-       </blockquote>
-      </q-timeline-entry>
+      <blockquote>
+        <pre>{{ getContext(entry) }}</pre>
+      </blockquote>
+    </q-timeline-entry>
   </q-timeline>
 </template>
 

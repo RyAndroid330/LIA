@@ -4,9 +4,9 @@ import { ref } from 'vue';
 export const useAppStore = defineStore('app', () => {
   const currentSection = ref('serverActivity');
   const isDarkMode = ref(localStorage.getItem('darkMode') === 'true' || false);
-  const userName = ref('');
-  const password = ref('');
-  const isLoggedIn = ref(false);
+  const isLoggedIn = ref(localStorage.getItem('isLoggedIn') === 'true');
+  const userName = ref(localStorage.getItem('userName'));
+  const password = ref(localStorage.getItem('password'));
 
   function setCurrentSection(section: string) {
     currentSection.value = section;
@@ -22,16 +22,19 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('darkMode', value.toString());
   }
 
+  function setLoggedIn(value: boolean) {
+    isLoggedIn.value = value;
+    localStorage.setItem('isLoggedIn', value.toString());
+  }
+
   function setUserName(name: string) {
     userName.value = name;
+    localStorage.setItem('userName', name);
   }
 
   function setPassword(pass: string) {
     password.value = pass;
-  }
-
-  function setLoggedIn(status: boolean) {
-    isLoggedIn.value = status;
+    localStorage.setItem('password', pass);
   }
 
   return {
@@ -43,8 +46,8 @@ export const useAppStore = defineStore('app', () => {
     userName,
     password,
     isLoggedIn,
+    setLoggedIn,
     setUserName,
-    setPassword,
-    setLoggedIn
+    setPassword
   };
 });
