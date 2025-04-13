@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+  <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Welcome!
     </template>
@@ -32,6 +33,7 @@
       <HeatMap v-if="appStore.isLoggedIn"/>
     </div>
   </NuxtLayout>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
@@ -40,7 +42,6 @@ import { useAppStore } from '~/stores/app';
 import HeatMap from '~/components/HeatMap.vue';
 
 const appStore = useAppStore();
-const layout = 'dashboard-layout';
 const activeProcesses = ref<Server[]>([]);
 
 const totalCpuUsage = ref(0);
