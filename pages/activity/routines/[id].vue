@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+<NuxtLayout name="dashboard-layout">
+ <NuxtLayout name="dashboard-main-layout">
     <template #title>
       {{ selectedItem?.label }} - {{ selectedItem?.uuid.slice( 0, 8 ) }}
       <q-btn color="warning"  @click="showGenerateDialog = true">Generate Contract
@@ -182,6 +183,7 @@
       </q-card>
     </q-dialog>
   </NuxtLayout>
+</NuxtLayout>
 </template>
 
 <script setup lang="ts">

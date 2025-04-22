@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       {{ agentName }} Contracts
     </template>
@@ -11,6 +12,7 @@
           @inspect-row="inspectContracts"
       />
     </div>
+  </NuxtLayout>
   </NuxtLayout>
 </template>
 

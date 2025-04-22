@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Task executions
     </template>
@@ -14,6 +15,7 @@
       <FrequencyPieChart v-if="tasks.length > 0" :values="tasks" />
     </div>
   </NuxtLayout>
+</NuxtLayout>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Tasks
     </template>
@@ -12,6 +13,7 @@
           @inspect-row-in-new-tab="inspectInNewTab"
       />
     </div>
+    </NuxtLayout>
   </NuxtLayout>
 </template>
 

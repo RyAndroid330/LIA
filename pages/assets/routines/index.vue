@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Routines
     </template>
@@ -13,6 +14,7 @@
       />
     </div>
   </NuxtLayout>
+</NuxtLayout>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Graphs
     </template>
@@ -13,6 +14,7 @@
           :hideGenerateContractButton="true"
       />
     </div>
+    </NuxtLayout>
   </NuxtLayout>
 </template>
 

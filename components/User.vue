@@ -1,140 +1,21 @@
-<!-- <template>
-  <div>
-    <q-btn
-  color="primary"
-  :label="status"
-  icon="account_circle"
-  no-caps
-  @click="status === 'Logout' ? appStore.setLoggedIn(false) : openDialog()"
-/>
-
-    <q-dialog v-model="dialog" :backdrop-filter="backdropFilter">
-      <q-card>
-        <div class="q-pa-md" style="max-width: 400px">
-
-        <q-form
-      @submit="onSubmit"
-      @reset="onReset"
-      class="q-gutter-md"
-    >
-      <q-input
-        filled
-        v-model="userName"
-        label="User Name *"
-        hint="User Name"
-        lazy-rules
-        :rules="[ val => val && val.length > 0 || 'Please type something']"
-      />
-
-      <q-input
-        filled
-        v-model="password"
-        label="Password *"
-        hint="Password"
-        lazy-rules
-        :rules="[ val => val && val.length > 0 || 'Please type something']"
-      />
-
-      <q-toggle v-model="accept" label="I accept the license and terms" />
-
-      <div>
-        <q-btn label="Login" type="submit" color="primary"/>
-        <q-btn label="Cancel" type="reset" color="primary" flat class="q-ml-sm" />
-      </div>
-    </q-form>
-        </div>
-      </q-card>
-    </q-dialog>
-  </div>
-</template>
-
-<script setup>
-import { ref, watch } from 'vue';
-import { useAppStore } from '~/stores/app';
-
-const appStore = useAppStore();
-
-const userName = ref('');
-const password = ref('');
-const accept = ref(false);
-const dialog = ref(false);
-const backdropFilter = ref('blur(2px) saturate(180%)');
-const status = ref('Login');
-
-watch(() => appStore.isLoggedIn, (newStatus) => {
-  if (newStatus) {
-    status.value = 'Logout';
-  } else {
-    status.value = 'Login';
-  }
-});
-
-const onSubmit = async () => {
-  if (accept.value) {
-    appStore.setUserName(userName.value);
-    appStore.setPassword(password.value);
-    appStore.setLoggedIn(true);
-    dialog.value = false;
-  }
-};
-
-const onReset = () => {
-  userName.value = '';
-  password.value = '';
-  accept.value = false;
-};
-
-const openDialog = () => {
-  dialog.value = true;
-};
-</script> -->
-
-
 <template>
   <div>
     <q-btn
-  color="primary"
-  :label="status"
-  icon="account_circle"
-  no-caps
-  @click="status === 'Logout' ? appStore.setLoggedIn(false) : openDialog()"
-/>
+      color="primary"
+      :label="data.user.name"
+      no-caps
+      @click="openDialog"
+    >
+    <q-avatar q-ma-md size="32px">
+        <img :src="data.user.image" alt="User Avatar">
+    </q-avatar></q-btn>
 
     <q-dialog v-model="dialog" :backdrop-filter="backdropFilter">
       <q-card>
-        <div class="q-pa-md" style="max-width: 400px">
-
-        <q-form
-      @submit="onSubmit"
-      @reset="onReset"
-      class="q-gutter-md"
-    >
-      <q-input
-        filled
-        v-model="userName"
-        label="User Name *"
-        hint="User Name"
-        lazy-rules
-        :rules="[ val => val && val.length > 0 || 'Please type something']"
-      />
-
-      <q-input
-        filled
-        v-model="password"
-        label="Password *"
-        hint="Password"
-        lazy-rules
-        :rules="[ val => val && val.length > 0 || 'Please type something']"
-      />
-
-      <q-toggle v-model="accept" label="I accept the license and terms" />
-
-      <div>
-        <q-btn label="Login" type="submit" color="primary"/>
-        <q-btn label="Cancel" type="reset" color="primary" flat class="q-ml-sm" />
-      </div>
-    </q-form>
-        </div>
+            <div>
+              <q-btn label="Cancel" type="cancel" color="primary" flat class="q-ml-sm" @click="onCancel" />
+              <q-btn label="Sign Out" color="primary" @click="signOutUser" />
+            </div>
       </q-card>
     </q-dialog>
   </div>
@@ -144,38 +25,29 @@ const openDialog = () => {
 import { ref, watch } from 'vue';
 import { useAppStore } from '~/stores/app';
 
+
 const appStore = useAppStore();
-
-const userName = ref('');
-const password = ref('');
-const accept = ref(false);
-const dialog = ref(false);
+const { data } = useAuth()
 const backdropFilter = ref('blur(2px) saturate(180%)');
-const status = ref('Login');
+const dialog = ref(false);
 
-watch(() => appStore.isLoggedIn, (newStatus) => {
-  if (newStatus) {
-    status.value = 'Logout';
-  } else {
-    status.value = 'Login';
-    appStore.setUserName('');
-    appStore.setPassword('');
-  }
-});
-
-const onSubmit = async () => {
-  if (accept.value) {
-    appStore.setLoggedIn(true);
-    appStore.setUserName(userName.value);
-    appStore.setPassword(password.value);
-    dialog.value = false;
+const signOutUser = async () => {
+  try {
+    const response = await fetch('/api/auth/signout', { method: 'POST' });
+    if (response.ok) {
+      console.log('Signed out successfully');
+      dialog.value = false;
+      window.location.href = '/api/auth/signout/google';
+    } else {
+      console.error('Failed to sign out');
+    }
+  } catch (error) {
+    console.error('Error during sign out:', error);
   }
 };
 
-const onReset = () => {
-  userName.value = '';
-  password.value = '';
-  accept.value = false;
+const onCancel = () => {
+  dialog.value = false;
 };
 
 const openDialog = () => {

@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       {{ selectedItem?.name }}
     </template>
@@ -27,6 +28,7 @@
         </template>
       </InfoCard>
     </div>
+    </NuxtLayout>
   </NuxtLayout>
 </template>
 

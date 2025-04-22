@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Contract Elements
         <q-btn color="primary"  @click="showGenerateDialog = true">Regenerate Contract</q-btn>
@@ -61,6 +62,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+  </NuxtLayout>
   </NuxtLayout>
 </template>
 

@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       {{ selectedItem?.name }} - {{ selectedItem?.uuid.slice(0, 8) }}
     </template>
@@ -72,6 +73,7 @@
       <TaskHeatMap :taskId="String(route.params.id)"/>
     </div>
   </NuxtLayout>
+</NuxtLayout>
 </template>
 
 <script setup lang="ts">

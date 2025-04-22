@@ -1,5 +1,6 @@
 <template>
-  <NuxtLayout :name="layout">
+  <NuxtLayout name="dashboard-layout">
+    <NuxtLayout name="dashboard-main-layout">
     <template #title>
       Contracts
     </template>
@@ -13,6 +14,7 @@
       />
       <FrequencyPieChart v-if="contracts.length > 0" :values="contracts" />
     </div>
+  </NuxtLayout>
   </NuxtLayout>
 </template>
 

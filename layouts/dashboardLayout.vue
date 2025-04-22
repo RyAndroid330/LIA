@@ -145,6 +145,7 @@ import { colors, useQuasar } from 'quasar';
 import { useAppStore } from '~/stores/app';
 import ThemeToggleButton from '~/components/ThemeToggleButton.vue';
 
+
 // State
 const showContracts = ref(false);
 const showAssets = ref(false);
