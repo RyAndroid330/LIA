@@ -12,10 +12,9 @@ export async function initializeClient() {
   try {
     await client.connect();
     console.log('Connected to the database successfully');
+    return client;
   } catch (error) {
     console.error('Error connecting to the database:', error);
     throw error;
   }
-
-  return client;
 }

@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: {
     enabled: true,
@@ -14,21 +13,26 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth'
   ],
   auth: {
-    // globalAppMiddleware: true,
     isEnabled: true,
-    // disableServerSideAuth: true,
     originEnvKey: 'AUTH_ORIGIN',
     baseURL: 'http://localhost:5000/api/auth',
-    provider: {
-      type: 'authjs',
-      trustHost: false,
-      defaultProvider: 'google',
-      addDefaultCallbackUrl: true
-    }
+    providers: [
+      {
+        type: 'authjs',
+        trustHost: false,
+        defaultProvider: 'google',
+        addDefaultCallbackUrl: true
+      },
+      {
+        type: 'local',
+        endpoints: {
+          signIn: { path: '/login', method: 'post' },
+          signOut: { path: '/logout', method: 'post' },
+          getSession: { path: '/user/session', method: 'get' }
+        }
+      }
+    ]
   },
-  // router: {
-  //   middleware: ['auth.global']
-  // },
   ssr: false,
   sourcemap: {
     client: true
@@ -51,7 +55,7 @@ export default defineNuxtConfig({
     '@vue-flow/core/dist/style.css',
     '@vue-flow/core/dist/theme-default.css'
   ],
-  plugins: [{ src: '~/plugins/db.js', mode: 'server' }],
+  // plugins: [{ src: '~/plugins/db.js', mode: 'server' }],
   compatibilityDate: '2024-09-09',
   runtimeConfig: {
     authSecret: process.env.NUXT_AUTH_SECRET || 'default_secret_for_dev',

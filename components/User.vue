@@ -2,55 +2,35 @@
   <div>
     <q-btn
       color="primary"
-      :label="data.user.name"
       no-caps
-      @click="openDialog"
+      @mouseover="onHover = true"
+      @mouseleave="onHover = false"
+      @click="signOut()"
     >
-    <q-avatar q-ma-md size="32px">
-        <img :src="data.user.image" alt="User Avatar">
-    </q-avatar></q-btn>
-
-    <q-dialog v-model="dialog" :backdrop-filter="backdropFilter">
-      <q-card>
-            <div>
-              <q-btn label="Cancel" type="cancel" color="primary" flat class="q-ml-sm" @click="onCancel" />
-              <q-btn label="Sign Out" color="primary" @click="signOutUser" />
-            </div>
-      </q-card>
-    </q-dialog>
+      <template v-if="!onHover">
+        <q-avatar q-ma-md size="32px">
+          <q-icon v-if="!data.user.image" name="person" />
+          <img v-if="data.user.image" :src="data.user.image" alt="User Avatar"  />
+        </q-avatar>
+        <div class="q-ml-sm">
+          {{ data.user.name || data.user.email }}
+        </div>
+      </template>
+      <template v-else>
+        Logout
+        <q-icon name="logout" class="q-ml-xs" />
+      </template>
+    </q-btn>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useAppStore } from '~/stores/app';
 
-
+const { signOut } = useAuth()
 const appStore = useAppStore();
-const { data } = useAuth()
-const backdropFilter = ref('blur(2px) saturate(180%)');
-const dialog = ref(false);
-
-const signOutUser = async () => {
-  try {
-    const response = await fetch('/api/auth/signout', { method: 'POST' });
-    if (response.ok) {
-      console.log('Signed out successfully');
-      dialog.value = false;
-      window.location.href = '/api/auth/signout/google';
-    } else {
-      console.error('Failed to sign out');
-    }
-  } catch (error) {
-    console.error('Error during sign out:', error);
-  }
-};
-
-const onCancel = () => {
-  dialog.value = false;
-};
-
-const openDialog = () => {
-  dialog.value = true;
-};
+const { data } = useAuth();
+const onHover = ref(false);
+const defaultUserIcon = '/public/default-user-icon.png'; // Path to default user icon
 </script>

@@ -3,23 +3,90 @@
     <div class="welcome-message">
       <h1>Welcome to the Dashboard</h1>
     </div>
-    <q-btn class="login-button" label="Login with Google" color="primary" @click="handleGoogleLogin" />
+    <GoogleLogin/>
+    <form @submit.prevent="signIn('credentials', { username: signinUsername, password: signinPassword, callbackUrl: '/' })" class="signup-form q-ma-sm flex-col justify-center items-center">
+      <q-input
+        v-model="signinUsername"
+        label="Username"
+        outlined
+        required
+        class="q-ma-sm"
+      />
+      <q-input
+        v-model="signinPassword"
+        label="Password"
+        type="password"
+        outlined
+        required
+        class="q-ma-sm"
+      />
+      <div class="flex justify-center items-center">
+        <q-btn class="login-button q-ma-md" type="submit" label="Login" color="primary" />
+      </div>
+    </form>
+    <q-btn class="login-button q-ma-md" label="Sign Up" color="primary" @click="showSignUpDialog = true" />
+    <q-dialog v-model="showSignUpDialog">
+      <q-card>
+        <form @submit.prevent="handleSignUp" class="signup-form q-ma-sm flex-col justify-center items-center">
+          <q-input v-model="signupUsername" label="Username" outlined required class="q-ma-sm" />
+          <q-input v-model="signupEmail" label="Email" type="email" outlined required class="q-ma-sm" />
+          <q-input v-model="signupPassword" label="Password" type="password" outlined required class="q-ma-sm" />
+          <div class="flex justify-center items-center">
+            <q-btn class="login-button q-ma-md" type="submit" label="Sign Up" color="primary" />
+          </div>
+        </form>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 const $q = useQuasar();
+const { signIn } = useAuth();
 
 // dynamic polka class
 const polkaClass = computed(() => {
   return $q.dark.isActive ? 'polka-dark' : 'polka-light';
 });
 
-function handleGoogleLogin() {
-  // Redirect to the correct Google sign-in endpoint
-  window.location.href = '/api/auth/signin/google';
+const signinUsername = ref('');
+const signinPassword = ref('');
+
+const signupUsername = ref('');
+const signupEmail = ref('');
+const signupPassword = ref('');
+
+const showSignUpDialog = ref(false);
+
+async function handleSignUp() {
+  console.log('SignUp: Initiating sign-up process');
+  try {
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: signupUsername.value,
+        email: signupEmail.value,
+        password: signupPassword.value,
+      }),
+    });
+
+    console.log('SignUp: Response from sign-up endpoint', response);
+
+    const result = await response.json();
+    if (result.success) {
+      console.log('SignUp: Sign-up successful', result.message);
+      window.location.href = '/login'; // Updated redirect to /login
+    } else {
+      console.error('SignUp: Sign-up failed', result.message);
+      alert(result.message); // Display error message to the user
+    }
+  } catch (error) {
+    console.error('SignUp: Error during sign-up:', error);
+    alert('An unexpected error occurred during sign-up. Please try again.');
+  }
 }
 </script>
 
