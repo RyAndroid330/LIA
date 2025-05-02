@@ -11,6 +11,9 @@ SELECT
     ttrm.task_id AS uuid,
     t.name,
     t.layer_index,
+    t.description,
+    t.is_unique,
+    t.concurrency,
     dtm.task_id,
     dtm.predecessor_task_id AS previous_task_execution_id
 FROM task_to_routine_map ttrm

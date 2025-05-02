@@ -191,6 +191,9 @@ const routineMap = computedAsync(async () => {
         label: task.name,
         layer_index: task.layer_index,
         previousTaskExecutionId: task.previous_task_execution_id,
+        description: task.description,
+        is_unique: task.is_unique,
+        concurrency: task.concurrency,
       };
     }) || [];
   }
@@ -226,6 +229,9 @@ async function fetchActiveRoutines(itemId: string) {
       uuid: r.id,
       label: r.label,
       routineDescription: r.routineDescription,
+      description: r.description,
+      is_unique: r.is_unique,
+      concurrency: r.concurrency,
       status: r.status,
       progress: r.progress,
       started: formatDate(r.started),
