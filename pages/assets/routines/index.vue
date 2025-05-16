@@ -11,6 +11,7 @@
           row-key="uuid"
           @inspect-row="inspectRoutines"
           @inspect-row-in-new-tab="inspectInNewTab"
+          :lastPage="lastPage"
       />
     </div>
   </NuxtLayout>
@@ -54,6 +55,10 @@ const columns = [
 
 const routines = ref( [] );
 
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1);
+
 const router = useRouter();
 
 function inspectRoutines( routines: routines ) {
@@ -67,6 +72,26 @@ function inspectInNewTab( routine: routines ) {
 const navigateToItem = ( route: string ) => {
   router.push(route);
 };
+
+async function loadMoreRoutines() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/routines?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    routines.value = [...routines.value, ...data.map((r: any) => ({
+      uuid: r.uuid,
+      label: r.label,
+      service: r.service,
+      description: r.description,
+    }))];
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error loading more routines:', error);
+  }
+}
 
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {

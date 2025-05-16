@@ -91,6 +91,33 @@ const columns = [
 
 const routines = ref( [] );
 
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1);
+
+async function loadMoreRoutines() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/activeRoutines?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    routines.value = [...routines.value, ...data.map((r: any) => ({
+      uuid: r.uuid,
+      label: r.label,
+      status: r.status,
+      progress: r.progress,
+      started: r.started,
+      ended: r.ended,
+      duration: r.duration,
+    }))];
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error loading more routines:', error);
+  }
+}
+
 const router = useRouter();
 
 function formatDate( date: string ) {
@@ -135,7 +162,7 @@ onMounted(async () => {
       name: r.label,
       label: r.label,
       description: r.routineDescription,
-      status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule',
+      status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : r.errored ? 'close' : 'schedule',
       progress: r.progress,
       started: formatDate( r.started ),
       ended: formatDate( r.ended ),
@@ -145,6 +172,7 @@ onMounted(async () => {
       serverId: r.serverId,
       processingGraph: r.processingGraph,
       isRunning: r.isRunning,
+      referer: r.status === 'Errored' ? 'Errored' : null,
     };
   } );
 });

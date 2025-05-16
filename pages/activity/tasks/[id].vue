@@ -9,6 +9,9 @@
         </q-tooltip>
       </q-btn>
     </template>
+    <div>
+      <activeTaskMap :taskMap="taskMap" />
+    </div>
 
     <div class="row q-mx-md">
       <InfoCard v-if="taskExecution">
@@ -181,6 +184,62 @@ async function fetchTaskExecution() {
     console.error('Error fetching task execution:', error);
   }
 }
+
+const Item = computed(() => taskExecution.value);
+
+
+interface Item {
+  label: string;
+  uuid: string;
+  routineDescription: string;
+  progress: number;
+  started: string;
+  ended: string;
+  status: string;
+  routineId?: string;
+  serverId: string;
+  previousRoutineExecution?: string;
+  serverName: string;
+  previousRoutineName: string;
+  contract_id: string;
+  layer_index: number;
+  inputContext: string;
+  outputContext: string;
+}
+
+const taskMap = computedAsync(async () => {
+  if (Item.value) {
+    const tasks = await $fetch(`/api/tasksInRoutines?routineId=${taskExecution.value.routineExecutionId}`);
+    return tasks?.map((task: any) => {
+      return {
+        label: task.name,
+        uuid: task.uuid,
+        taskId: task.task_id,
+        contextId: task.context_id,
+        resultContextId: task.result_context_id,
+        isRunning: task.is_running,
+        isComplete: task.is_complete,
+        errored: task.errored,
+        failed: task.failed,
+        progress: (task.progress * 100).toFixed(0),
+        scheduled: task.scheduled,
+        started: task.started,
+        ended: task.ended,
+        previousTaskExecutionId: task.previous_task_execution_id,
+        previous_task_name: task.previous_task_name,
+        name: task.name,
+        description: task?.description,
+        serverName: task?.processing_graph,
+        isUnique: task.is_unique,
+        serverId: task.server_id,
+        inputContext: task.input_context,
+        outputContext: task.output_context,
+        layer_index: task.layer_index,
+      };
+    }) || [];
+  }
+  return [];
+}, []);
 
 function formatDate(date?: string) {
   if (!date) return 'Not finished';

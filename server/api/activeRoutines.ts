@@ -84,7 +84,8 @@ async function getRoutines(id?: string) {
       processingGraph: row.processing_graph,
       inputContext: row.input_context,
       outputContext: row.output_context,
-      isRunning: row.is_running
+      isRunning: row.is_running,
+      referer: row.errored ? 'Errored' : null
     }));
   } catch (error) {
     console.error('Error executing query:', error);

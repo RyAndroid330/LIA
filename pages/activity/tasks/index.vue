@@ -8,9 +8,11 @@
       <Table
           :columns="columns"
           :rows="tasks"
+          :last-page="lastPage"
           row-key="uuid"
           @inspect-row="inspectTask"
           @inspect-row-in-new-tab="inspectInNewTab"
+          @load-more-data="loadMoreTasks"
       />
       <FrequencyPieChart v-if="tasks.length > 0" :values="tasks" />
     </div>
@@ -90,7 +92,11 @@ const columns = [
   // }
 ];
 
-const tasks = ref( [] );
+const tasks = ref<task[]>([]); // Explicitly type tasks as task[]
+
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1); // Ensure lastPage is properly initialized as a number
 
 const router = useRouter();
 
@@ -123,29 +129,67 @@ const navigateToItem = ( route: string ) => {
   router.push(route);
 };
 
-// Fetch server stats and set the current section on component mount
+async function loadMoreTasks() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/activeTasks?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    tasks.value = [...tasks.value, ...data.tasks.map((r: any) => {
+      return {
+        uuid: r.id,
+        name: r.name,
+        description: r.description,
+        status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : r.errored ? 'close' : 'schedule',
+        progress: r.progress,
+        started: formatDate(r.started),
+        ended: formatDate(r.ended),
+        duration: getDuration(r.started, r.ended),
+        server: r.serverName,
+        serverId: r.serverId,
+        processingGraph: r.processingGraph,
+        isRunning: r.isRunning,
+        referer: r.errored ? 'Errored' : null,
+      };
+    })];
+
+    lastPage.value = data.lastPage; // Update lastPage dynamically from the API response
+  } catch (error) {
+    console.error('Error loading more tasks:', error);
+  }
+}
+
 onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('serverActivity');
 
-  const response = await fetch('/api/activeTasks');
-  if (!response.ok) throw new Error('Network response was not ok');
-  const data = await response.json();
-  tasks.value = data.map( (r: any) => {
-    return {
-      uuid: r.id,
-      name: r.name,
-      description: r.description,
-      status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule', // Map to icons
-      progress: r.progress,
-      started: formatDate( r.started ),
-      ended: formatDate( r.ended ),
-      duration: getDuration( r.started, r.ended ),
-      server: r.serverName,
-      serverId: r.serverId,
-      processingGraph: r.processingGraph,
-      isRunning: r.isRunning,
-    };
-  } );
+  try {
+    const response = await fetch(`/api/activeTasks`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    tasks.value = data.tasks.map((r: any) => {
+      return {
+        uuid: r.id,
+        name: r.name,
+        description: r.description,
+        status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : r.errored ? 'close' : 'schedule',
+        progress: r.progress,
+        started: formatDate(r.started),
+        ended: formatDate(r.ended),
+        duration: getDuration(r.started, r.ended),
+        server: r.serverName,
+        serverId: r.serverId,
+        processingGraph: r.processingGraph,
+        isRunning: r.isRunning,
+        referer: r.errored ? 'Errored' : null,
+      };
+    });
+
+    lastPage.value = data.lastPage; // Set initial lastPage value
+  } catch (error) {
+    console.error('Error fetching tasks on mount:', error);
+  }
 });
 </script>

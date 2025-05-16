@@ -136,9 +136,9 @@ function onNodeClick({ event, node }: { event: any; node: Node }) {
   }));
 
   emit('nodeSelected', node.id);
-  setTimeout(() => {
+
     router.push(`/assets/tasks/${node.id}`);
-  }, 200); // Delay navigation to show selection
+
 }
 </script>
 

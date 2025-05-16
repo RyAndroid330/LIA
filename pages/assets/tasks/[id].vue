@@ -20,7 +20,7 @@
               UUID: {{ selectedItem?.uuid }}
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.processing_graph }` )">
-              Processing Graph: <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
+              <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
             </div>
             <div class="q-mx-md q-my-sm">
               Created: {{ new Date(selectedItem?.created).toLocaleString() }}
@@ -51,6 +51,7 @@
         class="custom-table"
         :columns="columns"
         :rows="tasks"
+        :last-page="lastPage"
         row-key="uuid"
         @inspect-row="inspectTask"
         @inspect-row-in-new-tab="inspectInNewTab"
@@ -62,6 +63,7 @@
       <Table
         :columns="columns"
         :rows="routines"
+        :last-page="lastPage"
         row-key="uuid"
         @inspect-row="inspectRoutine"
         @inspect-row-in-new-tab="inspectRoutineInNewTab"
@@ -184,6 +186,7 @@ const columns = [
 
 const tasks = ref([]);
 const routines = ref([]);
+const lastPage = ref<number>(1);
 
 const router = useRouter();
 
@@ -238,6 +241,7 @@ onMounted(() => {
 });
 
 async function fetchActiveTasks(itemId: string) {
+  console.log('Fetching active tasks for itemId:', itemId);
   const response = await fetch(`/api/activeTasks${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -252,7 +256,14 @@ async function fetchActiveTasks(itemId: string) {
     throw new Error('Failed to parse JSON response');
   }
 
-  tasks.value = data.map((r: any) => {
+  console.log('Response data:', data);
+
+  if (!data.tasks) {
+    console.error('API response does not contain tasks:', data);
+    data.tasks = Array.isArray(data) ? data : [data];
+  }
+
+  tasks.value = data.tasks.map((r: any) => {
     return {
       uuid: r.id,
       name: r.name,
@@ -260,6 +271,8 @@ async function fetchActiveTasks(itemId: string) {
       started: formatDate(r.started)
     };
   });
+
+  lastPage.value = data.lastPage;
 }
 
 async function fetchRoutinesUsingTask(taskId: string) {

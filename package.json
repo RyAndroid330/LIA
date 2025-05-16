@@ -21,6 +21,8 @@
     "dagre": "^0.8.5",
     "express": "^4.21.0",
     "lodash": "^4.17.21",
+    "markdown-tag": "^0.2.2",
+    "marked": "^15.0.11",
     "next-auth": "^4.21.1",
     "nuxt": "^3.13.0",
     "nuxt-quasar-ui": "^2.1.4",

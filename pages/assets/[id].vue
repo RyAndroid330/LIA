@@ -28,14 +28,89 @@
         </template>
       </InfoCard>
     </div>
+      <Table
+        class="custom-table"
+        :columns="columns"
+        :rows="activeProcesses"
+        row-key="uuid"
+        @inspect-row="inspectServer"
+        @inspect-row-in-new-tab="inspectInNewTab"
+      >
+    <template #title>
+      Servers Running This Service
+    </template>
+    </Table>
     </NuxtLayout>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useFetch, useRoute } from '#app';
+import { useFetch, useRouter } from '#app';
 import InfoCard from '~/components/InfoCard.vue';
+
+const router= useRouter();
+const activeProcesses = ref([]);
+const processingGraph = router.currentRoute.value.params.id as string;
+
+// Update the `columns` to match the server data structure
+const columns = [
+  { name: 'graph', label: 'Service', field: 'graph', required: true, sortable: true },
+  { name: 'address', label: 'Address', field: 'address', required: true, sortable: true },
+  { name: 'port', label: 'Port', field: 'port', required: true, sortable: true },
+  { name: 'status', label: 'Status', field: 'status', required: true, sortable: true },
+  { name: 'processPid', label: 'Process PID', field: 'processPid', required: true, sortable: true },
+];
+
+function inspectServer(server: any) {
+  navigateToItem(`/activity/servers/${server.uuid}`);
+}
+function inspectInNewTab(server: any) {
+  const url = `/activity/servers/${server.uuid}`;
+  window.open(url, '_blank');
+}
+
+const navigateToItem = (route: string) => {
+  useRouter().push(route);
+};
+
+// Update the `fetchFilteredServers` function to handle the server data
+const fetchFilteredServers = async () => {
+  try {
+    const response = await fetch(`/api/serverStats?processingGraph=${encodeURIComponent(processingGraph)}`);
+    if (!response.ok) throw new Error('Failed to fetch filtered servers');
+    const data = await response.json();
+    activeProcesses.value = data.servers.map((server: any) => ({
+      uuid: server.uuid,
+      graph: server.graph,
+      address: server.address,
+      port: server.port,
+      status: server.status,
+      processPid: server.processPid,
+    }));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const fetchGraphDetails = async () => {
+  try {
+    const response = await fetch(`/api/graph/${encodeURIComponent(processingGraph)}`);
+    if (!response.ok) throw new Error('Failed to fetch graph details');
+    const data = await response.json();
+    selectedItem.value = data.graphs[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+onMounted(() => {
+  const appStore = useAppStore();
+  appStore.setCurrentSection('assets');
+
+  fetchGraphDetails();
+  fetchFilteredServers();
+});
 
 // Define the Item interface
 interface Item {
@@ -74,3 +149,9 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.custom-table {
+  background-color: #e6b30dc4;
+}
+</style>

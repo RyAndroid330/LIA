@@ -3,12 +3,14 @@ import { initializeClient } from '~/server/api/utils';
 
 let client: pg.Client | null = null;
 
-// Get all graphs
-async function getgraphs() {
+// Get all graphs with pagination
+async function getgraphs(page: number = 1, limit: number = 100) {
+  const offset = (page - 1) * limit;
   const query = `
     SELECT * FROM processing_graph
+    LIMIT $1 OFFSET $2
   `;
-  const res = await client!.query(query);
+  const res = await client!.query(query, [limit, offset]);
 
   // Map the results to match the ListItem interface
   return res.rows.map((row) => ({

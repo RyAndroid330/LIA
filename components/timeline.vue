@@ -53,5 +53,6 @@ const emit = defineEmits(['taskSelected'])
 
 function onTaskSelected(task) {
   emit('taskSelected', task)
+  console.log('Task selected:', task)
 }
 </script>

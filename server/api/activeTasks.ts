@@ -4,12 +4,18 @@ import { initializeClient } from '~/server/api/utils';
 let client: pg.Client | null = null;
 
 // Get all TaskExecutions
-async function getTaskExecution(id?: string) {
+async function getTaskExecution(
+  id?: string,
+  page: number = 1,
+  limit: number = 100
+) {
+  const offset = (page - 1) * limit;
   if (!client) {
     client = await initializeClient();
   }
 
   let query = '';
+  let params: any[] = [];
 
   if (id) {
     query = `
@@ -49,6 +55,7 @@ async function getTaskExecution(id?: string) {
     WHERE te.task_id = $1
     GROUP BY te.uuid, re.server_id, ctx.uuid, ctx2.uuid, t.name, re.description, t.description, t.is_unique, t.function_string, s.processing_graph, s.address, s.port
     `;
+    params = [id];
   } else {
     query = `
     SELECT
@@ -82,11 +89,13 @@ async function getTaskExecution(id?: string) {
     LEFT JOIN context ctx2 ON te.result_context_id = ctx2.uuid
     LEFT JOIN task t ON te.task_id = t.uuid
     LEFT JOIN server s ON re.server_id = s.uuid
+    LIMIT $1 OFFSET $2
     `;
+    params = [limit, offset];
   }
 
-  const result = await client.query(query, id ? [id] : []);
-  return result.rows.map((row) => ({
+  const result = await client.query(query, params);
+  const rows = result.rows.map((row) => ({
     id: row.uuid,
     type: 'task',
     routineExecutionId: row.routine_execution_id,
@@ -117,8 +126,26 @@ async function getTaskExecution(id?: string) {
     serverName: row.processing_graph + '@' + row.address + ':' + row.port,
     layerIndex: row.layer_index,
     previousTaskName: row.previous_task_name,
-    processingGraph: row.processing_graph
+    processingGraph: row.processing_graph,
+    referer: row.errored ? 'Errored' : null,
+    status: row.errored
+      ? 'Errored'
+      : row.failed
+        ? 'Failed'
+        : row.is_running
+          ? 'Running'
+          : row.is_complete
+            ? 'Completed'
+            : 'Unknown'
   }));
+
+  return id
+    ? rows[0]
+    : {
+        tasks: rows,
+        total: rows.length,
+        lastPage: Math.ceil(rows.length / limit)
+      };
 }
 
 // Event handler
@@ -126,13 +153,16 @@ export default defineEventHandler(async (event) => {
   if (!client) {
     client = await initializeClient();
   }
-  const { method, url } = event.node.req;
+  const { method } = event.node.req;
 
-  if (method === 'GET' && url) {
-    const urlParams = new URLSearchParams(url.split('?')[1] || '');
-    const id = urlParams.get('id') || undefined;
+  if (method === 'GET') {
     try {
-      return await getTaskExecution(id);
+      const query = getQuery(event);
+      const id = query.id as string | undefined;
+      const page = parseInt(query.page as string) || 1;
+      const limit = parseInt(query.limit as string) || 100;
+
+      return await getTaskExecution(id, page, limit);
     } catch (error) {
       console.error('Error fetching TaskExecutions:', error);
       throw error;

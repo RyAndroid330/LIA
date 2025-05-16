@@ -11,6 +11,7 @@
           row-key="uuid"
           @inspect-row="inspectTasks"
           @inspect-row-in-new-tab="inspectInNewTab"
+          :lastPage="lastPage"
       />
     </div>
     </NuxtLayout>
@@ -62,6 +63,9 @@ const columns = [
 ];
 
 const tasks = ref( [] );
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1);
 
 const router = useRouter();
 
@@ -76,6 +80,28 @@ function inspectInNewTab( tasks:tasks ) {
 const navigateToItem = ( route: string ) => {
   router.push(route);
 };
+
+async function loadMoreTasks() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/tasks?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    tasks.value = [...tasks.value, ...data.map((r: any) => ({
+      uuid: r.uuid,
+      label: r.label,
+      service: r.graph,
+      unique: r.unique,
+      description: r.description,
+      concurrency: r.concurrency,
+    }))];
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error loading more tasks:', error);
+  }
+}
 
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {

@@ -23,6 +23,7 @@
     <div>
       <slot />
     </div>
+    <helpMorph />
   </div>
 </template>
 
@@ -50,6 +51,7 @@ if (segment === 'active') return 'Server Activity';
 if (segment === 'activity') return 'Activity';
 if (segment === 'tasks') return 'Tasks';
 if (segment === 'routines') return 'Routines';
+if (segment === 'help') return 'Help';
 return segment.charAt(0) .toLowerCase() + segment.slice(1).replace(/-/g, ' ');
 }
 </script>

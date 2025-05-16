@@ -1,4 +1,11 @@
 export default defineNuxtConfig({
+  meta: {
+    script: [
+      {
+        src: 'https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag-GitHub.js'
+      }
+    ]
+  },
   devtools: {
     enabled: true,
 
@@ -55,7 +62,6 @@ export default defineNuxtConfig({
     '@vue-flow/core/dist/style.css',
     '@vue-flow/core/dist/theme-default.css'
   ],
-  // plugins: [{ src: '~/plugins/db.js', mode: 'server' }],
   compatibilityDate: '2024-09-09',
   runtimeConfig: {
     authSecret: process.env.NUXT_AUTH_SECRET || 'default_secret_for_dev',

@@ -10,7 +10,7 @@
         </template>
         <template #info>
           <h5>
-            Welcome to the Server Management System! Here you can manage your server task, create a new routine, and build new processing graphs! you also have access to all your current server statistics and running processes.
+            Welcome to the Server Management System! Here you can manage your server task, create a new routine, and build new services. In addition to that, you can also generate new contracts! you also have access to all your current server statistics and running processes.
           </h5>
         </template>
       </Details>

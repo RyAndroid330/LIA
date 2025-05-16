@@ -87,7 +87,7 @@ export default {
       const series = [];
       const colors = [];
       const predefinedColors = [
-        '#f5b041', '#1abc9c', '#3498db', '#e74cff', '#5ff5f6', '#2ecc71', '#e67e22', '#34495e', '#16a085'
+         '#e74cff', '#5ff5f6', '#2ecc71', '#e67e22', '#34495e', '#16a085'
       ];
       let colorIndex = 0;
       const colorMap = {};
@@ -120,7 +120,7 @@ export default {
 <style scoped>
 .custom-card {
   border-radius: 20px !important;
-  width: 25dvw !important;
-  max-height: 60dvh !important;
+  min-width: 25dvw !important;
+  height: 60dvh !important;
 }
 </style>

@@ -5,8 +5,17 @@
       Server Activity
     </template>
     <div class="row q-mx-md">
-      <GridTable :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer"/>
-      <ServerMap @node-selected="onServerSelected" class="q-mx-xl" />
+      <Table
+          :columns="columns"
+          :rows="servers"
+          :last-page="lastPage"
+          row-key="uuid"
+          @inspect-row="inspectActivity"
+          @inspect-row-in-new-tab="inspectInNewTab"
+          @load-more-data="loadMoreservers"
+      />
+      <!-- <GridTable :columns="columns" :rows="activeProcesses" title="Servers" row-key="uuid" v-model:selected="selectedServer" /> -->
+      <ServerMap @node-selected="onServerSelected" class="q-mx-md" />
     </div>
     <q-dialog v-model="dialogVisible">
       <q-card class="my-card">
@@ -43,14 +52,16 @@
 import { ref, onMounted } from 'vue';
 import { useAppStore } from '~/stores/app';
 import ServerMap from '~/components/serverMap.vue';
-import Flipper from '~/components/Flipper.vue';
+import { useRouter } from '#vue-router';
 
+const router = useRouter();
 const hoverBack = ref(false);
 const hoverNext = ref(false);
 const layout = 'dashboard-layout';
 const dialogVisible = ref(false);
 const activeProcesses = ref([]);
 const selectedServer = ref<Server | undefined>(undefined);
+const servers = ref([]); // Define the servers array
 const columns = [
   {
     name: 'graph',
@@ -93,9 +104,30 @@ interface Server {
   active: boolean;
 }
 
-const onServerSelected = (serverName: string) => {
-  // Update selectedServer based on the selected server name
-  selectedServer.value = activeProcesses.value.find((server: Server) => server.uuid === serverName);
+function inspectServer( server:Server ) {
+  navigateToItem( `/activity/servers/${ server.uuid }` );
+}
+function inspectInNewTab( server:Server ) {
+  const url = `/activity/servers/${ server.uuid }`;
+  window.open(url, '_blank');
+}
+
+function inspectActivity(activity) {
+  navigateToItem(`/activity/${activity.uuid}`);
+}
+
+function formatDate(date) {
+  const datetime = new Date(date);
+  return `${datetime.toDateString()} ${datetime.toLocaleTimeString()}`;
+}
+
+const navigateToItem = ( route: string ) => {
+  router.push(route);
+};
+
+const onServerSelected = (serverUuid: string) => {
+  // Update selectedServer based on the selected server uuid from the servers array
+  selectedServer.value = servers.value.find((server: Server) => server.uuid === serverUuid);
   dialogVisible.value = true;
 };
 
@@ -110,10 +142,56 @@ const fetchServerStats = async () => {
   }
 };
 
-// Fetch server stats and set the current section on component mount
-onMounted(() => {
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1);
+
+async function loadMoreservers() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/serverStats?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    servers.value = [...servers.value, ...data.servers.map((r: any) => {
+      return {
+        uuid: r.uuid,
+        graph: r.graph,
+        address: r.address,
+        port: r.port,
+        status: r.status,
+      };
+    })];
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error loading more servers:', error);
+  }
+}
+
+onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('serverActivity');
   fetchServerStats();
+
+  try {
+    const response = await fetch(`/api/serverStats`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    servers.value = data.servers.map((r: any) => {
+      return {
+        uuid: r.uuid,
+        graph: r.graph,
+        address: r.address,
+        port: r.port,
+        status: r.status,
+      };
+    });
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error fetching servers on mount:', error);
+  }
 });
 </script>

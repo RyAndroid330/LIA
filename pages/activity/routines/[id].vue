@@ -30,9 +30,7 @@
 
   <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
     <div class = "flex" v-show="selectedOption === 'routineMap'">
-      <RoutineMap :routineMap="routineMap" @node-selected="task => onTaskSelected(mapTaskToSelectedTask(task))" />
-        <div>
-  </div>
+      <ActiveRoutineMap :routineMap="routineMap" @node-selected="task => onTaskSelected(mapTaskToSelectedTask(task))" />
     </div>
   </transition>
   <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
@@ -190,6 +188,7 @@
 import { useFetch, useRoute } from '#app';
 import { ref, onMounted } from 'vue';
 import { useRouter } from '#vue-router';
+
 
 interface SelectedItem {
   label: string;

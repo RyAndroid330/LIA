@@ -4,11 +4,13 @@ import { initializeClient } from '~/server/api/utils';
 let client: pg.Client | null = null;
 
 // Get all Tasks
-async function getTasks() {
+async function getTasks(page: number = 1, limit: number = 100) {
+  const offset = (page - 1) * limit;
   const query = `
     SELECT * FROM task
+    LIMIT $1 OFFSET $2
   `;
-  const res = await client!.query(query);
+  const res = await client!.query(query, [limit, offset]);
 
   // Map the results to match the ListItem interface
   return res.rows.map((row) => ({

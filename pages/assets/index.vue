@@ -2,7 +2,7 @@
   <NuxtLayout name="dashboard-layout">
     <NuxtLayout name="dashboard-main-layout">
     <template #title>
-      Graphs
+      Services
     </template>
     <div class="row q-mx-md">
       <Table
@@ -12,6 +12,7 @@
           @inspect-row="inspectGraphs"
           @inspect-row-in-new-tab="inspectInNewTab"
           :hideGenerateContractButton="true"
+          :lastPage="lastPage"
       />
     </div>
     </NuxtLayout>
@@ -55,6 +56,29 @@ const columns = [
 ];
 
 const graphs = ref( [] );
+
+const currentPage = ref(1);
+const pageSize = 50;
+const lastPage = ref<number>(1);
+
+async function loadMoreGraphs() {
+  try {
+    currentPage.value++;
+    const response = await fetch(`/api/graphs?page=${currentPage.value}&limit=${pageSize}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    graphs.value = [...graphs.value, ...data.map((r: any) => ({
+      uuid: r.uuid,
+      label: r.label,
+      description: r.description,
+    }))];
+
+    lastPage.value = data.lastPage;
+  } catch (error) {
+    console.error('Error loading more graphs:', error);
+  }
+}
 
 const router = useRouter();
 function inspectGraphs(graph: graphs) {

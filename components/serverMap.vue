@@ -93,7 +93,7 @@ function onNodeClick({ event, node }: { event: any, node: Node }) {
 <style>
 .map-container {
   position: relative;
-  min-width: 55dvw;
+  min-width: 45dvw;
   max-width: 80dvw;
   height: 50dvh;
   box-shadow: 0 1px 6px 0 rgba(105, 105, 105, 0.5);

@@ -57,7 +57,8 @@
         v-model='showContracts'
         to='/contracts'
         hide-expand-icon
-        round dense icon="menu"
+
+        expanded
       >
         <q-item>
           <q-btn
@@ -77,7 +78,7 @@
         v-model='showAssets'
         to='/assets'
         hide-expand-icon
-        round dense icon="menu"
+
       >
         <q-item>
           <q-btn
@@ -107,7 +108,7 @@
         v-model='showServerActivity'
         to='/activity'
         hide-expand-icon
-        round dense icon="menu"
+
       >
         <q-item>
           <q-btn
@@ -130,6 +131,50 @@
           </q-btn>
         </q-item>
       </q-expansion-item>
+    <div class="fixed-bottom-left q-pa-md">
+      <q-expansion-item
+        expand-separator
+        label='Help'
+        header-class='text-grey-8'
+        v-model='showHelp'
+        to='/help'
+        hide-expand-icon
+
+        @click="() => setSection('help', true)"
+      >
+        <q-item>
+          <q-btn
+            flat
+            color='grey-8'
+            to='/help/guide'
+            @click="() => setSection('help', true)"
+            >
+            Guide
+          </q-btn>
+        </q-item>
+        <q-item>
+          <q-btn
+            flat
+            color='grey-8'
+            to='/help/terms'
+            @click="() => setSection('help', true)"
+          >
+            Terms
+          </q-btn>
+        </q-item>
+          <q-item>
+          <q-btn
+            flat
+            color='grey-8'
+            to='/help/faq'
+            @click="() => setSection('help', true)"
+          >
+            FAQ
+          </q-btn>
+        </q-item>
+      </q-expansion-item>
+    </div>
+
     </q-drawer>
     <div :class="['polka-container', polkaClass]">
       <q-page-container :class="['window-width', 'window-height','content']">
@@ -147,9 +192,10 @@ import ThemeToggleButton from '~/components/ThemeToggleButton.vue';
 
 
 // State
-const showContracts = ref(false);
-const showAssets = ref(false);
-const showServerActivity = ref(false);
+const showContracts = ref(true);
+const showAssets = ref(true);
+const showServerActivity = ref(true);
+const showHelp = ref(true);
 const drawerOpen = ref(true);
 const miniState = ref(false);
 const appStore = useAppStore();
@@ -159,9 +205,9 @@ const $q = useQuasar();
 // Methods
 const setSection = (section, disableMini = false) => {
   appStore.setCurrentSection(section);
-  showContracts.value = section === 'contracts';
-  showAssets.value = section === 'assets';
-  showServerActivity.value = section === 'serverActivity';
+  // showContracts.value = section === 'contracts';
+  // showAssets.value = section === 'assets';
+  // showServerActivity.value = section === 'serverActivity';
   if (disableMini) {
     miniState.value = false;
   }
@@ -188,6 +234,8 @@ const toolbarClass = computed(() => {
       return 'bg-warning';
     case 'contracts':
       return 'bg-secondary';
+    case 'help':
+      return 'bg-grey-8';
     default:
       return 'bg-secondary';
   }
@@ -201,6 +249,8 @@ const toolbarClassLight = computed(() => {
       return colors.changeAlpha(colors.getPaletteColor('warning'), 0.1);
     case 'contracts':
       return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
+    case 'help':
+      return colors.changeAlpha(colors.getPaletteColor('grey-8'), 0.1);
     default:
       return colors.changeAlpha(colors.getPaletteColor('secondary'), 0.1);
   }

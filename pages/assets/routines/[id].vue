@@ -26,7 +26,7 @@
               Type: {{ selectedItem?.type }}
             </div>
             <div class="q-mx-md q-my-sm" @click="navigateToItem( `/assets/${ selectedItem?.processing_graph }` )">
-              Processing Graph: <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
+              <span class="text-primary cursor-pointer">{{ selectedItem?.processing_graph }}</span>
             </div>
             <div class="q-mx-md q-my-sm">
               Created: {{ new Date(selectedItem?.created).toLocaleString() }}
