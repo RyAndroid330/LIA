@@ -30,12 +30,12 @@ const allEdges = ref<Edge[]>([])
 const vueFlowInstance = ref<VueFlowInstance | null>(null)
 
 const emit = defineEmits<{
-  (e: 'nodeSelected', task: string): void;
+  (e: 'nodeSelected', routine: string): void;
 }>()
 
-interface Task {
+interface routine {
   uuid: string;
-  previousTaskExecutionId?: string;
+  previousroutineExecutionId?: string;
   errored?: boolean;
   description?: string;
   is_unique?: boolean;
@@ -43,7 +43,7 @@ interface Task {
 }
 
 const props = defineProps<{
-  routineMap: Task[];
+  routineMap: routine[];
 }>()
 
 // Dagre Layout Function
@@ -82,29 +82,29 @@ watch(props, async (newValue) => {
   nodes.value = []
   edges.value = []
 
-  nodes.value = routineMap.map((task) => ({
+  nodes.value = routineMap.map((routine) => ({
   type: 'custom',
-  id: task.uuid.toString(),
+  id: routine.uuid.toString(),
   position: { x: 0, y: 0 },
   data: {
-    label: task.label,
-    uuid: task.uuid,
-    description: task.description,
-    is_unique: task.is_unique,
-    concurrency: task.concurrency,
-    errored: task.errored,
+    label: routine.label,
+    uuid: routine.uuid,
+    description: routine.description,
+    is_unique: routine.is_unique,
+    concurrency: routine.concurrency,
+    errored: routine.errored,
     sourcePosition: 'right',
     targetPosition: 'left',
   },
-  class: task.errored ? 'custom-node error-node' : 'custom-node',
+  class: routine.errored ? 'custom-node error-node' : 'custom-node',
 }))
 
-  routineMap.forEach((task) => {
-    if (task.previousTaskExecutionId) {
+  routineMap.forEach((routine) => {
+    if (routine.previousroutineExecutionId) {
       edges.value.push({
-        id: `e${task.uuid}-${task.previousTaskExecutionId}`,
-        source: task.previousTaskExecutionId,
-        target: task.uuid,
+        id: `e${routine.uuid}-${routine.previousroutineExecutionId}`,
+        source: routine.previousroutineExecutionId,
+        target: routine.uuid,
         animated: false
       })
     }
@@ -121,7 +121,7 @@ watch(props, async (newValue) => {
 
 function onNodeClick({ node }: { event: any, node: Node }) {
   emit('nodeSelected', node.id)
-  router.push(`/assets/tasks/${node.id}`)
+  router.push(`/activity/routines/${node.id}`)
 }
 
 function fitView() {

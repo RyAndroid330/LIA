@@ -46,6 +46,7 @@
         row-key="uuid"
         @inspect-row="inspectRoutine"
         @inspect-row-in-new-tab="inspectInNewTab"
+        style="z-index: 1;"
       >
         <template #title>
           Active Executions
@@ -246,5 +247,6 @@ async function fetchActiveRoutines(itemId: string) {
 <style scoped>
 .custom-table {
   background-color: #e6b30dc4;
+
 }
 </style>

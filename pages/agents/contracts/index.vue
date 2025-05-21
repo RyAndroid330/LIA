@@ -127,7 +127,9 @@ async function loadMoreContracts() {
         product: r.product,
         referer: r.referer,
       };
-    })];
+    })]
+    // Sort contracts by issued descending after loading more
+    .sort((a: any, b: any) => new Date(b.issued).getTime() - new Date(a.issued).getTime());
 
     lastPage.value = data.lastPage;
   } catch (error) {
@@ -157,7 +159,9 @@ onMounted(async () => {
         product: r.product,
         referer: r.referer,
       };
-    });
+    })
+    // Sort contracts by issued descending
+    .sort((a: any, b: any) => new Date(b.issued).getTime() - new Date(a.issued).getTime());
 
     lastPage.value = data.lastPage;
     console.log('Contracts loaded on mount:', contracts.value);

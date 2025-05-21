@@ -113,7 +113,7 @@ function inspectInNewTab( server:Server ) {
 }
 
 function inspectActivity(activity) {
-  navigateToItem(`/activity/${activity.uuid}`);
+  navigateToItem(`/activity/servers/${activity.uuid}`);
 }
 
 function formatDate(date) {

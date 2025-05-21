@@ -140,7 +140,11 @@ async function getTaskExecution(
   }));
 
   return id
-    ? rows[0]
+    ? {
+        tasks: rows,
+        total: rows.length,
+        lastPage: Math.ceil(rows.length / limit)
+      }
     : {
         tasks: rows,
         total: rows.length,

@@ -31,7 +31,8 @@ export default {
           width: 380,
           type: 'pie',
         },
-        labels: ['Successful', 'Errored', 'Failed', 'Reached Timeout'],
+        labels: ['Successful', 'Errored', 'Failed'],
+        colors: ['#008ffb', '#ff4560', '#feb019'],
         responsive: [{
           breakpoint: 480,
           options: {
@@ -65,15 +66,13 @@ export default {
   const isComplete = parseInt(values[0]);
   const errored = parseInt(values[1]);
   const failed = parseInt(values[2]);
-  const reachedTimeout = parseInt(values[3]);
 
   this.series = [
-    isComplete - (errored + failed + reachedTimeout),
+    isComplete - (errored + failed ),
     errored,
     failed,
-    reachedTimeout,
+
   ];
-  this.chartOptions.colors = ['#34C759', '#FF69B4', '#FFC107', '#8B9467'];
 }
 };
 </script>

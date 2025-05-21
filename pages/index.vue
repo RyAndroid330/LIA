@@ -91,16 +91,24 @@ const fetchServerStats = async () => {
 };
 
 // Create an aggregated server object for displaying in ServerStats
+// const aggregatedServer = computed(() => ({
+//   cpu: totalCpuUsage.value / serverCount.value || 0,
+//   gpu: totalGpuUsage.value / serverCount.value || 0,
+//   ram: totalMemoryUsage.value / serverCount.value || 0,
+// }));
+
+//Temp Random Value generator use above code when server is ready
 const aggregatedServer = computed(() => ({
-  cpu: totalCpuUsage.value / serverCount.value || 0,
-  gpu: totalGpuUsage.value / serverCount.value || 0,
-  ram: totalMemoryUsage.value / serverCount.value || 0,
+  cpu: Math.random()*100 / 100,
+  gpu:  Math.random()*100 / 100,
+  ram:  Math.random()*102400,
 }));
 
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('');
   fetchServerStats();
+  appStore.setLoggedIn(true);
 });
 </script>
 

@@ -2,7 +2,7 @@
   <NuxtLayout name="dashboard-layout">
    <NuxtLayout name="dashboard-main-layout">
      <template #title>
-       Terms
+       Terminology
    </template>
    <div class="flex">
 

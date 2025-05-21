@@ -10,7 +10,7 @@
         style="max-height: 45dvh; width: 100%;"
         :title="title"
         :columns="formattedColumns"
-        :rows="rows"
+        :rows="filteredRows"
         :row-key="rowKey"
         flat
        virtual-scroll
@@ -197,6 +197,31 @@ const props = defineProps({
 
 const filter = ref(props.externalFilter);
 
+// Fuzzy match helper for partial matches
+function fuzzyMatch(str: string, pattern: string) {
+  str = str.toLowerCase();
+  pattern = pattern.toLowerCase();
+  let patternIdx = 0;
+  let strIdx = 0;
+  while (patternIdx < pattern.length && strIdx < str.length) {
+    if (str[strIdx] === pattern[patternIdx]) {
+      patternIdx++;
+    }
+    strIdx++;
+  }
+  return patternIdx === pattern.length;
+}
+
+const filteredRows = computed(() => {
+  if (!filter.value) return props.rows;
+  return props.rows.filter(row =>
+    typeof row === 'object' && row !== null &&
+    Object.values(row as Record<string, unknown>).some(val =>
+      val && fuzzyMatch(val.toString(), filter.value)
+    )
+  );
+});
+
 // Define the pagination object
 const pagination = ref({
   page: 1,
@@ -212,6 +237,9 @@ function inspectRowInNewTab(item: any) {
 const navigateToItem = (route: string) => {
   router.push(route);
 };
+
+defineExpose({ inspectRow, inspectRowInNewTab, navigateToItem, filteredRows });
+
 const computedFilter = computed(() => filter.value || props.externalFilter);
 
 const formattedColumns = computed(() => {
@@ -280,7 +308,7 @@ watch(() => props.rows, (newRows) => {
 
 .my-sticky-last-column-table thead tr:last-child th:last-child,
 .my-sticky-last-column-table td:last-child {
-  background-color: #404142;
+  background-color: #90929494;
 }
 
 .my-sticky-last-column-table th:last-child,
@@ -289,6 +317,6 @@ watch(() => props.rows, (newRows) => {
   position: sticky;
   right: 0;
   z-index: 1;
-  background-color: #404142;
+  background-color: #90929494;
 }
 </style>

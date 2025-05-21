@@ -1,9 +1,12 @@
 <template>
   <NuxtLayout name="dashboard-layout">
-   <NuxtLayout name="dashboard-main-layout">
-     <template #title>
-       Guide
-   </template>
+    <NuxtLayout name="dashboard-main-layout">
+      <div class="chapter-content">
+        <div class="chapter-nav">
+          <NuxtLink v-if="false" to="/help/processingGraph/chapter1">Previous</NuxtLink>
+          <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+        </div>
+
 <h1>Chapter 1 – Hello Graph!</h1>
 <p><strong>Goal</strong>: Get your first processing graph running in under 5 minutes, understand tasks and context flow, and see the graph in action.</p>
 <hr>
@@ -72,6 +75,49 @@ ProcessingGraph.createRoutine([greet], 'SimpleGreeting', 'Says hello and prints 
 </ul>
 <p>and build a much richer, parallel graph.</p>
 <hr>
-   </NuxtLayout>
- </NuxtLayout>
+        <div class="chapter-nav">
+          <NuxtLink v-if="false" to="/help/processingGraph/chapter1">Previous</NuxtLink>
+          <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+        </div>
+      </div>
+    </NuxtLayout>
+  </NuxtLayout>
 </template>
+
+<script setup lang="ts">
+// ...existing code...
+</script>
+
+<style>
+.chapter-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.chapter-content pre {
+  background: #222;
+  color: #fff;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.chapter-content code {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 0.98em;
+}
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+}
+.chapter-nav a {
+  color: #42b983;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1.1em;
+}
+.chapter-nav a:hover {
+  color: #2c3e50;
+}
+</style>

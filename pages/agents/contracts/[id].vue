@@ -25,7 +25,7 @@
 
         <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
           <div v-show="selectedOption === 'routineMap'">
-            <RoutineMap :routineMap="routineMap" @node-selected="onTaskSelected" />
+            <contractMap :routineMap="routineMap" @node-selected="onTaskSelected" />
           </div>
         </transition>
         <transition name="fade" mode="out-in" :duration="{ enter: 500, leave: 300 }">
@@ -47,6 +47,24 @@
   row-key="uuid"
   @inspect-row="inspectRoutine"
 />
+      </div>
+      <div>
+        <InfoCard>
+          <template #title>Input Context</template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ routineMap?.inputContext }}</pre>
+            </div>
+          </template>
+        </InfoCard>
+        <InfoCard>
+          <template #title>Output Context</template>
+          <template #info>
+            <div class="q-mx-md q-my-sm">
+              <pre>{{ routineMap?.outputContext }}</pre>
+            </div>
+          </template>
+        </InfoCard>
       </div>
       <!-- <ContractHeatMap :contractId="String(route.params.id)"/> -->
     </div>
@@ -214,6 +232,7 @@ onMounted(async () => {
         errored: r.errored,
         contextId: r.context_id,
         inputContext: r.input_context,
+        outputContext: r.output_context,
       };
     } );
     routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
@@ -222,6 +241,9 @@ onMounted(async () => {
         layer_index: r.layer_index || 0,
         errored: r.status === 'Errored',
         previousTaskExecutionId: r.previousRoutineExecution, // beacues the component is built for the active routine page it is looking fo the TaskExecutionId
+        inputContext: r.input_context,
+        outputContext: r.output_context,
+        description: r.routineDescription,
     };
   });
   console.log(routineMap.value);

@@ -14,7 +14,7 @@
         />
         <div v-if="appStore.isLoggedIn" class="flex items-center">
           <q-btn flat to='/' @click="setSection('home')"> Home </q-btn>
-          <q-btn flat to='/contracts' @click="() => setSection('contracts')"> Contracts </q-btn>
+          <q-btn flat to='/agents' @click="() => setSection('agents')"> Agents </q-btn>
           <q-btn flat to='/assets' @click="() => setSection('assets')"> Assets </q-btn>
           <q-btn flat to='/activity' @click="() => setSection('serverActivity')"> Server Activity </q-btn>
         </div>
@@ -44,7 +44,7 @@
             dense
             square
             unelevated
-            color="grey-6"
+            color="grey-9"
             :icon="miniState ? 'chevron_right' : 'chevron_left'"
             @click="toggleDrawer"
           />
@@ -52,10 +52,10 @@
 
     <q-expansion-item
         expand-separator
-        label='Contracts'
+        label='Agents'
         header-class='text-secondary'
         v-model='showContracts'
-        to='/contracts'
+        to='/agents'
         hide-expand-icon
 
         expanded
@@ -64,10 +64,10 @@
           <q-btn
             flat
             color='secondary'
-            to='/contracts/agents'
+            to='/agents/contracts'
             @click="() => setSection('contracts', true)"
           >
-            Agents
+            Contracts
           </q-btn>
         </q-item>
       </q-expansion-item>
@@ -139,17 +139,17 @@
         v-model='showHelp'
         to='/help'
         hide-expand-icon
-
         @click="() => setSection('help', true)"
       >
         <q-item>
           <q-btn
             flat
             color='grey-8'
-            to='/help/guide'
+            to='/help/processingGraph'
             @click="() => setSection('help', true)"
-            >
-            Guide
+            class="left-no-wrap-btn"
+          >
+            Processing Graph
           </q-btn>
         </q-item>
         <q-item>
@@ -159,7 +159,7 @@
             to='/help/terms'
             @click="() => setSection('help', true)"
           >
-            Terms
+            UI
           </q-btn>
         </q-item>
           <q-item>
@@ -315,5 +315,14 @@ onBeforeUnmount(() => {
 .window-height {
   min-height: 100vh;
   position: relative;
+}
+
+.left-no-wrap-btn {
+  white-space: nowrap;
+  justify-content: flex-start !important;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
 }
 </style>

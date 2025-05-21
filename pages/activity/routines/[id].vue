@@ -92,7 +92,7 @@
             <div v-if="selectedItem?.previousRoutineExecution" class="q-mx-md q-my-sm " @click="navigateToItem( `/activity/routines/${ selectedItem?.previousRoutineExecution }` )">
               Previous routine:<span class="text-warning cursor-pointer"> {{ selectedItem?.previousRoutineName }}</span>
             </div>
-            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/contracts/${ selectedItem?.contract_id }` )">
+            <div class="q-mx-md q-my-sm" @click="navigateToItem( `/agents/contracts/${ selectedItem?.contract_id }` )">
               <span class="text-secondary cursor-pointer">Contract</span>
             </div>
           </div>

@@ -240,9 +240,11 @@ onMounted(() => {
   fetchRoutinesUsingTask(itemId);
 });
 
-async function fetchActiveTasks(itemId: string) {
-  console.log('Fetching active tasks for itemId:', itemId);
-  const response = await fetch(`/api/activeTasks${itemId ? `?id=${itemId}` : ''}`, { method: 'GET' });
+const taskId = route.params.id;
+
+async function fetchActiveTasks(taskId: string) {
+  console.log('Fetching active tasks for itemId:', taskId);
+  const response = await fetch(`/api/activeTasks${taskId ? `?id=${taskId}` : ''}`, { method: 'GET' });
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -258,12 +260,23 @@ async function fetchActiveTasks(itemId: string) {
 
   console.log('Response data:', data);
 
-  if (!data.tasks) {
-    console.error('API response does not contain tasks:', data);
-    data.tasks = Array.isArray(data) ? data : [data];
+  let taskArray = [];
+  if (Array.isArray(data)) {
+    taskArray = data;
+  } else if (data && Array.isArray(data.tasks)) {
+    taskArray = data.tasks;
+  } else if (data && data.tasks) {
+    taskArray = [data.tasks];
+  } else if (data) {
+    taskArray = [data];
   }
 
-  tasks.value = data.tasks.map((r: any) => {
+  console.log('taskArray:', taskArray);
+  if (taskArray.length > 0) {
+    console.log('First task object:', taskArray[0]);
+  }
+
+  tasks.value = taskArray.map((r: any) => {
     return {
       uuid: r.id,
       name: r.name,
@@ -272,7 +285,9 @@ async function fetchActiveTasks(itemId: string) {
     };
   });
 
-  lastPage.value = data.lastPage;
+  console.log('tasks.value:', tasks.value);
+
+  lastPage.value = data.lastPage || 1;
 }
 
 async function fetchRoutinesUsingTask(taskId: string) {

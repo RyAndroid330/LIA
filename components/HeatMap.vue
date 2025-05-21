@@ -98,7 +98,7 @@ export default defineComponent({
             return errors > 0 ? '!' : '';
           },
           style: {
-            colors: ['#000']
+            colors: ['red']
           }
         },
         stroke: {
@@ -111,7 +111,7 @@ export default defineComponent({
             const customElement = document.createElement('div');
             customElement.style.padding = '10px';
             if (String(this.selectedDataType) === 'executions') {
-              customElement.innerHTML = `Executions: ${dataPoint}<br>`;
+              customElement.innerHTML = `<span style="color: black;">Executions: ${dataPoint}</span><br>`;
             }
             if (errors > 0) {
               customElement.innerHTML += `<span style="color: red;">Errors: ${errors}</span>`;

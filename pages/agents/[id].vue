@@ -2,16 +2,14 @@
   <NuxtLayout name="dashboard-layout">
     <NuxtLayout name="dashboard-main-layout">
     <template #title>
-      Agents
+      {{ agentName }} Contracts
     </template>
     <div class="row q-mx-md">
       <Table
           :columns="columns"
-          :rows="agents"
+          :rows="contracts"
           row-key="uuid"
-          @inspect-row="inspectAgents"
-          @inspect-row-in-new-tab="inspectInNewTab"
-          :hideGenerateContractButton="true"
+          @inspect-row="inspectContracts"
       />
     </div>
   </NuxtLayout>
@@ -20,10 +18,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useFetch } from '#app';
+import { useFetch, useRoute } from '#app';
 import { useRouter } from '#vue-router';
 
-interface agents {
+interface contracts {
   type: string;
   label: string;
   description: string;
@@ -34,9 +32,8 @@ interface agents {
 }
 
 const layout = 'dashboard-layout';
-const selectedAgent = ref<agents[] | undefined>(undefined);
-watch( selectedAgent, newValue => {
-  console.log( newValue );
+const selectedContract = ref<contracts[] | undefined>(undefined);
+watch( selectedContract, newValue => {
 } );
 
 const columns = [
@@ -47,11 +44,27 @@ const columns = [
     required: true,
     sortable: true,
   },
+  {
+    name: 'agent_name',
+    label: 'Agent',
+    field: 'agent_name',
+    required: true,
+    sortable: false,
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    field: 'status',
+    required: true,
+    sortable: true,
+  }
 ];
 
-const agents = ref( [] );
+const contracts = ref( [] );
+const agentName = ref('');
 
 const router = useRouter();
+const route = useRoute();
 
 function formatDate( date: string ) {
   const datetime = new Date( date );
@@ -70,33 +83,41 @@ function getDuration( start: number, end?: number ) {
   return duration / 1000;
 }
 
-function inspectAgents( agents:agents ) {
-  navigateToItem( `/contracts/agents/${ agents.uuid }` );
+function inspectContracts( contracts:contracts ) {
+  navigateToItem( `/agents/contracts/${ contracts.uuid }` );
 }
 
-function inspectInNewTab( agents:agents ) {
-  const url = `/contracts/agents/${ agents.uuid }`;
-  window.open(url, '_blank');
-}
 const navigateToItem = ( route: string ) => {
+  console.log('Navigating to route:', route);
   router.push(route);
 };
 
 // Fetch server stats and set the current section on component mount
 onMounted(async () => {
   const appStore = useAppStore();
-  appStore.setCurrentSection('contracts');
-  const response = await fetch('/api/agents');
+  appStore.setCurrentSection('something');
+
+  // Fetch agent name
+  const agentResponse = await fetch(`/api/agents`);
+  if (!agentResponse.ok) throw new Error('Network response was not ok');
+  const agentsData = await agentResponse.json();
+  const agent = agentsData.find((a: any) => a.uuid === route.params.id);
+  agentName.value = agent ? agent.name : 'Unknown Agent';
+
+  // Fetch contracts
+  const response = await fetch(`/api/agent/${route.params.id}`);
   if (!response.ok) throw new Error('Network response was not ok');
   const data = await response.json();
-  agents.value = data.map( (r: any) => {
+  contracts.value = data.map((r: any) => {
     return {
       uuid: r.uuid,
-      name: r.name,
+      name: r.product,
       agent_id: r.agent_id,
+      agent_name: r.agent_name,
       label: r.label,
       description: r.description,
+      status: r.fulfilled ? 'check' : r.isRunning ? 'play_arrow' : 'schedule', // Map to icons
     };
-  } );
+  });
 });
 </script>
