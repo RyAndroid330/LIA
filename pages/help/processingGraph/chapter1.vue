@@ -3,8 +3,12 @@
     <NuxtLayout name="dashboard-main-layout">
       <div class="chapter-content">
         <div class="chapter-nav">
-          <NuxtLink v-if="false" to="/help/processingGraph/chapter1">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink v-if="false" to="/help/processingGraph/chapter0">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+          </span>
         </div>
 
 <h1>Chapter 1 – Hello Graph!</h1>
@@ -76,8 +80,12 @@ ProcessingGraph.createRoutine([greet], 'SimpleGreeting', 'Says hello and prints 
 <p>and build a much richer, parallel graph.</p>
 <hr>
         <div class="chapter-nav">
-          <NuxtLink v-if="false" to="/help/processingGraph/chapter1">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink v-if="false" to="/help/processingGraph/chapter0">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter2">Next</NuxtLink>
+          </span>
         </div>
       </div>
     </NuxtLayout>
@@ -110,6 +118,16 @@ ProcessingGraph.createRoutine([greet], 'SimpleGreeting', 'Says hello and prints 
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
+}
+.chapter-nav-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+.chapter-nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 .chapter-nav a {
   color: #42b983;

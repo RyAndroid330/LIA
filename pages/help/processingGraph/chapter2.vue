@@ -3,8 +3,12 @@
     <NuxtLayout name="dashboard-main-layout">
       <div class="chapter-content">
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter1">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter3">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter1">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter3">Next</NuxtLink>
+          </span>
         </div>
         <h1>Chapter 2 – Branch Out</h1>
         <p><strong>Goal</strong>: Learn how to build a true graph structure with parallel branches, joins, async tasks, and forked executions using yielded contexts.</p>
@@ -84,8 +88,12 @@ runner.run(fetchUser, {
         <h2>Up Next: Chapter 3 – Distributed Without Tears</h2>
         <p>We’ll connect multiple services and delegate work between them using <code>DeputyTask</code>.</p>
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter1">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter3">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter1">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter3">Next</NuxtLink>
+          </span>
         </div>
       </div>
     </NuxtLayout>
@@ -118,6 +126,16 @@ runner.run(fetchUser, {
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
+}
+.chapter-nav-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+.chapter-nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 .chapter-nav a {
   color: #42b983;

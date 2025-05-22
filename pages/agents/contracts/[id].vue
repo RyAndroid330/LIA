@@ -40,32 +40,66 @@
           </div>
         </transition>
       </div>
-      <div class="row q-mx-md">
-<Table
-  :columns="columns"
-  :rows="routines"
-  row-key="uuid"
-  @inspect-row="inspectRoutine"
-/>
-      </div>
+    </div>
       <div>
-        <InfoCard>
-          <template #title>Input Context</template>
+        <div>
+          <div class="justify-around flex w-full gap-4">
+          <InfoCard>
+            <template #title>
+              {{ contractContext?.product || 'Contract Info' }}
+          </template>
           <template #info>
-            <div class="q-mx-md q-my-sm">
-              <pre>{{ routineMap?.inputContext }}</pre>
+            <div class="flex-column full-width">
+              <div class="q-mx-md q-my-sm">
+                Agent: {{ contractContext?.agent_name }}
+              </div>
+              <div class="q-mx-md q-my-sm">
+                Issued at: {{ contractContext?.issued_at ? formatDate(contractContext.issued_at) : '' }}
+              </div>
+              <div class="q-mx-md q-my-sm">
+                Fulfilled: <span :class="contractContext?.fulfilled ? 'text-positive' : 'text-negative'">
+                  {{ contractContext?.fulfilled ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="q-mx-md q-my-sm">
+                Fulfilled at: {{ contractContext?.fulfilled_at ? formatDate(contractContext.fulfilled_at) : '' }}
+              </div>
+              <div class="q-mx-md q-my-sm">
+                Description: {{ contractContext?.description }}
+              </div>
+              <div class="q-mx-md q-my-sm">
+                Contract UUID: {{ contractContext?.uuid }}
+              </div>
             </div>
           </template>
         </InfoCard>
-        <InfoCard>
-          <template #title>Output Context</template>
-          <template #info>
-            <div class="q-mx-md q-my-sm">
-              <pre>{{ routineMap?.outputContext }}</pre>
-            </div>
-          </template>
-        </InfoCard>
+        <div>
+          <InfoCard>
+            <template #title>Input Context</template>
+            <template #info>
+              <div class="q-mx-md q-my-sm">
+                <pre>{{ contractContext?.input_context }}</pre>
+              </div>
+            </template>
+          </InfoCard>
+          <InfoCard>
+            <template #title>Output Context</template>
+            <template #info>
+              <div class="q-mx-md q-my-sm">
+                <pre>{{ contractContext?.output_context }}</pre>
+              </div>
+            </template>
+          </InfoCard>
+        </div>
       </div>
+    </div>
+      <Table
+        :columns="columns"
+        :rows="routines"
+        row-key="uuid"
+        :lastPage="lastPage"
+        @inspect-row="inspectRoutine"
+      />
       <!-- <ContractHeatMap :contractId="String(route.params.id)"/> -->
     </div>
     <q-dialog v-model="showGenerateDialog">
@@ -91,22 +125,31 @@ import { useRouter } from '#vue-router';
 import ContractHeatMap from '~/components/ContractHeatMap.vue';
 import ApexTimeline from '~/components/ApexTimeline.vue';
 
-
-interface Routine {
-  type: string;
-  label: string;
-  description: string;
-  id: any;
-  executionId: any;
-  progress: any;
-  uuid: string;
-  contract_id: string;
+function formatDate(date: string) {
+  const datetime = new Date(date);
+  return `${datetime.toDateString()} ${datetime.toLocaleTimeString()}`;
 }
 
-const layout = 'dashboard-layout';
-const selectedRoutine = ref<Routine[] | undefined>(undefined);
-watch( selectedRoutine, newValue => {
-} );
+function getDuration(start: number, end?: number) {
+  const startTime = new Date(start);
+  let endTime;
+  if (!end) {
+    endTime = new Date(Date.now());
+  } else {
+    endTime = new Date(end);
+  }
+  const duration = +endTime - +startTime;
+  return duration / 1000;
+}
+
+const showGenerateDialog = ref(false);
+const contractContext = ref<any>(null);
+const routines = ref<any[]>([]);
+const router = useRouter();
+const route = useRoute();
+const selectedOption = ref('routineMap');
+const routineMap = ref([]);
+const lastPage = ref(1);
 
 const columns = [
   {
@@ -160,53 +203,19 @@ const columns = [
   },
 ];
 
-const routines = ref<Routine[]>([]);
-const router = useRouter();
-const route = useRoute();
-const selectedOption = ref('routineMap');
-const routineMap = ref([]);
-
-function formatDate( date: string ) {
-  const datetime = new Date( date );
-  return `${ datetime.toDateString() } ${ datetime.toLocaleTimeString() }`;
+function inspectRoutine(routine: any) {
+  router.push(`/activity/routines/${routine.uuid}`);
 }
-
-function getDuration( start: number, end?: number ) {
-  const startTime = new Date( start );
-  let endTime;
-  if ( !end ) {
-    endTime = new Date( Date.now() );
-  } else {
-    endTime = new Date( end );
-  }
-  const duration = +endTime - +startTime;
-  return duration / 1000;
-}
-
-function inspectRoutine( routine: Routine ) {
-  navigateToItem( `/activity/routines/${ routine.uuid }` );
-}
-
-const navigateToItem = ( route: string ) => {
-  router.push(route);
-};
 
 function onTaskSelected(task: any) {
   // Handle task selection
-}
-
-const showStopDialog = ref(false);
-const showGenerateDialog = ref(false);
-function confirmStop() {
-  showStopDialog.value = false;
-  // Add logic to handle stopping the process
 }
 
 function confirmGenerate() {
   showGenerateDialog.value = false;
   // Add logic to handle generating the contract
 }
-// Fetch server stats and set the current section on component mount
+
 onMounted(async () => {
   const appStore = useAppStore();
   appStore.setCurrentSection('contracts');
@@ -223,30 +232,36 @@ onMounted(async () => {
         description: r.routineDescription,
         status: r.isComplete ? 'check' : r.isRunning ? 'play_arrow' : 'schedule',
         progress: r.progress,
-        started: formatDate( r.started ),
-        ended: formatDate( r.ended ),
+        started: formatDate(r.started),
+        ended: formatDate(r.ended),
         scheduled: r.created,
         layer_index: r.layer_index || 0,
-        duration: getDuration( r.started, r.ended ),
+        duration: getDuration(r.started, r.ended),
         contract_id: r.contract_id,
         errored: r.errored,
         contextId: r.context_id,
         inputContext: r.input_context,
         outputContext: r.output_context,
       };
-    } );
-    routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
-      return {
-        ...r,
-        layer_index: r.layer_index || 0,
-        errored: r.status === 'Errored',
-        previousTaskExecutionId: r.previousRoutineExecution, // beacues the component is built for the active routine page it is looking fo the TaskExecutionId
-        inputContext: r.input_context,
-        outputContext: r.output_context,
-        description: r.routineDescription,
+    });
+  routineMap.value = data.filter((r: any) => r.contract_id === contractId).map((r: any) => {
+    return {
+      ...r,
+      layer_index: r.layer_index || 0,
+      errored: r.status === 'Errored',
+      previousTaskExecutionId: r.previousRoutineExecution,
+      inputContext: r.input_context,
+      outputContext: r.output_context,
+      description: r.routineDescription,
     };
   });
-  console.log(routineMap.value);
+  // Fetch contract context from /api/contracts?uuid=...
+  const contractRes = await fetch(`/api/contracts?uuid=${contractId}`);
+  if (contractRes.ok) {
+    const contractData = await contractRes.json();
+    contractContext.value = contractData.contracts?.[0] || null;
+    lastPage.value = contractData.lastPage || 1;
+  }
 });
 </script>
 

@@ -3,8 +3,12 @@
     <NuxtLayout name="dashboard-main-layout">
       <div class="chapter-content">
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter2">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter4">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter2">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter4">Next</NuxtLink>
+          </span>
         </div>
         <h1>Chapter 3 – Distributed Without Tears</h1>
         <p><strong>Goal</strong>: Run two independent services on separate ports, each with its own graph, and demonstrate how to delegate execution across services using <code>DeputyTask</code>. Trigger the flow using an <code>Agent</code>.</p>
@@ -103,8 +107,12 @@ console.log('Execution result:', result);
         <h2>What’s Next?</h2>
         <p>In Chapter 4, we’ll explore error handling, failure reporting, and recovery flows.</p>
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter2">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter4">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter2">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter4">Next</NuxtLink>
+          </span>
         </div>
       </div>
     </NuxtLayout>
@@ -137,6 +145,16 @@ console.log('Execution result:', result);
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
+}
+.chapter-nav-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+.chapter-nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 .chapter-nav a {
   color: #42b983;

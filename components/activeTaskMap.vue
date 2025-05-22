@@ -49,7 +49,7 @@ const props = defineProps<{
 // Dagre Layout Function
 function layoutGraph(nodes: Node[], edges: Edge[]) {
   const g = new dagre.graphlib.Graph()
-  g.setGraph({ rankdir: 'LR', ranksep: 100, nodesep: 20 })
+  g.setGraph({ rankdir: 'LR', ranksep: 100, nodesep: 40 })
   g.setDefaultEdgeLabel(() => ({}))
 
   nodes.forEach((node) => {

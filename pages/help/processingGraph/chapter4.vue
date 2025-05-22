@@ -3,8 +3,12 @@
     <NuxtLayout name="dashboard-main-layout">
       <div class="chapter-content">
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter3">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter5">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter3">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter5">Next</NuxtLink>
+          </span>
         </div>
         <h1>Chapter 4 – Break Stuff Gracefully</h1>
         <p><strong>Goal</strong>: Learn how the framework handles errors by default, how to define error flows using <code>.doOnFail()</code>, and how to prepare for more advanced fault tolerance patterns.</p>
@@ -85,8 +89,12 @@ risky.doOnFail(fallback);</code></pre>
         <h2>Next: Chapter 5 – Real-World Flow</h2>
         <p>Let’s combine what you’ve learned into a practical, multi-branch, distributed graph — with remote routines, page-level forks, and error-aware joins.</p>
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter3">Previous</NuxtLink>
-          <NuxtLink to="/help/processingGraph/chapter5">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter3">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink to="/help/processingGraph/chapter5">Next</NuxtLink>
+          </span>
         </div>
       </div>
     </NuxtLayout>
@@ -119,6 +127,16 @@ risky.doOnFail(fallback);</code></pre>
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
+}
+.chapter-nav-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+.chapter-nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 .chapter-nav a {
   color: #42b983;

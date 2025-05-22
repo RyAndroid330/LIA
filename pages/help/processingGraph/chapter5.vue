@@ -3,8 +3,12 @@
     <NuxtLayout name="dashboard-main-layout">
       <div class="chapter-content">
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter4">Previous</NuxtLink>
-          <NuxtLink v-if="false" to="/help/processingGraph/chapter6">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter4">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink v-if="false" to="/help/processingGraph/chapter6">Next</NuxtLink>
+          </span>
         </div>
         <h1>Chapter 5 – Real-World Flow</h1>
         <p><strong>Goal</strong>: Combine everything you’ve learned into a practical, distributed, fault-tolerant flow. In this example, we'll process a document through multiple stages including async validation, remote analysis, per-page review, and robust finalization.</p>
@@ -132,8 +136,12 @@ console.log('Review result:', result);
         <h2>What’s Next?</h2>
         <p>In Chapter 6, we’ll explore how to use the UI dashboard to monitor this execution, inspect results, and retry or debug failed flows.</p>
         <div class="chapter-nav">
-          <NuxtLink to="/help/processingGraph/chapter4">Previous</NuxtLink>
-          <NuxtLink v-if="false" to="/help/processingGraph/chapter6">Next</NuxtLink>
+          <span class="chapter-nav-left">
+            <NuxtLink to="/help/processingGraph/chapter4">Previous</NuxtLink>
+          </span>
+          <span class="chapter-nav-right">
+            <NuxtLink v-if="false" to="/help/processingGraph/chapter6">Next</NuxtLink>
+          </span>
         </div>
       </div>
     </NuxtLayout>
@@ -166,6 +174,16 @@ console.log('Review result:', result);
   justify-content: space-between;
   margin-bottom: 1.5rem;
   margin-top: 1.5rem;
+}
+.chapter-nav-left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+.chapter-nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 .chapter-nav a {
   color: #42b983;

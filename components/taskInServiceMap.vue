@@ -45,7 +45,7 @@ function layoutGraph(nodes: Node[], edges: Edge[]) {
   g.setGraph({
     rankdir: 'LR',
     ranksep: 75,
-    nodesep: 20,
+    nodesep: 40,
     edgesep: 10,
     align: 'DL',
   });
