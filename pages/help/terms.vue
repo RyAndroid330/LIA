@@ -67,3 +67,26 @@
    </NuxtLayout>
  </NuxtLayout>
 </template>
+
+<script>
+import { ref, onMounted, watch } from 'vue';
+import { useAppStore } from '~/stores/app';
+import { useRoute } from '#app';
+
+const route = useRoute();
+
+onMounted(() => {
+  const appStore = useAppStore();
+  appStore.setCurrentSection('help');
+});
+
+watch(
+  () => route.fullPath,
+  (newPath) => {
+    if (newPath === '/help/terms') {
+      const appStore = useAppStore();
+      appStore.setCurrentSection('help');
+    }
+  }
+);
+</script>

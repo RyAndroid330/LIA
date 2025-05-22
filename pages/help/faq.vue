@@ -21,7 +21,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useAppStore } from '~/stores/app'
+import { useRoute } from '#app'
+
+const route = useRoute()
 
 const faqs = [
   {
@@ -71,6 +75,21 @@ const openIndex = ref(null)
 function toggle(idx) {
   openIndex.value = openIndex.value === idx ? null : idx
 }
+
+onMounted(() => {
+  const appStore = useAppStore()
+  appStore.setCurrentSection('help')
+})
+
+watch(
+  () => route.fullPath,
+  (newPath) => {
+    if (newPath === '/help/faq') {
+      const appStore = useAppStore()
+      appStore.setCurrentSection('help')
+    }
+  }
+)
 </script>
 
 <style scoped>
