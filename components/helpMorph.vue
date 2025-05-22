@@ -9,7 +9,6 @@
       color="grey-8"
       text-color="white"
       @click="nextMorph"
-      style="z-index: 10000; position: fixed"
     />
 
     <q-card

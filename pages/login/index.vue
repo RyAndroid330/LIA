@@ -61,7 +61,6 @@ const signupPassword = ref('');
 const showSignUpDialog = ref(false);
 
 async function handleSignUp() {
-  console.log('SignUp: Initiating sign-up process');
   try {
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
@@ -73,18 +72,13 @@ async function handleSignUp() {
       }),
     });
 
-    console.log('SignUp: Response from sign-up endpoint', response);
-
     const result = await response.json();
     if (result.success) {
-      console.log('SignUp: Sign-up successful', result.message);
-      window.location.href = '/login'; // Updated redirect to /login
+      window.location.href = '/login';
     } else {
-      console.error('SignUp: Sign-up failed', result.message);
-      alert(result.message); // Display error message to the user
+      alert(result.message);
     }
   } catch (error) {
-    console.error('SignUp: Error during sign-up:', error);
     alert('An unexpected error occurred during sign-up. Please try again.');
   }
 }
