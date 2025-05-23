@@ -4,7 +4,7 @@
       <h1>Welcome to the Dashboard</h1>
     </div>
     <GoogleLogin/>
-    <form @submit.prevent="signIn('credentials', { username: signinUsername, password: signinPassword, callbackUrl: '/' })" class="signup-form q-ma-sm flex-col justify-center items-center">
+    <form @submit.prevent="handleLogin" class="signup-form q-ma-sm flex-col justify-center items-center">
       <q-input
         v-model="signinUsername"
         label="Username"
@@ -41,8 +41,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { useAppStore } from "~/stores/app.js";
 const $q = useQuasar();
 const { signIn } = useAuth();
 
@@ -60,6 +61,12 @@ const signupPassword = ref('');
 
 const showSignUpDialog = ref(false);
 
+onMounted(() => {
+  const appStore = useAppStore();
+  appStore.setCurrentSection('');
+  appStore.setLoggedIn(false);
+});
+
 async function handleSignUp() {
   try {
     const response = await fetch('/api/auth/signup', {
@@ -72,6 +79,7 @@ async function handleSignUp() {
       }),
     });
 
+
     const result = await response.json();
     if (result.success) {
       window.location.href = '/login';
@@ -81,6 +89,10 @@ async function handleSignUp() {
   } catch (error) {
     alert('An unexpected error occurred during sign-up. Please try again.');
   }
+}
+
+function handleLogin() {
+  signIn('Credentials', { username: signinUsername, password: signinPassword, callbackUrl: '/' })
 }
 </script>
 

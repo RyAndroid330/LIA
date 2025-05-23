@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
     // Insert user into the AuthDB
     const query =
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)';
+      'INSERT INTO auth.users (username, email, password_hash) VALUES ($1, $2, $3)';
     const values = [username, email, hashedPassword];
 
     await authDbClient.query(query, values);

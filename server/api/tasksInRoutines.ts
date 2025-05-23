@@ -20,6 +20,7 @@ async function getRoutineMap(routineId: string) {
         te.created AS scheduled,
         te.started,
         te.ended,
+        te.split_group,
         tem.previous_task_execution_id,
         t.name,
         t.description,

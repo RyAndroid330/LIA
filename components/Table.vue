@@ -13,12 +13,8 @@
         :rows="filteredRows"
         :row-key="rowKey"
         flat
-       virtual-scroll
-      :virtual-scroll-item-size="53"
-      :virtual-scroll-sticky-size-start="53"
-      :pagination="pagination"
-      :rows-per-page-options="[0]"
-      @virtual-scroll="onScroll"
+        :pagination="pagination"
+        :rows-per-page-options="[0]"
       >
         <template v-slot:top-right>
           <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">

@@ -26,7 +26,7 @@
       </q-toolbar>
     </q-header>
     <q-drawer
-    v-if="appStore.isLoggedIn"
+      v-if="appStore.isLoggedIn"
       class='q-pa-lg'
       :width="220"
       v-model='drawerOpen'

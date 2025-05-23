@@ -9,7 +9,7 @@ export async function initializeClient() {
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: parseInt(process.env.DB_PORT, 10)
+    port: parseInt(process.env.DB_PORT || '5432', 10)
   });
 
   try {
@@ -20,4 +20,8 @@ export async function initializeClient() {
     console.error('Error connecting to the database:', error);
     throw error;
   }
+}
+
+export async function sleep( number: number ) {
+  await new Promise((resolve) => setTimeout(resolve, number));
 }

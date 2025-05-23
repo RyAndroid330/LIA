@@ -107,6 +107,7 @@ const aggregatedServer = computed(() => ({
 onMounted(() => {
   const appStore = useAppStore();
   appStore.setCurrentSection('');
+  appStore.setLoggedIn(true);
   fetchServerStats();
   appStore.setLoggedIn(true);
 });

@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   auth: {
     isEnabled: true,
     originEnvKey: 'AUTH_ORIGIN',
-    baseURL: 'http://localhost:5000/api/auth',
+    baseURL: 'http://localhost:4000/api/auth',
     providers: [
       {
         type: 'authjs',
@@ -67,7 +67,7 @@ export default defineNuxtConfig({
     authSecret: process.env.NUXT_AUTH_SECRET || 'default_secret_for_dev',
     public: {
       authOrigin: process.env.AUTH_ORIGIN,
-      apiBase: process.env.API_BASE_URL || 'http://localhost:5000/api'
+      apiBase: process.env.API_BASE_URL || 'http://localhost:4000/api'
     }
   }
 });

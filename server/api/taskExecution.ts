@@ -19,6 +19,7 @@ SELECT
     te.created AS scheduled,
     te.started,
     te.ended,
+    te.split_group,
     prev.previous_task_execution_ids,
     prev.previous_task_names,
     nxt.next_task_execution_ids,

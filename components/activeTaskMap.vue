@@ -4,13 +4,16 @@
       ref="vueFlowInstance"
       :nodes="nodes"
       :edges="edges"
-      :node-types="{ custom: CustomNode }"
       @node-click="onNodeClick"
       :max-zoom="1.5"
       fit-view-on-init
       contenteditable="false"
       :nodes-draggable="false"
-    />
+    >
+      <template #node-custom="props">
+        <CustomNode :data="props.data" />
+      </template>
+    </VueFlow>
   </div>
 </template>
 
@@ -27,7 +30,7 @@ const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 const allNodes = ref<Node[]>([])
 const allEdges = ref<Edge[]>([])
-const vueFlowInstance = ref<VueFlowInstance | null>(null)
+const vueFlowInstance = shallowRef<VueFlowInstance | null>(null)
 
 const emit = defineEmits<{
   (e: 'nodeSelected', task: string): void;
@@ -36,7 +39,9 @@ const emit = defineEmits<{
 interface Task {
   uuid: string;
   previousTaskExecutionId?: string;
+  routineExecutionId?: string;
   errored?: boolean;
+  failed?: boolean;
   description?: string;
   is_unique?: boolean;
   concurrency?: number;
@@ -82,25 +87,28 @@ watch(props, async (newValue) => {
   nodes.value = []
   edges.value = []
 
+  console.log(taskMap)
+
   nodes.value = taskMap.map((task) => ({
-  type: 'custom',
-  id: task.uuid.toString(),
-  position: { x: 0, y: 0 },
-  data: {
-    label: task.label,
-    uuid: task.uuid,
-    description: task.description,
-    is_unique: task.is_unique,
-    concurrency: task.concurrency,
-    errored: task.errored,
-    isSelected: task.uuid === route.params.id, // ✅ mark selected
-    sourcePosition: 'right',
-    targetPosition: 'left',
-  },
-  class: task.errored ? 'custom-node error-node' : 'custom-node',
-}))
-
-
+    type: 'custom',
+    id: task.uuid.toString(),
+    position: { x: 0, y: 0 },
+    data: {
+      label: task.label,
+      uuid: task.uuid,
+      description: task.description,
+      is_unique: task.is_unique,
+      concurrency: task.concurrency,
+      errored: task.errored,
+      failed: task.failed,
+      routineExecutionId: task.routineExecutionId,
+      isSelected: task.uuid === route.params.id, // ✅ mark selected
+      sourcePosition: 'right',
+      targetPosition: 'left',
+      splitGroupId: task.splitGroupId,
+    },
+    class: task.errored ? 'custom-node error-node' : task.failed ? 'custom-node failed-node' : 'custom-node',
+  }))
 
   taskMap.forEach((task) => {
     if (task.previousTaskExecutionId) {
@@ -135,10 +143,8 @@ function onNodeClick({ node }: { event: any, node: Node }) {
   router.push(`/activity/tasks/${node.id}`)
 }
 
-
-
 function fitView() {
-  vueFlowInstance.value?.fitView()
+  vueFlowInstance.value?.fitView();
 }
 </script>
 

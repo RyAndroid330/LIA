@@ -7,6 +7,10 @@ export default NuxtAuthHandler({
   secret: useRuntimeConfig().authSecret,
   providers: [
     CredentialsProvider.default({
+      credentials: {
+        username: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' }
+      },
       name: 'Credentials',
       credentials: {
         username: { label: 'Username', type: 'text' },
@@ -14,6 +18,7 @@ export default NuxtAuthHandler({
       },
       async authorize(credentials: any) {
         try {
+          console.log('Authorizing credentials', credentials, `${process.env.AUTH_ORIGIN}/api/auth/login`);
           const response = await fetch(
             `${process.env.AUTH_ORIGIN}/api/auth/login`,
             {

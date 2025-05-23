@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
       return { success: false, message: 'Missing required fields' };
     }
 
-    const query = 'SELECT * FROM users WHERE username = $1';
+    const query = 'SELECT * FROM auth.users WHERE username = $1';
     const values = [username];
 
     console.log('Login API: Executing query', { query, values });

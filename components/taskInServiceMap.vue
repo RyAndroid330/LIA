@@ -3,12 +3,15 @@
     <VueFlow
       :nodes="nodes"
       :edges="edges"
-      :node-types="{ custom: CustomNode }"
       @node-click="onNodeClick"
       :max-zoom="1.5"
       fit-view-on-init
       :nodes-draggable="false"
-    />
+    >
+      <template #node-custom="props">
+        <CustomNode :data="props.data" />
+      </template>
+    </VueFlow>
     <div v-if="loading" class="loading-overlay">Loading...</div>
   </div>
 </template>

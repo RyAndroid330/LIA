@@ -9,6 +9,8 @@ interface NodeData {
   is_unique: boolean;
   concurrency: number;
   isSelected: boolean;
+  errored: boolean;
+  failed: boolean;
 }
 
 // Define props with type
@@ -17,7 +19,7 @@ defineProps<{ data: NodeData }>();
 
 <template>
   <div
-    :class="['custom-node', data.isSelected ? 'selected-node' : '']"
+    :class="['custom-node', data.isSelected ? 'selected-node' : '', data.errored ? 'errored-node' : '', data.failed ? 'failed-node' : '']"
     role="button"
     tabindex="0"
   >
@@ -38,9 +40,11 @@ defineProps<{ data: NodeData }>();
   color: white;
   border-radius: 4px;
   padding: 5px;
-  width: 100px;
+  width: 90px;
   text-align: center;
   cursor: pointer;
+  font-size: 0.6em;
+  overflow-wrap: break-word;
 }
 
 .custom-node:hover {
@@ -50,5 +54,13 @@ defineProps<{ data: NodeData }>();
 .selected-node {
   background: #f5b041 !important;
   box-shadow: 6px 6px #3332313b !important;
+}
+
+.errored-node {
+  background: #d37b7b !important;
+}
+
+.failed-node {
+  background: #f57741 !important;
 }
 </style>

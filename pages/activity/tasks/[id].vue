@@ -210,7 +210,7 @@ interface Item {
 const taskMap = computedAsync(async () => {
   if (Item.value) {
     const tasks = await $fetch(`/api/tasksInRoutines?routineId=${taskExecution.value.routineExecutionId}`);
-    return tasks?.map((task: any) => {
+    const map = tasks?.map((task: any) => {
       return {
         label: task.name,
         uuid: task.uuid,
@@ -235,11 +235,44 @@ const taskMap = computedAsync(async () => {
         inputContext: task.input_context,
         outputContext: task.output_context,
         layer_index: task.layer_index,
+        routineExecutionId: task.routine_execution_id,
+        splitGroupId: task.split_group,
       };
     }) || [];
+
+    const splitGroupIndices = new Map<string, number>();
+    let index = 0;
+    map?.forEach(node => {
+      if (splitGroupIndices.has(node.splitGroupId)) {
+        node.splitGroupId = splitGroupIndices.get(node.splitGroupId);
+      } else {
+        splitGroupIndices.set(node.splitGroupId, index);
+        node.splitGroupId = index;
+        index++;
+      }
+
+      const taskNameCodeNumber = stringToUnitInterval(node.name);
+      node.splitGroupId += taskNameCodeNumber;
+    });
+
+    return map.sort((a, b) => a.splitGroupId - b.splitGroupId);
   }
   return [];
 }, []);
+
+function fnv1aHash(str: string) {
+  let hash = 0x811c9dc5; // FNV offset basis
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = (hash * 0x01000193) >>> 0; // FNV prime
+  }
+  return hash;
+}
+
+function stringToUnitInterval(str: string) {
+  const hash = fnv1aHash(str);
+  return hash / 0xFFFFFFFF;
+}
 
 function formatDate(date?: string) {
   if (!date) return 'Not finished';
